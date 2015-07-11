@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<meta content="IE=edge,chrome=1" http-equiv="X-UA-Compatible">
+		<meta content="width=device-width,initial-scale=1.0" name="viewport">
+		<meta content="page description" name="CMGTools Select examples">
+		<meta content="page keywords" name="cmgtools, select">
+		<title>CMGTools - Select Demo</title>
+		<link rel="stylesheet" href="../../../styles/cmgtools.css">
+		<link rel="stylesheet" href="../../../iconlib/icons-core.css">
+		<style type="text/css">
+			.container-main {
+				padding: 2em;				
+			}
+
+			.cmg-select-wrap {
+				width: 250px;
+			}
+			
+			.cmg-select, .cmg-selected {
+				border: 1px solid gray;
+			}
+
+			.cmg-select li:hover {
+				background-color: gray;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container-main">
+			<select class="feel-good">
+				<option>Option 1</option>
+				<option>Option 2</option>
+				<option>Option 3</option>
+				<option>Option 4</option>
+				<option>Option 5</option>
+			</select>
+		</div>
+		<script src="../../vendor/jquery-1.11.2.min.js"></script>
+		<script src="../../src/ui-elements/cmg-select.js"></script>
+		<script>
+			jQuery( ".feel-good" ).cmgSelect( { multi: false, copyId: false, wrapperClass: null, iconClass: null, iconHtml: "<span class='cmt-arrow-down'></span>" } );
+		</script>
+	</body>
+</html>
