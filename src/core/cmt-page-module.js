@@ -47,8 +47,8 @@
 
 				var moduleConfig			= modulesConfig[ module.attr( "id" ) ];
 				var height					= moduleConfig[ "height" ];
+				var fullHeight				= moduleConfig[ "fullHeight" ];
 				var heightAuto				= moduleConfig[ "heightAuto" ];
-				var contentHeight			= moduleConfig[ "contentHeight" ];
 				var heightAutoMobile		= moduleConfig[ "heightAutoMobile" ];
 				var heightAutoMobileWidth	= moduleConfig[ "heightAutoMobileWidth" ];
 				var css 					= moduleConfig[ "css" ];
@@ -62,11 +62,18 @@
 				// Apply auto height
 				if( null != heightAuto && heightAuto ) {
 
-					module.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+					if( null != height && height ) {
+
+						module.css( { 'height': 'auto', 'min-height': height + "px" } );
+					}
+					else if( null != fullHeight && fullHeight ) {
+
+						module.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+					}
 				}
 
 				// Apply Full Height
-				if( null == height && ( null == heightAuto || !heightAuto ) && null == contentHeight && settings.fullHeight ) {
+				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
 					module.css( { 'height': screenHeight + "px" } );
 				}
@@ -78,7 +85,7 @@
 
 						module.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
 
-						var contentWrap = module.children( ".wrap-content" );
+						var contentWrap = module.children( ".module-wrap-content" );
 
 						if( contentWrap.hasClass( "valign-center" ) ) {
 
@@ -118,7 +125,7 @@
 		        var moduleHeight 	= module.height();
 		        var moduleTop 		= module.offset().top;
 		        var moduleBottom 	= moduleTop + moduleHeight;
-		        var background		= module.children( ".bkg-parallax" );
+		        var background		= module.children( ".module-bkg-parallax" );
 
 		        if( null != background && background.length > 0 && winBottom > moduleTop && winTop < moduleBottom ) {
 
@@ -146,8 +153,8 @@
 			/* An array of Modules which need extra configuration. Ex:
 			<Module Selector ID>: {
 				height: 250,
+				fullHeight: false,
 				heightAuto: false,
-				contentHeight: null,
 				heightAutoMobile: false,
 				heightAutoMobileWidth: 1024,
 				css: { color: 'white' }
