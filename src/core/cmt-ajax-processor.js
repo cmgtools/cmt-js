@@ -98,6 +98,26 @@ var ACTION_AVATAR		=  'avatar';
 
 					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
 				});
+
+				jQuery( ajaxCaller ).find( ".cmt-select" ).change( function() {
+
+					var request			= jQuery( "#" + jQuery( this ).attr( "cmt-request" ) );
+					var elementId		= request.attr( "id" );
+					var controllerId	= request.attr( "cmt-controller" );
+					var actionId		= request.attr( "cmt-action" );
+
+					if( null == controllerId ) {
+
+						controllerId = CONTROLLER_DEFAULT;
+					}
+
+					if( null == actionId ) {
+
+						actionId = ACTION_DEFAULT;
+					}
+
+					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
+				});
 			}
 		}
 	};
