@@ -296,7 +296,7 @@ Cmt.remote = {
 			}
 
 			// Pass the data for post processing
-			postAjaxProcessor.processSuccess( requestId, controllerId, actionId, data );
+			postAjaxProcessor.processSuccess( requestId, controllerId, actionId, response );
 		}
 		else if( result == 0 ) {
 
@@ -318,7 +318,7 @@ Cmt.remote = {
 	        	errorField.show();
 	    	}
 
-			postAjaxProcessor.processFailure( requestId, controllerId, actionId, data );
+			postAjaxProcessor.processFailure( requestId, controllerId, actionId, response );
 		}
 	}
 };
