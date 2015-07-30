@@ -284,10 +284,19 @@ Cmt.remote = {
 			// Hide Spinner
 			jQuery( "#" + requestId + " ." + this.spinnerClass ).hide();
 
-			// Check to keep form data
-			var keepData = jQuery( "#" + requestId ).attr( "cmt-keep-data" );
+			// Check to clear form data
+			var clearData = jQuery( "#" + requestId ).attr( "cmt-clear-data" );
 
-			if( !keepData ) {
+			if( null == clearData ) {
+
+				clearData	= true;
+			}
+			else {
+
+				clearData	= clearData === 'true';
+			}
+
+			if( clearData ) {
 
 				// Clear all form fields
 				jQuery( "#" + requestId + " input[type='text']" ).val( '' );
