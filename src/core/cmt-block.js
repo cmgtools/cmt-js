@@ -13,7 +13,7 @@
 		var blocks			= this;
 		var screenHeight	= cmt( window ).height();
 		var screenWidth		= cmt( window ).width();
-		var blocksConfig	= settings.block;
+		var blocksConfig	= settings.blocks;
 		var blocksKeys		= Object.keys( blocksConfig );
 
 		// Iterate and initialise all the page blocks
