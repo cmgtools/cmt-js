@@ -226,7 +226,7 @@
 
 			formData.append( 'file', file );
 
-			var urlParams	= fileUploadUrl + "?directory=" + encodeURIComponent( selector ) + "&type=" + encodeURIComponent( type );
+			var urlParams	= fileUploadUrl + "?directory=" + encodeURIComponent( directory ) + "&type=" + encodeURIComponent( type );
 
 			jQuery.ajax({
 			  type:			"POST",

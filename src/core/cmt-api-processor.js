@@ -3,7 +3,7 @@
  */
 
 // TODO: remove JQuery plugin and make it under Cmt namespace
-// TODO: Change Form Group to Controller Classes and Keys to Controller Actions
+// TODO: Change Controller to Controller Classes and Actions to Controller Methods
 // TODO: Add Data Binding Support
 // TODO: Add Data Binding with Pagination for Data Grid
 // TODO: Add Page History and Caching Support
@@ -98,6 +98,26 @@ var ACTION_AVATAR		=  'avatar';
 
 					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
 				});
+
+				jQuery( ajaxCaller ).find( ".cmt-select" ).change( function() {
+
+					var request			= jQuery( "#" + jQuery( this ).attr( "cmt-request" ) );
+					var elementId		= request.attr( "id" );
+					var controllerId	= request.attr( "cmt-controller" );
+					var actionId		= request.attr( "cmt-action" );
+
+					if( null == controllerId ) {
+
+						controllerId = CONTROLLER_DEFAULT;
+					}
+
+					if( null == actionId ) {
+
+						actionId = ACTION_DEFAULT;
+					}
+
+					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
+				});
 			}
 		}
 	};
@@ -133,7 +153,7 @@ Cmt.remote = {
 		jQuery( "#" + formId + " ." + this.errorClass ).hide();
 
 		// Pre Process Form
-		if( !preAjaxProcessor.processPre( formId, controllerId, actionId ) ) {
+		if( !preCmtApiProcessor.processPre( formId, controllerId, actionId ) ) {
 
 			return false;
 		}
@@ -173,7 +193,7 @@ Cmt.remote = {
 		jQuery( "#" + formId + " ." + this.errorClass ).hide();
 
 		// Pre Process Form
-		if( !preAjaxProcessor.processPre( formId, controllerId, actionId ) ) {
+		if( !preCmtApiProcessor.processPre( formId, controllerId, actionId ) ) {
 
 			return false;
 		}
@@ -219,7 +239,7 @@ Cmt.remote = {
 		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
 
 		// Pre Process Request
-		if( !preAjaxProcessor.processPre( elementId, controllerId, actionId ) ) {
+		if( !preCmtApiProcessor.processPre( elementId, controllerId, actionId ) ) {
 
 			return false;
 		}
@@ -231,7 +251,7 @@ Cmt.remote = {
 		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
 
 		jQuery.ajax({
-			type: "POST",
+			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
 			dataType: "JSON",
@@ -264,10 +284,19 @@ Cmt.remote = {
 			// Hide Spinner
 			jQuery( "#" + requestId + " ." + this.spinnerClass ).hide();
 
-			// Check to keep form data
-			var keepData = jQuery( "#" + requestId ).attr( "cmt-keep-data" );
+			// Check to clear form data
+			var clearData = jQuery( "#" + requestId ).attr( "cmt-clear-data" );
 
-			if( !keepData ) {
+			if( null == clearData ) {
+
+				clearData	= true;
+			}
+			else {
+
+				clearData	= clearData === 'true';
+			}
+
+			if( clearData ) {
 
 				// Clear all form fields
 				jQuery( "#" + requestId + " input[type='text']" ).val( '' );
@@ -276,7 +305,7 @@ Cmt.remote = {
 			}
 
 			// Pass the data for post processing
-			postAjaxProcessor.processSuccess( requestId, controllerId, actionId, data );
+			postCmtApiProcessor.processSuccess( requestId, controllerId, actionId, response );
 		}
 		else if( result == 0 ) {
 
@@ -298,31 +327,31 @@ Cmt.remote = {
 	        	errorField.show();
 	    	}
 
-			postAjaxProcessor.processFailure( requestId, controllerId, actionId, data );
+			postCmtApiProcessor.processFailure( requestId, controllerId, actionId, response );
 		}
 	}
 };
 
-/* Ajax Pre Processor */
+/* Pre Processor */
 
-function PreAjaxProcessor() {
+PreCmtApiProcessor = function() {
 	
 	this.formListeners	= Array();
-}
+};
 
-PreAjaxProcessor.prototype.addListener = function( listener ) {
+PreCmtApiProcessor.prototype.addListener = function( listener ) {
 	
 	this.formListeners.push( listener );
 };
 
-PreAjaxProcessor.prototype.processPre = function( requestId, group, key ) {
+PreCmtApiProcessor.prototype.processPre = function( requestId, controllerId, actionId ) {
 
 	var formListeners	= this.formListeners;
 	var length 			= formListeners.length;
 
 	for( var i = 0; i < length; i++ ) {
 
-		if( !formListeners[i]( requestId, group, key ) ) {
+		if( !formListeners[i]( requestId, controllerId, actionId ) ) {
 
 			return false;
 		}
@@ -333,66 +362,66 @@ PreAjaxProcessor.prototype.processPre = function( requestId, group, key ) {
 
 /* Ajax Post Processor */
 
-function PostAjaxProcessor() {
+function PostCmtApiProcessor() {
 	
 	this.successListeners	= Array();
 	this.failureListeners	= Array();
 }
 
-PostAjaxProcessor.prototype.addSuccessListener = function( listener ) {
+PostCmtApiProcessor.prototype.addSuccessListener = function( listener ) {
 	
 	this.successListeners.push( listener );
 };
 
-PostAjaxProcessor.prototype.addFailureListener = function( listener ) {
+PostCmtApiProcessor.prototype.addFailureListener = function( listener ) {
 	
 	this.failureListeners.push( listener );
 };
 
-PostAjaxProcessor.prototype.processSuccess = function( requestId, group, key, data ) {
+PostCmtApiProcessor.prototype.processSuccess = function( requestId, controllerId, actionId, response ) {
 
 	var successListeners	= this.successListeners;
 	var length 				= successListeners.length;
 
 	for( var i = 0; i < length; i++ ) {
 
-		successListeners[i]( requestId, group, key, data );
+		successListeners[i]( requestId, controllerId, actionId, response );
 	}
 };
 
-PostAjaxProcessor.prototype.processFailure = function( requestId, group, key, data ) {
+PostCmtApiProcessor.prototype.processFailure = function( requestId, controllerId, actionId, response ) {
 
 	var failureListeners	= this.failureListeners;
 	var length 				= failureListeners.length;
 
 	for( var i = 0; i < length; i++ ) {
 
-		failureListeners[i]( requestId, group, key, data );
+		failureListeners[i]( requestId, controllerId, actionId, response );
 	}
 };
 
 /* Core - Pre Ajax Processor */
 
-function processCoreAjaxPre( requestId, group, key ) {
+function preCoreProcessor( requestId, gcontrollerId, actionId ) {
 
 	return true;
 }
 
+var preCmtApiProcessor	= new PreCmtApiProcessor();
+
+preCmtApiProcessor.addListener( preCoreProcessor );
+
 /* Core - Post Ajax Processor */
 
-function processCoreAjaxSuccess( requestId, group, key, data ) {
+function postCoreProcessorSuccess( requestId, controllerId, actionId, response ) {
 
 }
 
-function processCoreAjaxFailure( requestId, group, key, data ) {
+function postCoreProcessorFailure( requestId, gcontrollerId, actionId, response ) {
 
 }
 
-/* Initialise Form Processors */
+var postCmtApiProcessor	= new PostCmtApiProcessor();
 
-var preAjaxProcessor	= new PreAjaxProcessor();
-var postAjaxProcessor	= new PostAjaxProcessor();
-
-preAjaxProcessor.addListener( processCoreAjaxPre );
-postAjaxProcessor.addSuccessListener( processCoreAjaxSuccess );
-postAjaxProcessor.addFailureListener( processCoreAjaxFailure );
+postCmtApiProcessor.addSuccessListener( postCoreProcessorSuccess );
+postCmtApiProcessor.addFailureListener( postCoreProcessorFailure );

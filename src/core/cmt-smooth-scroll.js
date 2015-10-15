@@ -41,7 +41,7 @@
 			    	'swing', 
 			    	function () {
 		
-				        window.location.hash = targetId;
+				        window.location.hash = targetId;				        
 			    	}
 			    );
 			});

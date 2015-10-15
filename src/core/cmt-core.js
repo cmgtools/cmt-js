@@ -93,7 +93,7 @@ Cmt.utils = {
 	},
 
 	/**
-	 * It draws the provided image file on canvas. We can read the image file by listening onchange event for file input.
+	 * It draws the provided image file at center of canvas. We can read the image file by listening onchange event for file input.
 	 */
 	drawImageOnCanvas: function( canvas, imageFile ) {
 
@@ -111,8 +111,12 @@ Cmt.utils = {
 		    image.onload = function() {
 
 		        var dims = Cmt.utils.arDimensions( image, width, height );
+				
+				context.translate( width/2, height/2 );
 
-		        context.drawImage( image, 0, 0, dims[0], dims[1] );
+		        context.drawImage( image, -(dims[0] / 2), -(dims[1] / 2), dims[0], dims[1] );
+				
+				context.translate( -(width/2), -(height/2) );
 
 		        image_url.revokeObjectURL( image_src );
 		    };
@@ -330,3 +334,21 @@ String.prototype.urlParams = function( e, t ) {
 		return i.origin + i.pathname + r;
 	}
 };
+
+function removeParam( key, sourceURL ) {
+    var rtn = sourceURL.split("?")[0],
+        param,
+        params_arr = [],
+        queryString = (sourceURL.indexOf("?") !== -1) ? sourceURL.split("?")[1] : "";
+    if (queryString !== "") {
+        params_arr = queryString.split("&");
+        for (var i = params_arr.length - 1; i >= 0; i -= 1) {
+            param = params_arr[i].split("=")[0];
+            if (param === key) {
+                params_arr.splice(i, 1);
+            }
+        }
+        rtn = rtn + "?" + params_arr.join("&");
+    }
+    return rtn;
+}
