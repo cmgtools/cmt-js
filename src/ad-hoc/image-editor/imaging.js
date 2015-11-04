@@ -2,7 +2,7 @@
 
 Kinetic.pixelRatio = 1;
 
-var emblmDesigner			= null;
+var cmtDesigner			= null;
 var avatarDesigner			= null;
 var mkDesigner				= null;
 var activeDesigner			= null;
@@ -16,7 +16,7 @@ var mkDesignSelected		= false;
 var designFileName			= "";
 var loadingAvatar			= false;
 
-// Emblm Design Tool -----------------------------------------
+// cmt Design Tool -----------------------------------------
 
 function DesignTool( canvasDeviceParent, canvasDesignParent, width, height, spinner, toolPrefix ) {
 	
@@ -250,7 +250,7 @@ DesignTool.prototype.loadDesign = function( imageUrl )
 
 		this.currentObjImg.src = imageUrl;
 
-		if( activeDesigner == emblmDesigner )
+		if( activeDesigner == cmtDesigner )
 		{
 			// Enable Add to Cart Button
 			jQuery('#add_to_cart_button').attr( 'disabled', false );
@@ -595,7 +595,7 @@ DesignTool.prototype.activateInteraction = function()
 			
 			e.preventDefault();
 			
-			activeDesigner.emblmReset();	
+			activeDesigner.cmtReset();	
 		});			
 }
 
@@ -729,7 +729,7 @@ DesignTool.prototype.stopZooming = function()
 	}
 }
 
-DesignTool.prototype.emblmReset = function()
+DesignTool.prototype.cmtReset = function()
 {
 	if( null == this.activeObj || null == this.activeLayer )
 	{
