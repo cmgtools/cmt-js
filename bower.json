@@ -1,0 +1,29 @@
+{
+  "name": "cmt-js",
+  "title": "CMGTools JS",
+  "version": "1.0.0-alpha1",
+  "homepage": "http://www.cmsgtools.org/",
+  "authors": [
+    "Bhagwat Singh Chouhan"
+  ],
+  "description": "CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.",
+  "keywords": [
+    "cmgtools",
+    "JavaScript library",
+    "cmsgears",
+    "mvc",
+    "components",
+    "utilities"
+  ],
+  "license": "GPLv3",
+  "ignore": [
+    "**/.*",
+    ".gitignore",
+    ".gruntfile.js",
+    "test"
+  ],
+  "main": "dist/cmgtools.js",
+  "dependencies": {
+    "jquery": "~2.1.4"
+  }
+}

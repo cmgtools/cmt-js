@@ -483,7 +483,7 @@ function addItemToCart()
 	// Redraw to match position
 	preDesignUpload();
 
-	var imageData 	= emblmDesigner.designlStage.toDataURL( {
+	var imageData 	= cmtDesigner.designlStage.toDataURL( {
 
           callback: function( imageData ) {
 
@@ -1035,7 +1035,7 @@ function verifyPaypal( dataArr )
 				jQuery("#pp_verify_error").show();
 
 				if( null != data['existing'] )
-					jQuery("#pp_verify_error").html("This email is already registered with Emblm marketplace.");
+					jQuery("#pp_verify_error").html("This email is already registered with cmt marketplace.");
 				else
 					jQuery("#pp_verify_error").html("Please provide the first name, last name and Paypal verified email registered with Paypal.");
         	}
@@ -1481,9 +1481,9 @@ function generateQrCode( codeUrl ) {
 					// success
 					var url = data['url'];
 					
-					if( null != emblmDesigner ){
+					if( null != cmtDesigner ){
 						
-						emblmDesigner.loadQrCode( url );
+						cmtDesigner.loadQrCode( url );
 					}
 				}
 				else
