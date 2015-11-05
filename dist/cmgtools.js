@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-04
+ * CMGTools JS - v1.0.0-alpha1 - 2015-11-05
  * Description: CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -115,7 +115,7 @@ Cmt.utils.image = {
 
 		    image.onload = function() {
 
-		        var dims = Cmt.utils.arDimensions( image, width, height );
+		        var dims = Cmt.utils.image.arDimensions( image, width, height );
 				
 				context.translate( width/2, height/2 );
 
@@ -585,7 +585,7 @@ Cmt.utils.data = {
 					fileUploader.find( ".post-action" ).hide();
 
 					// Clear Old Values
-					if( Cmt.utils.isCanvasSupported() && fileUploader.attr( "type" ) == "image" ) {
+					if( Cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
 
 						fileUploader.find( ".preview canvas" ).hide();
 					}
@@ -595,12 +595,12 @@ Cmt.utils.data = {
 					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
 	
 					// Modern Uploader
-					if ( Cmt.utils.isFileApiSupported() ) {
+					if ( Cmt.utils.browser.isFileApi() ) {
 	
 						progressContainer.css( "width", "0%" );
 					}
 					// Form Data Uploader
-					else if( Cmt.utils.isFormDataSupported() ) {
+					else if( Cmt.utils.browser.isFormData() ) {
 	
 						progressContainer.html( "" );
 					}
@@ -608,7 +608,7 @@ Cmt.utils.data = {
 			}
 
 			// Modern Uploader
-			if ( Cmt.utils.isFileApiSupported() ) {
+			if ( Cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
 				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
@@ -637,7 +637,7 @@ Cmt.utils.data = {
 				});
 			}
 			// Form Data Uploader
-			else if( Cmt.utils.isFormDataSupported() ) {
+			else if( Cmt.utils.browser.isFormData() ) {
 
 				var directory	= fileUploader.attr( "directory" );
 				var type		= fileUploader.attr( "type" );
@@ -671,13 +671,13 @@ Cmt.utils.data = {
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && Cmt.utils.isCanvasSupported() && type == "image" ) {
+			if( settings.preview && Cmt.utils.browser.isCanvas() && type == "image" ) {
 
 				var canvas		= fileUploader.find( ".preview canvas" );
 
 				canvas.show();
 
-				Cmt.utils.drawImageOnCanvas( canvas[0], files[0] );
+				Cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
 			}
 
 			// Upload File
@@ -1351,7 +1351,7 @@ Cmt.remote = {
 		}
 
 		// Generate form data for submission
-		var formData	= Cmt.utils.serialiseForm( formId );
+		var formData	= Cmt.utils.data.serialiseForm( formId );
 
 		// Show Spinner
 		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
@@ -1391,7 +1391,7 @@ Cmt.remote = {
 		}
 
 		// Generate form data for submission
-		var formData	= Cmt.utils.formToJson( formId );
+		var formData	= Cmt.utils.data.formToJson( formId );
 
 		// Show Spinner
 		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
@@ -1437,7 +1437,7 @@ Cmt.remote = {
 		}
 
 		// Generate request data for submission
-		var requestData	= Cmt.utils.serialiseElement( elementId );
+		var requestData	= Cmt.utils.data.serialiseElement( elementId );
 
 		// Show Spinner
 		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();

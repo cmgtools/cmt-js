@@ -2,7 +2,7 @@
 	"name": "cmt-js",
   	"title": "CMGTools JS",
   	"version": "1.0.0-alpha1",
-  	"description": "CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.",
+  	"description": "CMGTools JS is a JavaScript library which provide utilties, UI components and MVC framework implementation for CMSGears.",
   	"main": "dist/cmgtools.js",
   	"repository": {
     	"type": "git",

@@ -108,7 +108,7 @@ Cmt.utils.image = {
 
 		    image.onload = function() {
 
-		        var dims = Cmt.utils.arDimensions( image, width, height );
+		        var dims = Cmt.utils.image.arDimensions( image, width, height );
 				
 				context.translate( width/2, height/2 );
 

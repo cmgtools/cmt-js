@@ -159,7 +159,7 @@ Cmt.remote = {
 		}
 
 		// Generate form data for submission
-		var formData	= Cmt.utils.serialiseForm( formId );
+		var formData	= Cmt.utils.data.serialiseForm( formId );
 
 		// Show Spinner
 		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
@@ -199,7 +199,7 @@ Cmt.remote = {
 		}
 
 		// Generate form data for submission
-		var formData	= Cmt.utils.formToJson( formId );
+		var formData	= Cmt.utils.data.formToJson( formId );
 
 		// Show Spinner
 		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
@@ -245,7 +245,7 @@ Cmt.remote = {
 		}
 
 		// Generate request data for submission
-		var requestData	= Cmt.utils.serialiseElement( elementId );
+		var requestData	= Cmt.utils.data.serialiseElement( elementId );
 
 		// Show Spinner
 		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();

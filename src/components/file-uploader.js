@@ -45,7 +45,7 @@
 					fileUploader.find( ".post-action" ).hide();
 
 					// Clear Old Values
-					if( Cmt.utils.isCanvasSupported() && fileUploader.attr( "type" ) == "image" ) {
+					if( Cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
 
 						fileUploader.find( ".preview canvas" ).hide();
 					}
@@ -55,12 +55,12 @@
 					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
 	
 					// Modern Uploader
-					if ( Cmt.utils.isFileApiSupported() ) {
+					if ( Cmt.utils.browser.isFileApi() ) {
 	
 						progressContainer.css( "width", "0%" );
 					}
 					// Form Data Uploader
-					else if( Cmt.utils.isFormDataSupported() ) {
+					else if( Cmt.utils.browser.isFormData() ) {
 	
 						progressContainer.html( "" );
 					}
@@ -68,7 +68,7 @@
 			}
 
 			// Modern Uploader
-			if ( Cmt.utils.isFileApiSupported() ) {
+			if ( Cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
 				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
@@ -97,7 +97,7 @@
 				});
 			}
 			// Form Data Uploader
-			else if( Cmt.utils.isFormDataSupported() ) {
+			else if( Cmt.utils.browser.isFormData() ) {
 
 				var directory	= fileUploader.attr( "directory" );
 				var type		= fileUploader.attr( "type" );
@@ -131,13 +131,13 @@
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && Cmt.utils.isCanvasSupported() && type == "image" ) {
+			if( settings.preview && Cmt.utils.browser.isCanvas() && type == "image" ) {
 
 				var canvas		= fileUploader.find( ".preview canvas" );
 
 				canvas.show();
 
-				Cmt.utils.drawImageOnCanvas( canvas[0], files[0] );
+				Cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
 			}
 
 			// Upload File

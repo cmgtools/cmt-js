@@ -6,7 +6,7 @@
   "authors": [
     "Bhagwat Singh Chouhan"
   ],
-  "description": "CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.",
+  "description": "CMGTools JS is a JavaScript library which provide utilties, UI components and MVC framework implementation for CMSGears.",
   "keywords": [
     "cmgtools",
     "JavaScript library",
@@ -19,7 +19,9 @@
   "ignore": [
     "**/.*",
     ".gitignore",
-    ".gruntfile.js",
+    "gruntfile.js",
+    "package.json",
+    "README.md",
     "test"
   ],
   "main": "dist/cmgtools.js",
