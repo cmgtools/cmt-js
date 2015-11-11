@@ -9,7 +9,7 @@ module.exports = function( grunt ) {
       		options: {
         		separator: ';',
 				banner: '/**\n * <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>' +
-			            '\n * Description: CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.' +
+			            '\n * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.' +
 			            '\n * License: <%= pkg.license %>' +
 			            '\n * Author: <%= pkg.author %>' +
 			            '\n */\n'
@@ -22,7 +22,7 @@ module.exports = function( grunt ) {
     	uglify: {
 			options: {
 				banner: '/**\n * <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>' +
-			            '\n * Description: CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.' +
+			            '\n * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.' +
 			            '\n * License: <%= pkg.license %>' +
 			            '\n * Author: <%= pkg.author %>' +
 			            '\n */\n'
