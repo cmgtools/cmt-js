@@ -1,6 +1,6 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-05
- * Description: CMGTools JS is a JavaScript library which provide utilties, ui components and MVC framework implementation for CMSGears.
+ * CMGTools JS - v1.0.0-alpha1 - 2015-11-14
+ * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
  */
@@ -373,6 +373,23 @@ Cmt.utils.data = {
 	    }
 
 	    return baseUrl;
+	}
+};
+
+// UI Utilities ----------------------------------------------
+
+Cmt.utils.ui = {
+
+	/**
+	 * Aligns child element content at the center of parent vertically.
+	 */
+	alignMiddle: function( parent, child ) {
+
+		var parentHeight	= jQuery( parent ).height();
+
+		jQuery( child ).height( parentHeight );
+
+		jQuery( child ).css( "line-height", parentHeight );
 	}
 };;/*
  * Dependencies: jquery
@@ -868,12 +885,22 @@ Cmt.utils.data = {
 			        if ( distanceY > scrollDistance ) {
 	
 			            header.addClass( "header-small" );
+			            
+			            if( header.hasClass( "hidden" ) ) {
+			            	
+			            	header.slideDown( 'slow' ); 
+			            }
 			        }
 			        else {
-	
+
 			            if ( header.hasClass( "header-small" ) ) {
 			
 			                header.removeClass( "header-small" );
+			            }
+
+			            if( header.hasClass( "hidden" ) ) {
+			            	
+			            	header.slideUp( 'false' ); 
 			            }
 			        }
 			    });
