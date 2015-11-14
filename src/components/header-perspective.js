@@ -39,12 +39,22 @@
 			        if ( distanceY > scrollDistance ) {
 	
 			            header.addClass( "header-small" );
+			            
+			            if( header.hasClass( "hidden" ) ) {
+			            	
+			            	header.slideDown( 'slow' ); 
+			            }
 			        }
 			        else {
-	
+
 			            if ( header.hasClass( "header-small" ) ) {
 			
 			                header.removeClass( "header-small" );
+			            }
+
+			            if( header.hasClass( "hidden" ) ) {
+			            	
+			            	header.slideUp( 'false' ); 
 			            }
 			        }
 			    });

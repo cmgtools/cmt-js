@@ -368,3 +368,20 @@ Cmt.utils.data = {
 	    return baseUrl;
 	}
 };
+
+// UI Utilities ----------------------------------------------
+
+Cmt.utils.ui = {
+
+	/**
+	 * Aligns child element content at the center of parent vertically.
+	 */
+	alignMiddle: function( parent, child ) {
+
+		var parentHeight	= jQuery( parent ).height();
+
+		jQuery( child ).height( parentHeight );
+
+		jQuery( child ).css( "line-height", parentHeight );
+	}
+};
