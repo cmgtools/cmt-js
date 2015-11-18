@@ -385,3 +385,20 @@ Cmt.utils.ui = {
 		jQuery( child ).css( "line-height", parentHeight );
 	}
 };
+
+// Common fixes -----------------------------------------------
+
+// Fix hash tag issues for SNS login
+if( window.location.hash == '#_=_' ) {
+
+    if( history.replaceState ) {
+
+        var cleanHref = window.location.href.split( '#' )[ 0 ];
+
+        history.replaceState( null, null, cleanHref );
+    }
+    else {
+
+        window.location.hash = '';
+    }
+}

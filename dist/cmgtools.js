@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-14
+ * CMGTools JS - v1.0.0-alpha1 - 2015-11-18
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -391,7 +391,24 @@ Cmt.utils.ui = {
 
 		jQuery( child ).css( "line-height", parentHeight );
 	}
-};;/*
+};
+
+// Common fixes -----------------------------------------------
+
+// Fix hash tag issues for SNS login
+if( window.location.hash == '#_=_' ) {
+
+    if( history.replaceState ) {
+
+        var cleanHref = window.location.href.split( '#' )[ 0 ];
+
+        history.replaceState( null, null, cleanHref );
+    }
+    else {
+
+        window.location.hash = '';
+    }
+};/*
  * Dependencies: jquery
  */
 
