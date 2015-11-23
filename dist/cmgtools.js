@@ -551,6 +551,8 @@ cmt.api.controllers.DefaultController.prototype.init = function() {
 cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
 
 	console.log( "Pre processing default action." );
+	
+	return true;
 };
 
 cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {
@@ -582,7 +584,7 @@ cmt.api.Application = function() {
 		spinnerClass: 'spinner'		// Default spinner css class
 	};
 
-	// Default controller to be sued as fallback in case no controller is mentioned
+	// Default controller to be used as fallback in case no controller is mentioned
 	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
 
 	/**
@@ -632,21 +634,19 @@ cmt.api.Application = function() {
  * App Globals
  */
 
-// Default Controller
-cmt.api.Application.CONTROLLER_DEFAULT	= 'default';
-
-// Default Controller Actions
-cmt.api.Application.ACTION_DEFAULT		=  'default';
+//Defaults
+cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller
+cmt.api.Application.ACTION_DEFAULT		=  'default';			// Default Controller Actions
 
 // Statics
-cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';
-cmt.api.Application.STATIC_ACTION		=  'cmt-action';
-cmt.api.Application.STATIC_ID			=  'id';
-cmt.api.Application.STATIC_FORM			=  'cmt-form';
-cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';
-cmt.api.Application.STATIC_SELECT		=  '.cmt-select';
-cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';
-cmt.api.Application.STATIC_ERROR		=  'cmt-error';
+cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set for form or request
+cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set for form or request
+cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify form and request.
+cmt.api.Application.STATIC_FORM			=  'cmt-form';			// The class to be set for forms which need to be considered by this application
+cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';		// The class to be set for element which submit request on click
+cmt.api.Application.STATIC_SELECT		=  '.cmt-select';		// The class to be set for select box which submit request on change
+cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether form/request need to be cleared on success.
+cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure
 
 /**
  * Initialise application
@@ -668,7 +668,7 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 
 				event.preventDefault();
 	
-				app.initFormTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), true, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 			});
 		}
 
@@ -679,7 +679,7 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 
 			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
 
-			app.initAjaxTrigger( request.attr( cmt.api.Application.STATIC_ID ), request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+			app.initRequestTrigger( request.attr( cmt.api.Application.STATIC_ID ), false, request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
 
 		// Select Submits
@@ -687,7 +687,7 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 
 			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
 
-			app.initAjaxTrigger( request.attr( cmt.api.Application.STATIC_ID ), request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+			app.initRequestTrigger( request.attr( cmt.api.Application.STATIC_ID ), false, request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
 	});
 };
@@ -720,32 +720,50 @@ cmt.api.Application.prototype.findController = function( controller ) {
 		catch( err ) {
 
 			console.log( err );
+
+			console.log( "Falling back to default controller." );
+
+			if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
+
+				return this.findController( cmt.api.Application.CONTROLLER_DEFAULT );
+			}
 		}
 	}
 };
 
-cmt.api.Application.prototype.initFormTrigger = function( formId, controller, action ) {
+// Init triggers required to process request -------------
 
+cmt.api.Application.prototype.initRequestTrigger = function( requestId, form, controller, action ) {
+
+	// Use default controller
 	if( null == controller ) {
 
 		controller = cmt.api.Application.CONTROLLER_DEFAULT;
 	}
 
+	// Use default action
 	if( null == action ) {
 
 		action = cmt.api.Application.ACTION_DEFAULT;
 	}
 
 	// Search Controller
-	controller	= this.findController( controller );
+	var controllerObj	= this.findController( controller );
 
-	if( this.config.json ) {
+	if( form ) {
 
-		this.handleRestForm( formId, controller, action );
+		if( this.config.json ) {
+
+			this.handleRestForm( requestId, controllerObj, action );
+		}
+		else {
+
+			this.handleAjaxForm( requestId, controllerObj, action );
+		}
 	}
 	else {
 
-		this.handleAjaxForm( formId, controller, action );
+		this.handleAjaxRequest( requestId, controllerObj, action );
 	}
 };
 
@@ -765,13 +783,13 @@ cmt.api.Application.prototype.handleRestForm = function( formId, controller, act
 		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
 
 		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' ) {
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
 
-			controller[ preAction ]( form );
+			return false;
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController ) {
-			
-			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form );
+		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
+
+			return false;
 		}
 
 		// Generate form data for submission
@@ -812,13 +830,13 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
 
 		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' ) {
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
 
-			controller[ preAction ]( form );
+			return false;
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController ) {
-			
-			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form );
+		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
+
+			return false;
 		}
 		
 		// Generate form data for submission
@@ -842,21 +860,6 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 		return false;
 };
 
-cmt.api.Application.prototype.initAjaxTrigger = function( requestId, controller, action ) {
-
-	if( null == controller ) {
-
-		controller = cmt.api.Application.CONTROLLER_DEFAULT;
-	}
-
-	if( null == action ) {
-
-		action = cmt.api.Application.ACTION_DEFAULT;
-	}
-
-	Cmt.remote.handleAjaxRequest( requestId, controller, action );
-};
-
 cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, action ) {
 
 		var app			= this;
@@ -878,13 +881,13 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
 
 		// Pre Process Request
-		if( typeof controller[ preAction ] !== 'undefined' ) {
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
 
-			controller[ preAction ]( element );
+			return false;
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController ) {
-			
-			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( element );
+		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
+
+			return false;
 		}
 
 		// Generate request data for submission
@@ -1291,7 +1294,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 
 				canvas.show();
 
-				cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
+				cmt.utils.image.drawAtCanvasCenter( canvas[0], files[0] );
 			}
 
 			// Upload File

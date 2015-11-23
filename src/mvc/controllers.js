@@ -32,6 +32,8 @@ cmt.api.controllers.DefaultController.prototype.init = function() {
 cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
 
 	console.log( "Pre processing default action." );
+	
+	return true;
 };
 
 cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {

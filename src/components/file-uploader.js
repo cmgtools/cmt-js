@@ -137,7 +137,7 @@
 
 				canvas.show();
 
-				cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
+				cmt.utils.image.drawAtCanvasCenter( canvas[0], files[0] );
 			}
 
 			// Upload File
