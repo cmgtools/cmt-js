@@ -1,29 +1,25 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-18
+ * CMGTools JS - v1.0.0-alpha1 - 2015-11-23
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
  */
 // Global Namespace for CMGTools
-var Cmt = Cmt || {};;// CMGTools Utilities - Collection of commonly used utility functions available for CMGTools
-Cmt.utils = {
-	
-};
+var cmt = cmt || {};;/*
+ * Dependencies: jquery
+ */
+
+/**
+ * CMGTools Utilities - Collection of commonly used utility functions available for CMGTools.
+ */
+cmt.utils = {};
 
 // Browser Features ------------------------------------------
 
-Cmt.utils.browser = {
-
-	/**
-	 * Detect whether browser supports canvas.
-	 */
-	isCanvas: function() {
-
-		var elem 			= document.createElement( 'canvas' );
-		var canvasSupported = !!( elem.getContext && elem.getContext( '2d' ) );
-
-		return canvasSupported;
-	},
+/**
+ * Browser utility provides commonly used browser feature detection methods.
+ */
+cmt.utils.browser = {
 
 	/**
 	 * Detect whether browser supports xhr.
@@ -52,6 +48,17 @@ Cmt.utils.browser = {
 	},
 
 	/**
+	 * Detect whether browser supports canvas.
+	 */
+	isCanvas: function() {
+
+		var elem 			= document.createElement( 'canvas' );
+		var canvasSupported = !!( elem.getContext && elem.getContext( '2d' ) );
+
+		return canvasSupported;
+	},
+
+	/**
 	 * Detect whether browser supports canvas data url feature.
 	 */
 	isCanvasDataUrl: function() {
@@ -68,7 +75,10 @@ Cmt.utils.browser = {
 	
 // Image Processing ------------------------------------------
 
-Cmt.utils.image = {
+/**
+ * Image utility provides commonly used image processing methods.
+ */
+cmt.utils.image = {
 
 	/**
 	 * It returns an array having width and height for the given image and target dimensions maintaining aspect ratio.
@@ -100,9 +110,9 @@ Cmt.utils.image = {
 	/**
 	 * It draws the provided image file at center of canvas.
 	 */
-	drawOnCanvas: function( canvas, imageFile ) {
+	drawAtCanvasCenter: function( canvas, imageUrl ) {
 
-		if( null != canvas && null != imageFile ) {
+		if( null != canvas && null != imageUrl ) {
 
 			var width		= canvas.width;
 			var height		= canvas.height;
@@ -110,17 +120,17 @@ Cmt.utils.image = {
 			var context 	= canvas.getContext( '2d' );
 		    var image 		= new Image();
 		    var image_url 	= window.URL || window.webkitURL;
-		    var image_src 	= image_url.createObjectURL( imageFile );
+		    var image_src 	= image_url.createObjectURL( imageUrl );
 		    image.src 		= image_src;
 
 		    image.onload = function() {
 
-		        var dims = Cmt.utils.image.arDimensions( image, width, height );
-				
+		        var dims = cmt.utils.image.arDimensions( image, width, height );
+
 				context.translate( width/2, height/2 );
 
 		        context.drawImage( image, -(dims[0] / 2), -(dims[1] / 2), dims[0], dims[1] );
-				
+
 				context.translate( -(width/2), -(height/2) );
 
 		        image_url.revokeObjectURL( image_src );
@@ -131,7 +141,10 @@ Cmt.utils.image = {
 
 // Data Processing -------------------------------------------
 
-Cmt.utils.data = {
+/**
+ * Data utility provides methods to convert form elements to json format. The json data can be used to send request to server side apis.
+ */
+cmt.utils.data = {
 
 	/**
 	 * It reads elementId and convert the input fields present within the element to parameters url.
@@ -183,7 +196,7 @@ Cmt.utils.data = {
 			}
 		});
 
-		return Cmt.utils.data.generateJsonMap( dataArr );
+		return cmt.utils.data.generateJsonMap( dataArr );
 	},
 
 	/**
@@ -231,7 +244,7 @@ Cmt.utils.data = {
 			formData	= formId.serializeArray();
 		}
 
-		return Cmt.utils.data.generateJsonMap( formData );
+		return cmt.utils.data.generateJsonMap( formData );
 	},
 
 	/**
@@ -376,24 +389,109 @@ Cmt.utils.data = {
 	}
 };
 
-// UI Utilities ----------------------------------------------
+// Object Utilities ------------------------------------------
 
-Cmt.utils.ui = {
+/**
+ * Object utility provides methods to initialise or manipulate objects.
+ */
+cmt.utils.object = {
 
 	/**
-	 * Aligns child element content at the center of parent vertically.
+	 * Return object/instance associated to given string with namespace. It also check the type of Object.
+	 */
+	strToObject: function( str ) {
+
+	    var arr 		= str.split( "." );
+		var objClass	= ( window || this );
+
+	    for( var i = 0, arrLength = arr.length; i < arrLength; i++ ) {
+
+	        objClass	= objClass[ arr[ i ] ];
+	    }
+
+		var obj		= new objClass;
+
+		if ( typeof obj !== 'object' ) {
+
+			throw new Error( str +" not found" );
+		}
+
+		return obj;
+	}
+};
+
+// UI Utilities ----------------------------------------------
+
+/**
+ * UI utility provides methods to format or manage UI elements.
+ */
+cmt.utils.ui = {
+
+	/**
+	 * Aligns child element content at the center of parent vertically and horizontally. It expect parent to be positioned.
 	 */
 	alignMiddle: function( parent, child ) {
 
-		var parentHeight	= jQuery( parent ).height();
+		var parent			= jQuery( parent );
+		var child			= jQuery( child );
 
-		jQuery( child ).height( parentHeight );
+		var parentHeight	= parent.height();
+		var parentWidth		= parent.width();
+		var childHeight		= child.height();
+		var childWidth		= child.width();
 
-		jQuery( child ).css( "line-height", parentHeight );
+		if( childHeight <= parentHeight && childWidth <= parentWidth ) {
+
+			var top 	= (parentHeight - childHeight) / 2;
+			var left 	= (parentWidth - childWidth) / 2;
+
+			child.css( { "position": "absolute", "top": top, "left": left } );	
+		}
 	}
 };
 
 // Common fixes -----------------------------------------------
+
+//Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
+Function.prototype.inherits = function( parent ) {
+
+	var d	= 0;
+	var p 	= ( this.prototype = new parent() );
+
+	this.prototype.uber	= function( name ) {
+
+		var f;
+		var r;
+		var t = d;
+		var v = parent.prototype;
+
+		if( t ) {
+
+			while( t ) {
+
+	              v		= v.constructor.prototype;
+	              t 	-= 1;
+			}
+	
+			f = v[ name ];
+		}
+		else {
+
+			f	= p[ name ];
+	
+			if( f == this[ name ] ) {
+
+				f = v[ name ];
+			}
+		}
+
+		d		+= 1;
+		r		 = f.apply(this, Array.prototype.slice.apply(arguments, [1]));
+		d		-= 1;
+
+		return r;
+	};
+};
 
 // Fix hash tag issues for SNS login
 if( window.location.hash == '#_=_' ) {
@@ -409,27 +507,509 @@ if( window.location.hash == '#_=_' ) {
         window.location.hash = '';
     }
 };/*
+ * Dependencies: jquery, core/main.js, core/utils.js
+ */
+
+// TODO: Add Data Binding Support to bind data sent by server to respective ui component
+// TODO: Add Data Binding with Pagination for Data Grid
+// TODO: Add Page History and Caching Support
+
+/**
+ * CMGTools API library provide methods to process AJAX request. These requests can be either form or regular
+ */
+cmt.api = {};;/*
+ * Dependencies: jquery, mvc/core.js
+ */
+
+/**
+ * Controller namespace providing base class for all the Controllers.
+ */
+cmt.api.controllers = {};
+
+cmt.api.controllers.BaseController = function() {
+	
+	// Base Controller
+};
+
+cmt.api.controllers.BaseController.prototype.init = function() {
+	
+	// Init method to initialise controller
+};;
+
+
+cmt.api.controllers.DefaultController = function() {
+	
+};
+
+cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.DefaultController.prototype.init = function() {
+	
+	console.log( "Initialised default controller." );
+};
+
+cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
+
+	console.log( "Pre processing default action." );
+};
+
+cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {
+
+	if( success ) {
+
+		console.log( "Processing success for default action." );
+	}
+	else {
+
+		console.log( "Processing failure for default action." );
+	}
+};;/*
+ * Dependencies: jquery, core/main.js, core/utils.js, mvc/core.js, mvc/controllers.js
+ */
+
+/**
+ * An application is a collection of config and controllers.
+ */
+cmt.api.Application = function() {
+
+	/**
+	 * Config Object
+	 */
+	this.config = {
+		json: false, 				// Identify whether all the request must be processed using json format
+		errorClass: 'error',		// Default error css class
+		messageClass: 'message',	// Default message css class
+		spinnerClass: 'spinner'		// Default spinner css class
+	};
+
+	// Default controller to be sued as fallback in case no controller is mentioned
+	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
+
+	/**
+	 * An exhaustive list of all the controllers available for the application. Each application can use this listing to maintain it's controllers list.
+	 */
+	this.controllers 						= [];
+	this.controllers[ defaultController ] 	= "cmt.api.controllers.DefaultController";
+
+	/**
+	 * List of all the active controllers which are already initialised. It will save us from re-initialising each controller to process a request.
+	 */
+	this.activeControllers 	= [];
+};
+
+/**
+ * JQuery Plugin to initialise application.
+ */
+( function( cmtjq ) {
+
+	cmtjq.fn.processAjax = function( options ) {
+
+		// == Init == //
+
+		// Configure Modules
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.processAjax.defaults, options );
+		var app			= new cmt.api.Application();
+
+		// Initialise application
+		app.config.json	= settings.json;
+		app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
+
+		app.init( this );
+
+		// return control
+		return;
+	};
+
+	// Default Settings
+	cmtjq.fn.processAjax.defaults = {
+		json: false,
+		controllers: []
+	};
+
+}( jQuery ) );
+
+/**
+ * App Globals
+ */
+
+// Default Controller
+cmt.api.Application.CONTROLLER_DEFAULT	= 'default';
+
+// Default Controller Actions
+cmt.api.Application.ACTION_DEFAULT		=  'default';
+
+// Statics
+cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';
+cmt.api.Application.STATIC_ACTION		=  'cmt-action';
+cmt.api.Application.STATIC_ID			=  'id';
+cmt.api.Application.STATIC_FORM			=  'cmt-form';
+cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';
+cmt.api.Application.STATIC_SELECT		=  '.cmt-select';
+cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';
+cmt.api.Application.STATIC_ERROR		=  'cmt-error';
+
+/**
+ * Initialise application
+ * @param requestTriggers - All the triggers passed by JQuery selector using application plugin.
+ */
+cmt.api.Application.prototype.init = function( requestTriggers ) {
+
+	var app	= this;
+
+	// Iterate and initialise all the triggers
+	requestTriggers.each( function() {
+
+		var requestTrigger = jQuery( this );
+
+		// Form Submits
+		if( requestTrigger.hasClass( cmt.api.Application.STATIC_FORM ) ) {
+
+			requestTrigger.submit( function( event ) {
+
+				event.preventDefault();
+	
+				app.initFormTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+
+		// Button Submits
+		requestTrigger.find( cmt.api.Application.STATIC_SUBMIT ).click( function( event ) {
+
+			event.preventDefault();
+
+			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
+
+			app.initAjaxTrigger( request.attr( cmt.api.Application.STATIC_ID ), request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+		});
+
+		// Select Submits
+		requestTrigger.find( cmt.api.Application.STATIC_SELECT ).change( function() {
+
+			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
+
+			app.initAjaxTrigger( request.attr( cmt.api.Application.STATIC_ID ), request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+		});
+	});
+};
+
+cmt.api.Application.prototype.findController = function( controller ) {
+
+	// Return active controller
+	if( this.activeControllers[ controller ] ) {
+		
+		return this.activeControllers[ controller ];
+	}
+	// Create a controller instance from registered controllers
+	else {
+
+		try {
+
+			// Check whether controller is registered and throw exception
+			if( this.controllers[ controller ] == undefined ) throw "Controller with name " + controller + " is not registered with this application.";
+
+			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
+
+			// Initialise
+			cont.init();
+
+			// Add to active registry
+			this.activeControllers[ controller ] = cont;
+
+			return this.activeControllers[ controller ];
+		}
+		catch( err ) {
+
+			console.log( err );
+		}
+	}
+};
+
+cmt.api.Application.prototype.initFormTrigger = function( formId, controller, action ) {
+
+	if( null == controller ) {
+
+		controller = cmt.api.Application.CONTROLLER_DEFAULT;
+	}
+
+	if( null == action ) {
+
+		action = cmt.api.Application.ACTION_DEFAULT;
+	}
+
+	// Search Controller
+	controller	= this.findController( controller );
+
+	if( this.config.json ) {
+
+		this.handleRestForm( formId, controller, action );
+	}
+	else {
+
+		this.handleAjaxForm( formId, controller, action );
+	}
+};
+
+cmt.api.Application.prototype.handleRestForm = function( formId, controller, action ) {
+		
+		var app			= this;
+		var form		= jQuery( "#" + formId );
+		var httpMethod	= form.attr( "method" );
+		var actionUrl	= form.attr( "action" );
+		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		// Hide message element
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+
+		// Pre Process Form
+		if( typeof controller[ preAction ] !== 'undefined' ) {
+
+			controller[ preAction ]( form );
+		}
+		else if( controller instanceof cmt.api.controllers.DefaultController ) {
+			
+			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form );
+		}
+
+		// Generate form data for submission
+		var formData	= cmt.utils.data.formToJson( formId );
+
+		// Show Spinner
+		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: JSON.stringify( formData ),
+			dataType: "JSON",
+			contentType: "application/json;charset=UTF-8",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				app.processAjaxResponse( formId, controller, action, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, action ) {
+		
+		var app			= this;
+		var form		= jQuery( "#" + formId );
+		var httpMethod	= form.attr( "method" );
+		var actionUrl	= form.attr( "action" );
+		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		// Hide message
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+
+		// Pre Process Form
+		if( typeof controller[ preAction ] !== 'undefined' ) {
+
+			controller[ preAction ]( form );
+		}
+		else if( controller instanceof cmt.api.controllers.DefaultController ) {
+			
+			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form );
+		}
+		
+		// Generate form data for submission
+		var formData	= cmt.utils.data.serialiseForm( formId );
+
+		// Show Spinner
+		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+
+		jQuery.ajax( {
+			type: httpMethod,
+			url: actionUrl,
+			data: formData,
+			dataType: "JSON",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				app.processAjaxResponse( formId, controller, action, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.initAjaxTrigger = function( requestId, controller, action ) {
+
+	if( null == controller ) {
+
+		controller = cmt.api.Application.CONTROLLER_DEFAULT;
+	}
+
+	if( null == action ) {
+
+		action = cmt.api.Application.ACTION_DEFAULT;
+	}
+
+	Cmt.remote.handleAjaxRequest( requestId, controller, action );
+};
+
+cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, action ) {
+
+		var app			= this;
+		var element		= jQuery( "#" + elementId );
+		var httpMethod	= element.attr( "method" );
+		var actionUrl	= element.attr( "action" );
+		var message		= jQuery( "#" + elementId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		if( null == httpMethod ) {
+
+			httpMethod = 'post';
+		}
+
+		// Hide message
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
+
+		// Pre Process Request
+		if( typeof controller[ preAction ] !== 'undefined' ) {
+
+			controller[ preAction ]( element );
+		}
+		else if( controller instanceof cmt.api.controllers.DefaultController ) {
+			
+			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( element );
+		}
+
+		// Generate request data for submission
+		var requestData	= Cmt.utils.data.serialiseElement( elementId );
+
+		// Show Spinner
+		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
+
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: requestData,
+			dataType: "JSON",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				Cmt.remote.processAjaxResponse( elementId, controllerId, actionId, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.processAjaxResponse = function( requestId, controller, action, message, response ) {
+
+	var result 		= response[ 'result' ];
+	var messageStr 	= response[ 'message' ];
+	var data		= response[ 'data' ];
+	var errors		= response[ 'errors' ];
+	var postAction	= action + "ActionPost";
+
+	if( result == 1 ) {
+
+		// Show message
+		message.html( messageStr );
+		message.show();
+
+		// Hide all errors
+		jQuery( "#" + requestId + " ." + this.config.errorClass ).hide();
+
+		// Hide Spinner
+		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+
+		// Check to clear form data
+		var clearData = jQuery( "#" + requestId ).attr( cmt.api.Application.STATIC_CLEAR );
+
+		if( null == clearData ) {
+
+			clearData	= true;
+		}
+		else {
+
+			clearData	= clearData === 'true';
+		}
+
+		if( clearData ) {
+
+			// Clear all form fields
+			jQuery( "#" + requestId + " input[type='text']" ).val( '' );
+			jQuery( "#" + requestId + " input[type='password']" ).val( '' );
+			jQuery( "#" + requestId + " textarea" ).val( '' );
+		}
+
+		// Pass the data for post processing
+		if( typeof controller[ postAction ] !== 'undefined' ) {
+
+			controller[ postAction ]( true, requestId, message, response );
+		}
+		else if( controller instanceof cmt.api.controllers.DefaultController ) {
+			
+			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPost" ]( true, requestId, message, response );
+		}
+	}
+	else if( result == 0 ) {
+
+		// Show message
+		message.html( messageStr );
+		message.show();
+
+		// Hide Spinner
+		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+
+		// Show Errors
+		for( var key in errors ) {
+
+        	var fieldName 		= key;
+        	var errorMessage 	= errors[ key ];
+        	var errorField		= jQuery( "#" + requestId + " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
+
+        	errorField.html( errorMessage );
+        	errorField.show();
+    	}
+
+		// Pass the data for post processing
+		if( typeof controller[ postAction ] !== 'undefined' ) {
+
+			controller[ postAction ]( false, requestId, message, response );
+		}
+		else if( controller instanceof cmt.api.controllers.DefaultController ) {
+			
+			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPost" ]( false, requestId, message, response );
+		}
+	}
+};;/*
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtBlock = function( options ) {
+	cmtjq.fn.cmtBlock = function( options ) {
 
 		// == Init == //
 
 		// Configure Blocks
-		var settings 		= cmt.extend( {}, cmt.fn.cmtBlock.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtBlock.defaults, options );
 		var blocks			= this;
-		var screenHeight	= cmt( window ).height();
-		var screenWidth		= cmt( window ).width();
+		var screenHeight	= cmtjq( window ).height();
+		var screenWidth		= cmtjq( window ).width();
 		var blocksConfig	= settings.blocks;
 		var blocksKeys		= Object.keys( blocksConfig );
 
 		// Iterate and initialise all the page blocks
 		blocks.each( function() {
 
-			var block	= cmt( this );
+			var block	= cmtjq( this );
 
 			init( block );
 		});
@@ -437,7 +1017,7 @@ if( window.location.hash == '#_=_' ) {
 		// Initialise parallax
 		if( settings.backgroundParallax ) {
 
-			cmt( window ).scroll( scrollBackground );
+			cmtjq( window ).scroll( scrollBackground );
 		}
 
 		// return control
@@ -452,7 +1032,7 @@ if( window.location.hash == '#_=_' ) {
 
 			// -- Apply Block Specific Settings
 
-			if( cmt.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
+			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
 
 				var blockConfig			= blocksConfig[ block.attr( "id" ) ];
 				var height					= blockConfig[ "height" ];
@@ -523,14 +1103,14 @@ if( window.location.hash == '#_=_' ) {
 		// Initialise parallax
 		function scrollBackground() {
 
-			var winHeight 	= cmt( window ).height();
-		    var winTop 		= cmt( window ).scrollTop();
+			var winHeight 	= cmtjq( window ).height();
+		    var winTop 		= cmtjq( window ).scrollTop();
 		    var winBottom 	= winTop + winHeight;
 		    var winCurrent 	= winTop + winHeight / 2;
 		    
 		    blocks.each( function( i ) {
 
-		        var block 			= cmt( this );
+		        var block 			= cmtjq( this );
 		        var blockHeight 	= block.height();
 		        var blockTop 		= block.offset().top;
 		        var blockBottom 	= blockTop + blockHeight;
@@ -554,7 +1134,7 @@ if( window.location.hash == '#_=_' ) {
 	};
 
 	// Default Settings
-	cmt.fn.cmtBlock.defaults = {
+	cmtjq.fn.cmtBlock.defaults = {
 		// Controls
 		fullHeight: true,
 		backgroundParallax: true,
@@ -572,27 +1152,27 @@ if( window.location.hash == '#_=_' ) {
 		}
 	};
 
-}( jQuery ) );;;;/*
+}( jQuery ) );;;/*
  * Dependencies: jquery, cmt-utils
  */
 
 // TODO: Validate for max file size if possible
 
 // File Uploader Plugin
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtFileUploader = function( options ) {
+	cmtjq.fn.cmtFileUploader = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtFileUploader.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtFileUploader.defaults, options );
 		var fileUploaders	= this;
 
 		// Iterate and initialise all the uploaders
 		fileUploaders.each( function() {
 
-			var fileUploader = cmt( this );
+			var fileUploader = cmtjq( this );
 
 			init( fileUploader );
 		});
@@ -619,7 +1199,7 @@ if( window.location.hash == '#_=_' ) {
 					fileUploader.find( ".post-action" ).hide();
 
 					// Clear Old Values
-					if( Cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
+					if( cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
 
 						fileUploader.find( ".preview canvas" ).hide();
 					}
@@ -629,12 +1209,12 @@ if( window.location.hash == '#_=_' ) {
 					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
 	
 					// Modern Uploader
-					if ( Cmt.utils.browser.isFileApi() ) {
+					if ( cmt.utils.browser.isFileApi() ) {
 	
 						progressContainer.css( "width", "0%" );
 					}
 					// Form Data Uploader
-					else if( Cmt.utils.browser.isFormData() ) {
+					else if( cmt.utils.browser.isFormData() ) {
 	
 						progressContainer.html( "" );
 					}
@@ -642,7 +1222,7 @@ if( window.location.hash == '#_=_' ) {
 			}
 
 			// Modern Uploader
-			if ( Cmt.utils.browser.isFileApi() ) {
+			if ( cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
 				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
@@ -671,7 +1251,7 @@ if( window.location.hash == '#_=_' ) {
 				});
 			}
 			// Form Data Uploader
-			else if( Cmt.utils.browser.isFormData() ) {
+			else if( cmt.utils.browser.isFormData() ) {
 
 				var directory	= fileUploader.attr( "directory" );
 				var type		= fileUploader.attr( "type" );
@@ -705,13 +1285,13 @@ if( window.location.hash == '#_=_' ) {
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && Cmt.utils.browser.isCanvas() && type == "image" ) {
+			if( settings.preview && cmt.utils.browser.isCanvas() && type == "image" ) {
 
 				var canvas		= fileUploader.find( ".preview canvas" );
 
 				canvas.show();
 
-				Cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
+				cmt.utils.image.drawOnCanvas( canvas[0], files[0] );
 			}
 
 			// Upload File
@@ -855,7 +1435,7 @@ if( window.location.hash == '#_=_' ) {
 	};
 
 	// Default Settings
-	cmt.fn.cmtFileUploader.defaults = {
+	cmtjq.fn.cmtFileUploader.defaults = {
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
 		uploadListener: null,
 		preview: true
@@ -865,21 +1445,21 @@ if( window.location.hash == '#_=_' ) {
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtHeader = function( options ) {
+	cmtjq.fn.cmtHeader = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtHeader.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtHeader.defaults, options );
 		var screenWidth		= window.innerWidth;
 		var headers			= this;
 
 		// Iterate and initialise all the page modules
 		headers.each( function() {
 
-			var header	= cmt( this );
+			var header	= cmtjq( this );
 
 			init( header );
 		});
@@ -926,7 +1506,7 @@ if( window.location.hash == '#_=_' ) {
 	};
 
 	// Default Settings
-	cmt.fn.cmtHeader.defaults = {
+	cmtjq.fn.cmtHeader.defaults = {
 		minWidth: 1024,
 		scrollDistance: 300
 	};
@@ -934,23 +1514,23 @@ if( window.location.hash == '#_=_' ) {
 }( jQuery ) );;/*
  * Dependencies: jquery
  */
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtPopup = function( options ) {
+	cmtjq.fn.cmtPopup = function( options ) {
 
 		// == Init == //
 
 		// Configure Popups
-		var settings 		= cmt.extend( {}, cmt.fn.cmtPopup.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtPopup.defaults, options );
 		var elements		= this;
-		var documentHeight 	= cmt( document ).height();
-		var screenHeight	= cmt( window ).height();
-		var screenWidth		= cmt( window ).width();
+		var documentHeight 	= cmtjq( document ).height();
+		var screenHeight	= cmtjq( window ).height();
+		var screenWidth		= cmtjq( window ).width();
 
 		// Iterate and initialise all the popups
 		elements.each( function() {
 
-			var element	= cmt( this );
+			var element	= cmtjq( this );
 
 			init( element );
 		});
@@ -987,7 +1567,7 @@ if( window.location.hash == '#_=_' ) {
 	};
 
 	// Default Settings
-	cmt.fn.cmtPopup.defaults = {
+	cmtjq.fn.cmtPopup.defaults = {
 		modal: true
 	};
 
@@ -1028,22 +1608,22 @@ function showMessagePopup( message ) {
 function hideMessagePopup() {
 
 	closePopup( "#message-popup" );
-};( function( cmt ) {
+};( function( cmtjq ) {
 
 // TODO: Add option for multi select
 
-	cmt.fn.cmtSelect = function( options ) {
+	cmtjq.fn.cmtSelect = function( options ) {
 
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmt.extend( {}, cmt.fn.cmtSelect.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSelect.defaults, options );
 		var dropDowns		= this;
 
 		// Iterate and initialise all the fox sliders
 		dropDowns.each( function() {
 
-			var dropDown = cmt( this );
+			var dropDown = cmtjq( this );
 
 			init( dropDown );
 		});
@@ -1137,7 +1717,7 @@ function hideMessagePopup() {
 					
 					var visible = customList.is( ':visible' );
 
-					cmt( ".cmt-select-list" ).hide();
+					cmtjq( ".cmt-select-list" ).hide();
 
 					if( !visible ) {
 
@@ -1159,9 +1739,9 @@ function hideMessagePopup() {
 					customList.hide();
 				});
 				
-				cmt( document ).on( 'click', function( e ) {
+				cmtjq( document ).on( 'click', function( e ) {
 
-			        if ( cmt( e.target ).closest( customList ).length === 0 ) {
+			        if ( cmtjq( e.target ).closest( customList ).length === 0 ) {
 	
 			            customList.hide();
 			        }
@@ -1171,7 +1751,7 @@ function hideMessagePopup() {
 	};
 
 	// Default Settings
-	cmt.fn.cmtSelect.defaults = {
+	cmtjq.fn.cmtSelect.defaults = {
 		multi: false,
 		copyId: false,
 		wrapperClass: null,
@@ -1183,20 +1763,20 @@ function hideMessagePopup() {
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtSmoothScroll = function( options ) {
+	cmtjq.fn.cmtSmoothScroll = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtSmoothScroll.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSmoothScroll.defaults, options );
 		var elements		= this;
 
 		// Iterate and initialise all the page modules
 		elements.each( function() {
 
-			var element	= cmt( this );
+			var element	= cmtjq( this );
 
 			init( element );
 		});
@@ -1214,7 +1794,7 @@ function hideMessagePopup() {
 			    e.preventDefault();
 
 			    var targetId 	= this.hash;
-			    var target 		= cmt( targetId );
+			    var target 		= cmtjq( targetId );
 		
 			    jQuery('html, body').stop().animate(
 			    	{ 'scrollTop': ( target.offset().top ) }, 
@@ -1230,434 +1810,8 @@ function hideMessagePopup() {
 	};
 
 	// Default Settings
-	cmt.fn.cmtSmoothScroll.defaults = {
+	cmtjq.fn.cmtSmoothScroll.defaults = {
 
-	};
-
-}( jQuery ) );;/*
- * Dependencies: jquery, cmt-core
- */
-
-// TODO: remove JQuery plugin and make it under Cmt namespace
-// TODO: Change Controller to Controller Classes and Actions to Controller Methods
-// TODO: Add Data Binding Support
-// TODO: Add Data Binding with Pagination for Data Grid
-// TODO: Add Page History and Caching Support
-
-// Default Controller
-var CONTROLLER_DEFAULT	= 'default';
-
-// Default Controller Actions
-var ACTION_DEFAULT		=  'default';
-var ACTION_LOGIN		=  'login';
-var ACTION_AVATAR		=  'avatar';
-
-/**
- * JQuery Plugin for CMGTools Ajax Processor to process remote request.
- */
-( function( cmt ) {
-
-	cmt.fn.processAjax = function( options ) {
-
-		// == Init == //
-
-		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.processAjax.defaults, options );
-		var ajaxCallers		= this;
-
-		// Iterate and initialise all the fox sliders
-		ajaxCallers.each( function() {
-
-			var ajaxCaller = cmt( this );
-
-			init( ajaxCaller );
-		});
-
-		// return control
-		return;
-
-		// == Private Functions == //
-
-		// Initialise Module
-		function init( ajaxCaller ) {
-
-			if( settings.form ) {
-
-				ajaxCaller.submit( function( event ) {
-
-					event.preventDefault();
-
-					var formId			= jQuery( this ).attr( "id" );
-					var controllerId	= jQuery( this ).attr( "cmt-controller" );
-					var actionId		= jQuery( this ).attr( "cmt-action" );
-
-					if( null == controllerId ) {
-
-						controllerId = CONTROLLER_DEFAULT;
-					}
-
-					if( null == actionId ) {
-
-						actionId = ACTION_DEFAULT;
-					}
-
-					if( settings.json ) {
-
-						Cmt.remote.handleRestForm( formId, controllerId, actionId );
-					}
-					else {
-
-						Cmt.remote.handleAjaxForm( formId, controllerId, actionId );
-					}
-				});
-			}
-			else {
-
-				jQuery( ajaxCaller ).find( ".cmt-submit" ).click( function( e ) {
-
-					e.preventDefault();
-
-					var request			= jQuery( "#" + jQuery( this ).attr( "cmt-request" ) );
-					var elementId		= request.attr( "id" );
-					var controllerId	= request.attr( "cmt-controller" );
-					var actionId		= request.attr( "cmt-action" );
-
-					if( null == controllerId ) {
-
-						controllerId = CONTROLLER_DEFAULT;
-					}
-
-					if( null == actionId ) {
-
-						actionId = ACTION_DEFAULT;
-					}
-
-					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
-				});
-
-				jQuery( ajaxCaller ).find( ".cmt-select" ).change( function() {
-
-					var request			= jQuery( "#" + jQuery( this ).attr( "cmt-request" ) );
-					var elementId		= request.attr( "id" );
-					var controllerId	= request.attr( "cmt-controller" );
-					var actionId		= request.attr( "cmt-action" );
-
-					if( null == controllerId ) {
-
-						controllerId = CONTROLLER_DEFAULT;
-					}
-
-					if( null == actionId ) {
-
-						actionId = ACTION_DEFAULT;
-					}
-
-					Cmt.remote.handleAjaxRequest( elementId, controllerId, actionId );
-				});
-			}
-		}
-	};
-
-	// Default Settings
-	cmt.fn.processAjax.defaults = {
-		form: true,
-		json: false
 	};
 
 }( jQuery ) );
-
-/**
- * CMGTools Ajax Processor to process remote request.
- */
-Cmt.remote = {
-
-	errorClass: 'error',
-	messageClass: 'message',
-	spinnerClass: 'spinner',
-
-	handleAjaxForm: function( formId, controllerId, actionId ) {
-
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.messageClass );
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + formId + " ." + this.errorClass ).hide();
-
-		// Pre Process Form
-		if( !preCmtApiProcessor.processPre( formId, controllerId, actionId ) ) {
-
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= Cmt.utils.data.serialiseForm( formId );
-
-		// Show Spinner
-		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
-
-		jQuery.ajax( {
-			type: httpMethod,
-			url: actionUrl,
-			data: formData,
-			dataType: "JSON",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				Cmt.remote.processAjaxResponse( formId, controllerId, actionId, message, response );
-			}
-		});
-
-		return false;
-	},
-
-	handleRestForm: function( formId, controllerId, actionId ) {
-
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.messageClass );
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + formId + " ." + this.errorClass ).hide();
-
-		// Pre Process Form
-		if( !preCmtApiProcessor.processPre( formId, controllerId, actionId ) ) {
-
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= Cmt.utils.data.formToJson( formId );
-
-		// Show Spinner
-		jQuery( "#" + formId + " ." + this.spinnerClass ).show();
-
-		jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: JSON.stringify( formData ),
-			dataType: "JSON",
-			contentType: "application/json;charset=UTF-8",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				Cmt.remote.processAjaxResponse( formId, controllerId, actionId, message, response );
-			}
-		});
-
-		return false;
-	},
-
-	handleAjaxRequest: function( elementId, controllerId, actionId ) {
-
-		var element		= jQuery( "#" + elementId );
-		var httpMethod	= element.attr( "method" );
-		var actionUrl	= element.attr( "action" );
-		var message		= jQuery( "#" + elementId + " ." + this.messageClass );
-
-		if( null == httpMethod ) {
-
-			httpMethod = 'post';		
-		}
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
-
-		// Pre Process Request
-		if( !preCmtApiProcessor.processPre( elementId, controllerId, actionId ) ) {
-
-			return false;
-		}
-
-		// Generate request data for submission
-		var requestData	= Cmt.utils.data.serialiseElement( elementId );
-
-		// Show Spinner
-		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
-
-		jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: requestData,
-			dataType: "JSON",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				Cmt.remote.processAjaxResponse( elementId, controllerId, actionId, message, response );
-			}
-		});
-
-		return false;
-	},
-
-	processAjaxResponse: function( requestId, controllerId, actionId, message, response ) {
-
-		var result 		= response['result'];
-		var messageStr 	= response['message'];
-		var data		= response['data'];
-		var errors		= response['errors'];
-
-		if( result == 1 ) {
-			
-			// Show message
-			message.html( messageStr );
-			message.show();
-
-			// Hide all errors
-			jQuery( "#" + requestId + " ." + this.errorClass ).hide();
-
-			// Hide Spinner
-			jQuery( "#" + requestId + " ." + this.spinnerClass ).hide();
-
-			// Check to clear form data
-			var clearData = jQuery( "#" + requestId ).attr( "cmt-clear-data" );
-
-			if( null == clearData ) {
-
-				clearData	= true;
-			}
-			else {
-
-				clearData	= clearData === 'true';
-			}
-
-			if( clearData ) {
-
-				// Clear all form fields
-				jQuery( "#" + requestId + " input[type='text']" ).val( '' );
-				jQuery( "#" + requestId + " input[type='password']" ).val( '' );
-				jQuery( "#" + requestId + " textarea" ).val( '' );
-			}
-
-			// Pass the data for post processing
-			postCmtApiProcessor.processSuccess( requestId, controllerId, actionId, response );
-		}
-		else if( result == 0 ) {
-
-			// Show message
-			message.html( messageStr );
-			message.show();
-
-			// Hide Spinner
-			jQuery( "#" + requestId + " ." + this.spinnerClass ).hide();
-
-			// Show Errors
-			for( var key in errors ) {
-
-	        	var fieldName 		= key;
-	        	var errorMessage 	= errors[key];
-	        	var errorField		= jQuery( "#" + requestId + " span[cmt-error='" + fieldName + "']" );
-
-	        	errorField.html( errorMessage );
-	        	errorField.show();
-	    	}
-
-			postCmtApiProcessor.processFailure( requestId, controllerId, actionId, response );
-		}
-	}
-};
-
-/* Pre Processor */
-
-PreCmtApiProcessor = function() {
-	
-	this.formListeners	= Array();
-};
-
-PreCmtApiProcessor.prototype.addListener = function( listener ) {
-	
-	this.formListeners.push( listener );
-};
-
-PreCmtApiProcessor.prototype.processPre = function( requestId, controllerId, actionId ) {
-
-	var formListeners	= this.formListeners;
-	var length 			= formListeners.length;
-
-	for( var i = 0; i < length; i++ ) {
-
-		if( !formListeners[i]( requestId, controllerId, actionId ) ) {
-
-			return false;
-		}
-	}
-
-	return true;
-};
-
-/* Ajax Post Processor */
-
-function PostCmtApiProcessor() {
-	
-	this.successListeners	= Array();
-	this.failureListeners	= Array();
-}
-
-PostCmtApiProcessor.prototype.addSuccessListener = function( listener ) {
-	
-	this.successListeners.push( listener );
-};
-
-PostCmtApiProcessor.prototype.addFailureListener = function( listener ) {
-	
-	this.failureListeners.push( listener );
-};
-
-PostCmtApiProcessor.prototype.processSuccess = function( requestId, controllerId, actionId, response ) {
-
-	var successListeners	= this.successListeners;
-	var length 				= successListeners.length;
-
-	for( var i = 0; i < length; i++ ) {
-
-		successListeners[i]( requestId, controllerId, actionId, response );
-	}
-};
-
-PostCmtApiProcessor.prototype.processFailure = function( requestId, controllerId, actionId, response ) {
-
-	var failureListeners	= this.failureListeners;
-	var length 				= failureListeners.length;
-
-	for( var i = 0; i < length; i++ ) {
-
-		failureListeners[i]( requestId, controllerId, actionId, response );
-	}
-};
-
-/* Core - Pre Ajax Processor */
-
-function preCoreProcessor( requestId, gcontrollerId, actionId ) {
-
-	return true;
-}
-
-var preCmtApiProcessor	= new PreCmtApiProcessor();
-
-preCmtApiProcessor.addListener( preCoreProcessor );
-
-/* Core - Post Ajax Processor */
-
-function postCoreProcessorSuccess( requestId, controllerId, actionId, response ) {
-
-}
-
-function postCoreProcessorFailure( requestId, gcontrollerId, actionId, response ) {
-
-}
-
-var postCmtApiProcessor	= new PostCmtApiProcessor();
-
-postCmtApiProcessor.addSuccessListener( postCoreProcessorSuccess );
-postCmtApiProcessor.addFailureListener( postCoreProcessorFailure );

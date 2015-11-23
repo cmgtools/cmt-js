@@ -15,7 +15,7 @@ module.exports = function( grunt ) {
 			            '\n */\n'
       		},
       		dist: {
-        		src: [ 'src/core/**/*.js', 'src/components/**/*.js', 'src/mvc/**/*.js' ],
+        		src: [ 'src/core/**/*.js', 'src/mvc/core.js', 'src/mvc/controllers.js', 'src/mvc/application.js', 'src/components/**/*.js' ],
         		dest: 'dist/cmgtools.js'
       		}
     	},

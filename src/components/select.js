@@ -1,19 +1,19 @@
-( function( cmt ) {
+( function( cmtjq ) {
 
 // TODO: Add option for multi select
 
-	cmt.fn.cmtSelect = function( options ) {
+	cmtjq.fn.cmtSelect = function( options ) {
 
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmt.extend( {}, cmt.fn.cmtSelect.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSelect.defaults, options );
 		var dropDowns		= this;
 
 		// Iterate and initialise all the fox sliders
 		dropDowns.each( function() {
 
-			var dropDown = cmt( this );
+			var dropDown = cmtjq( this );
 
 			init( dropDown );
 		});
@@ -107,7 +107,7 @@
 					
 					var visible = customList.is( ':visible' );
 
-					cmt( ".cmt-select-list" ).hide();
+					cmtjq( ".cmt-select-list" ).hide();
 
 					if( !visible ) {
 
@@ -129,9 +129,9 @@
 					customList.hide();
 				});
 				
-				cmt( document ).on( 'click', function( e ) {
+				cmtjq( document ).on( 'click', function( e ) {
 
-			        if ( cmt( e.target ).closest( customList ).length === 0 ) {
+			        if ( cmtjq( e.target ).closest( customList ).length === 0 ) {
 	
 			            customList.hide();
 			        }
@@ -141,7 +141,7 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtSelect.defaults = {
+	cmtjq.fn.cmtSelect.defaults = {
 		multi: false,
 		copyId: false,
 		wrapperClass: null,

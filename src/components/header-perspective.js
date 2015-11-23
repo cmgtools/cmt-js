@@ -2,21 +2,21 @@
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtHeader = function( options ) {
+	cmtjq.fn.cmtHeader = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtHeader.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtHeader.defaults, options );
 		var screenWidth		= window.innerWidth;
 		var headers			= this;
 
 		// Iterate and initialise all the page modules
 		headers.each( function() {
 
-			var header	= cmt( this );
+			var header	= cmtjq( this );
 
 			init( header );
 		});
@@ -63,7 +63,7 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtHeader.defaults = {
+	cmtjq.fn.cmtHeader.defaults = {
 		minWidth: 1024,
 		scrollDistance: 300
 	};

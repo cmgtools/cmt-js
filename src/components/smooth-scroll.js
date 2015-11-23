@@ -2,20 +2,20 @@
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtSmoothScroll = function( options ) {
+	cmtjq.fn.cmtSmoothScroll = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtSmoothScroll.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSmoothScroll.defaults, options );
 		var elements		= this;
 
 		// Iterate and initialise all the page modules
 		elements.each( function() {
 
-			var element	= cmt( this );
+			var element	= cmtjq( this );
 
 			init( element );
 		});
@@ -33,7 +33,7 @@
 			    e.preventDefault();
 
 			    var targetId 	= this.hash;
-			    var target 		= cmt( targetId );
+			    var target 		= cmtjq( targetId );
 		
 			    jQuery('html, body').stop().animate(
 			    	{ 'scrollTop': ( target.offset().top ) }, 
@@ -49,7 +49,7 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtSmoothScroll.defaults = {
+	cmtjq.fn.cmtSmoothScroll.defaults = {
 
 	};
 

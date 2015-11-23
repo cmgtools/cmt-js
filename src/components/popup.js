@@ -1,23 +1,23 @@
 /*
  * Dependencies: jquery
  */
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtPopup = function( options ) {
+	cmtjq.fn.cmtPopup = function( options ) {
 
 		// == Init == //
 
 		// Configure Popups
-		var settings 		= cmt.extend( {}, cmt.fn.cmtPopup.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtPopup.defaults, options );
 		var elements		= this;
-		var documentHeight 	= cmt( document ).height();
-		var screenHeight	= cmt( window ).height();
-		var screenWidth		= cmt( window ).width();
+		var documentHeight 	= cmtjq( document ).height();
+		var screenHeight	= cmtjq( window ).height();
+		var screenWidth		= cmtjq( window ).width();
 
 		// Iterate and initialise all the popups
 		elements.each( function() {
 
-			var element	= cmt( this );
+			var element	= cmtjq( this );
 
 			init( element );
 		});
@@ -54,7 +54,7 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtPopup.defaults = {
+	cmtjq.fn.cmtPopup.defaults = {
 		modal: true
 	};
 
