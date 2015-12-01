@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-23
+ * CMGTools JS - v1.0.0-alpha1 - 2015-11-29
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1086,6 +1086,22 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 					}
 				}
 
+				// adjust content wrap and block height in case content height exceeds
+				var contentWrap	= block.find( ".block-wrap-content" );
+				var content		= block.find( ".block-content" );
+
+				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
+
+					var newHeight 	= ( content.height() + 100 ) + 'px';
+					var diff		= content.height() - contentWrap.height();
+
+					contentWrap.height( newHeight );
+
+					newHeight = ( block.height() + diff + 100 ) + 'px';
+
+					block.height( newHeight );
+				}
+
 				// Check whether additional css is required
 				if( null != css && css ) {
 
@@ -1512,6 +1528,81 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 	cmtjq.fn.cmtHeader.defaults = {
 		minWidth: 1024,
 		scrollDistance: 300
+	};
+
+}( jQuery ) );;( function( cmtjq ) {
+
+	cmtjq.fn.cmtSlidingMenu = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlidingMenu.defaults, options );
+		var menus			= this;
+
+		// Iterate and initialise all the menus
+		menus.each( function() {
+
+			var menu = cmtjq( this );
+
+			init( menu );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( menu ) {
+			
+			if( settings.mainMenu ) {
+
+				var documentHeight 	= cmtjq( document ).height();
+				var screenWidth		= cmtjq( window ).width();
+
+				// Parent to cover document
+				menu.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
+			}
+
+			cmtjq( settings.trigger ).click( function() {
+
+				menu.fadeIn();
+
+				var slider	= menu.find( '.vnav-slider' );
+
+				if( settings.position == 'left' ) {
+					
+					slider.animate( { left: 0 } );
+				}
+				else if( settings.position == 'right' ) {
+
+					slider.animate( { right: 0 } );
+				}
+			});
+			
+			menu.find( '.btn-close' ).click( function() {
+				
+				menu.fadeOut();
+				
+				var slider	= menu.find( '.vnav-slider' );
+
+				if( settings.position == 'left' ) {
+
+					slider.animate( { left: -( slider.width() ) } );
+				}
+				else if( settings.position == 'right' ) {
+					
+					slider.animate( { right: -( slider.width() ) } );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtSlidingMenu.defaults = {
+		position: 'left',
+		trigger: null,
+		mainMenu: false
 	};
 
 }( jQuery ) );;/*

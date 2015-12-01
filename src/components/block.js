@@ -93,6 +93,22 @@
 					}
 				}
 
+				// adjust content wrap and block height in case content height exceeds
+				var contentWrap	= block.find( ".block-wrap-content" );
+				var content		= block.find( ".block-content" );
+
+				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
+
+					var newHeight 	= ( content.height() + 100 ) + 'px';
+					var diff		= content.height() - contentWrap.height();
+
+					contentWrap.height( newHeight );
+
+					newHeight = ( block.height() + diff + 100 ) + 'px';
+
+					block.height( newHeight );
+				}
+
 				// Check whether additional css is required
 				if( null != css && css ) {
 
