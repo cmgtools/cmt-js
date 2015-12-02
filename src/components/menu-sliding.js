@@ -31,23 +31,45 @@
 				// Parent to cover document
 				menu.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
 			}
-
-			cmtjq( settings.trigger ).click( function() {
-
-				menu.fadeIn();
-
-				var slider	= menu.find( '.vnav-slider' );
-
-				if( settings.position == 'left' ) {
-					
-					slider.animate( { left: 0 } );
-				}
-				else if( settings.position == 'right' ) {
-
-					slider.animate( { right: 0 } );
-				}
-			});
 			
+			if( null != settings.showTrigger ) {
+
+				cmtjq( settings.showTrigger ).click( function() {
+	
+					menu.fadeIn();
+	
+					var slider	= menu.find( '.vnav-slider' );
+	
+					if( settings.position == 'left' ) {
+						
+						slider.animate( { left: 0 } );
+					}
+					else if( settings.position == 'right' ) {
+	
+						slider.animate( { right: 0 } );
+					}
+				});
+			}
+
+			if( null != settings.hideTrigger ) {
+
+				cmtjq( settings.hideTrigger ).click( function() {
+	
+					menu.fadeOut();
+					
+					var slider	= menu.find( '.vnav-slider' );
+	
+					if( settings.position == 'left' ) {
+	
+						slider.animate( { left: -( slider.width() ) } );
+					}
+					else if( settings.position == 'right' ) {
+						
+						slider.animate( { right: -( slider.width() ) } );
+					}
+				});
+			}
+
 			menu.find( '.btn-close' ).click( function() {
 				
 				menu.fadeOut();
@@ -69,7 +91,8 @@
 	// Default Settings
 	cmtjq.fn.cmtSlidingMenu.defaults = {
 		position: 'left',
-		trigger: null,
+		showTrigger: null,
+		hideTrigger: null,
 		mainMenu: false
 	};
 

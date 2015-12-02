@@ -440,6 +440,30 @@ cmt.utils.ui = {
 
 			child.css( { "position": "absolute", "top": top, "left": left } );	
 		}
+	},
+	initFormCheckbox: function( formSelector ) {
+		
+		var checkboxes = jQuery( formSelector ).find( "input[type='checkbox']" );
+
+		checkboxes.each( function() {
+
+			if( jQuery( this ).val() == 'true' ) {
+
+				jQuery( this ).prop( 'checked', true );
+			}
+		});
+
+		checkboxes.change( function() {
+
+			if( jQuery( this ).prop( 'checked' ) ) {
+
+				jQuery( this ).val( 'true' );
+			}
+			else {
+
+				jQuery( this ).val( 'false' );
+			}
+		});
 	}
 };
 

@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-11-29
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-02
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -447,6 +447,30 @@ cmt.utils.ui = {
 
 			child.css( { "position": "absolute", "top": top, "left": left } );	
 		}
+	},
+	initFormCheckbox: function( formSelector ) {
+		
+		var checkboxes = jQuery( formSelector ).find( "input[type='checkbox']" );
+
+		checkboxes.each( function() {
+
+			if( jQuery( this ).val() == 'true' ) {
+
+				jQuery( this ).prop( 'checked', true );
+			}
+		});
+
+		checkboxes.change( function() {
+
+			if( jQuery( this ).prop( 'checked' ) ) {
+
+				jQuery( this ).val( 'true' );
+			}
+			else {
+
+				jQuery( this ).val( 'false' );
+			}
+		});
 	}
 };
 
@@ -1460,6 +1484,55 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		preview: true
 	};
 
+}( jQuery ) );;( function( cmtjq ) {
+
+	cmtjq.fn.cmtFormInfo = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtFormInfo.defaults, options );
+		var forms			= this;
+
+		// Iterate and initialise all the menus
+		forms.each( function() {
+
+			var form = cmtjq( this );
+
+			init( form );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( form ) {
+
+			form.find( ".btn-edit" ).click( function() {
+
+				var info = jQuery( this ).parent().find( ".wrap-info" );
+				var form = jQuery( this ).parent().find( ".wrap-form" );
+
+				if( info.is( ":visible" ) ) {
+
+					info.hide();
+					form.fadeIn( "slow" );
+				}
+				else {
+
+					info.show();
+					form.fadeOut( "slow" );			
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtFormInfo.defaults = {
+		// default config
+	};
+
 }( jQuery ) );;/*
  * Dependencies: jquery
  */
@@ -1563,23 +1636,45 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 				// Parent to cover document
 				menu.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
 			}
-
-			cmtjq( settings.trigger ).click( function() {
-
-				menu.fadeIn();
-
-				var slider	= menu.find( '.vnav-slider' );
-
-				if( settings.position == 'left' ) {
-					
-					slider.animate( { left: 0 } );
-				}
-				else if( settings.position == 'right' ) {
-
-					slider.animate( { right: 0 } );
-				}
-			});
 			
+			if( null != settings.showTrigger ) {
+
+				cmtjq( settings.showTrigger ).click( function() {
+	
+					menu.fadeIn();
+	
+					var slider	= menu.find( '.vnav-slider' );
+	
+					if( settings.position == 'left' ) {
+						
+						slider.animate( { left: 0 } );
+					}
+					else if( settings.position == 'right' ) {
+	
+						slider.animate( { right: 0 } );
+					}
+				});
+			}
+
+			if( null != settings.hideTrigger ) {
+
+				cmtjq( settings.hideTrigger ).click( function() {
+	
+					menu.fadeOut();
+					
+					var slider	= menu.find( '.vnav-slider' );
+	
+					if( settings.position == 'left' ) {
+	
+						slider.animate( { left: -( slider.width() ) } );
+					}
+					else if( settings.position == 'right' ) {
+						
+						slider.animate( { right: -( slider.width() ) } );
+					}
+				});
+			}
+
 			menu.find( '.btn-close' ).click( function() {
 				
 				menu.fadeOut();
@@ -1601,7 +1696,8 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 	// Default Settings
 	cmtjq.fn.cmtSlidingMenu.defaults = {
 		position: 'left',
-		trigger: null,
+		showTrigger: null,
+		hideTrigger: null,
 		mainMenu: false
 	};
 
