@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-02
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-08
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -558,12 +558,11 @@ cmt.api.controllers.BaseController = function() {
 cmt.api.controllers.BaseController.prototype.init = function() {
 	
 	// Init method to initialise controller
-};;
-
-
-cmt.api.controllers.DefaultController = function() {
-	
 };
+
+// Default Controller
+
+cmt.api.controllers.DefaultController = function() {};
 
 cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
 
@@ -701,17 +700,13 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 
 			event.preventDefault();
 
-			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
-
-			app.initRequestTrigger( request.attr( cmt.api.Application.STATIC_ID ), false, request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
 
 		// Select Submits
 		requestTrigger.find( cmt.api.Application.STATIC_SELECT ).change( function() {
 
-			var request			= jQuery( "#" + requestTrigger.attr( "cmt-request" ) );
-
-			app.initRequestTrigger( request.attr( cmt.api.Application.STATIC_ID ), false, request.attr( cmt.api.Application.STATIC_CONTROLLER ), request.attr( cmt.api.Application.STATIC_ACTION ) );
+			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
 	});
 };
@@ -811,10 +806,6 @@ cmt.api.Application.prototype.handleRestForm = function( formId, controller, act
 
 			return false;
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
-
-			return false;
-		}
 
 		// Generate form data for submission
 		var formData	= cmt.utils.data.formToJson( formId );
@@ -858,11 +849,7 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 
 			return false;
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
 
-			return false;
-		}
-		
 		// Generate form data for submission
 		var formData	= cmt.utils.data.serialiseForm( formId );
 
@@ -905,17 +892,13 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
 
 		// Pre Process Request
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
-
-			return false;
-		}
-		else if( controller instanceof cmt.api.controllers.DefaultController && !( controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPre" ]( form ) ) ) {
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
 
 			return false;
 		}
 
 		// Generate request data for submission
-		var requestData	= Cmt.utils.data.serialiseElement( elementId );
+		var requestData	= cmt.utils.data.serialiseElement( elementId );
 
 		// Show Spinner
 		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
@@ -928,7 +911,7 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 			success: function( response, textStatus, XMLHttpRequest ) {
 
 				// Process response
-				Cmt.remote.processAjaxResponse( elementId, controllerId, actionId, message, response );
+				app.processAjaxResponse( elementId, controller, action, message, response );
 			}
 		});
 
@@ -980,10 +963,6 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 
 			controller[ postAction ]( true, requestId, message, response );
 		}
-		else if( controller instanceof cmt.api.controllers.DefaultController ) {
-			
-			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPost" ]( true, requestId, message, response );
-		}
 	}
 	else if( result == 0 ) {
 
@@ -1009,10 +988,6 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		if( typeof controller[ postAction ] !== 'undefined' ) {
 
 			controller[ postAction ]( false, requestId, message, response );
-		}
-		else if( controller instanceof cmt.api.controllers.DefaultController ) {
-			
-			controller[ cmt.api.Application.ACTION_DEFAULT + "ActionPost" ]( false, requestId, message, response );
 		}
 	}
 };;/*

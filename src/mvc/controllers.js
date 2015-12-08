@@ -15,12 +15,11 @@ cmt.api.controllers.BaseController = function() {
 cmt.api.controllers.BaseController.prototype.init = function() {
 	
 	// Init method to initialise controller
-};;
-
-
-cmt.api.controllers.DefaultController = function() {
-	
 };
+
+// Default Controller
+
+cmt.api.controllers.DefaultController = function() {};
 
 cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
 
