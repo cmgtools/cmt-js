@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-09
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-10
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1037,15 +1037,13 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		// Initialise Block
 		function init( block ) {
 
-			// -- Apply Common Settings for all the Blocks
-
 			// -- Apply Block Specific Settings
-
 			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
 
-				var blockConfig			= blocksConfig[ block.attr( "id" ) ];
+				var blockConfig				= blocksConfig[ block.attr( "id" ) ];
 				var height					= blockConfig[ "height" ];
 				var fullHeight				= blockConfig[ "fullHeight" ];
+				var halfHeight				= blockConfig[ "halfHeight" ];
 				var heightAuto				= blockConfig[ "heightAuto" ];
 				var heightAutoMobile		= blockConfig[ "heightAutoMobile" ];
 				var heightAutoMobileWidth	= blockConfig[ "heightAutoMobileWidth" ];
@@ -1068,12 +1066,26 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 
 						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
 					}
+					else if( null != halfHeight && halfHeight ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+					}
+					else {
+						
+						block.css( { 'height': 'auto' } );
+					}
 				}
 
 				// Apply Full Height
 				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
 					block.css( { 'height': screenHeight + "px" } );
+				}
+
+				// Apply Half Height
+				if( null == height && null == heightAuto && ( null != halfHeight && halfHeight ) ) {
+
+					block.css( { 'height': ( screenHeight / 2 ) + "px" } );
 				}
 
 				// Check whether min height and height auto is required for mobile to handle overlapped content
@@ -1114,13 +1126,33 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 					block.css( css );
 				}
 			}
-			// Config in absence of block specific config
+			// -- Apply Common Settings for all the Blocks
 			else {
 
 				// Apply Full Height
 				if( settings.fullHeight ) {
-	
-					block.css( { 'height': screenHeight + "px" } );
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+					}
+					else {
+
+						block.css( { 'height': screenHeight + "px" } );
+					}
+				}
+
+				// Apply Half Height
+				if( settings.halfHeight ) {
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+					}
+					else {
+
+						block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+					}
 				}
 			}
 		}
@@ -1162,6 +1194,8 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 	cmtjq.fn.cmtBlock.defaults = {
 		// Controls
 		fullHeight: true,
+		halfHeight: false,
+		heightAuto: false,
 		backgroundParallax: true,
 		blocks: {
 			/* An array of blocks which need extra configuration. Ex:
