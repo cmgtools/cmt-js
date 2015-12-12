@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-10
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-12
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -672,7 +672,6 @@ cmt.api.Application.ACTION_DEFAULT		=  'default';			// Default Controller Action
 cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set for form or request
 cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set for form or request
 cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify form and request.
-cmt.api.Application.STATIC_FORM			=  'cmt-form';			// The class to be set for forms which need to be considered by this application
 cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';		// The class to be set for element which submit request on click
 cmt.api.Application.STATIC_SELECT		=  '.cmt-select';		// The class to be set for select box which submit request on change
 cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether form/request need to be cleared on success.
@@ -692,7 +691,7 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 		var requestTrigger = jQuery( this );
 
 		// Form Submits
-		if( requestTrigger.hasClass( cmt.api.Application.STATIC_FORM ) ) {
+		if( requestTrigger.is( "form" ) ) {
 
 			requestTrigger.submit( function( event ) {
 
