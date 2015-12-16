@@ -48,7 +48,14 @@
 				popup.children( ".popup-background" ).css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
 	
 				// Child at center of parent
-				popupData.css( { 'top': screenHeight/2 - popupData.height()/2, 'left': screenWidth/2 - popupData.width()/2 } );
+				popup.show(); // Need some better solution if it shows flicker effect
+
+				var popupDataHeight	=  popupData.height();
+				var popupDataWidth	=  popupData.width();
+
+				popup.hide();
+
+				popupData.css( { 'top': screenHeight/2 - popupDataHeight/2, 'left': screenWidth/2 - popupDataWidth/2 } );
 			}
 		}
 	};

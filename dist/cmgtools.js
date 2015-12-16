@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-12
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-16
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1766,7 +1766,14 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 				popup.children( ".popup-background" ).css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
 	
 				// Child at center of parent
-				popupData.css( { 'top': screenHeight/2 - popupData.height()/2, 'left': screenWidth/2 - popupData.width()/2 } );
+				popup.show(); // Need some better solution if it shows flicker effect
+
+				var popupDataHeight	=  popupData.height();
+				var popupDataWidth	=  popupData.width();
+
+				popup.hide();
+
+				popupData.css( { 'top': screenHeight/2 - popupDataHeight/2, 'left': screenWidth/2 - popupDataWidth/2 } );
 			}
 		}
 	};
