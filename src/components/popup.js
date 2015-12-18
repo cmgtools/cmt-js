@@ -43,10 +43,28 @@
 
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-	
-				// background to cover window
-				popup.children( ".popup-background" ).css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-	
+				
+				// Background
+				var bkg			= popup.find( ".popup-bkg" );
+				
+				if( bkg.length > 0 ) {
+					
+					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+				}
+
+				// Filler Layer to listen for close
+				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+
+				if( bkgFiller.length > 0 ) {
+
+					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+					
+					bkgFiller.click( function() {
+						
+						popup.fadeOut( "fast" );
+					});
+				}
+
 				// Child at center of parent
 				popup.show(); // Need some better solution if it shows flicker effect
 

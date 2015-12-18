@@ -85,6 +85,19 @@
 					slider.animate( { right: -( slider.width() ) } );
 				}
 			});
+
+			// Filler Layer to listen for close
+			var bkgFiller	= menu.find( ".popup-bkg-filler" );
+
+			if( bkgFiller.length > 0 ) {
+
+				bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
+
+				bkgFiller.click( function() {
+
+					menu.fadeOut( "fast" );
+				});
+			}
 		}
 	};
 

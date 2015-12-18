@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-16
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-18
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1705,6 +1705,19 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 					slider.animate( { right: -( slider.width() ) } );
 				}
 			});
+
+			// Filler Layer to listen for close
+			var bkgFiller	= menu.find( ".popup-bkg-filler" );
+
+			if( bkgFiller.length > 0 ) {
+
+				bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
+
+				bkgFiller.click( function() {
+
+					menu.fadeOut( "fast" );
+				});
+			}
 		}
 	};
 
@@ -1761,10 +1774,28 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-	
-				// background to cover window
-				popup.children( ".popup-background" ).css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-	
+				
+				// Background
+				var bkg			= popup.find( ".popup-bkg" );
+				
+				if( bkg.length > 0 ) {
+					
+					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+				}
+
+				// Filler Layer to listen for close
+				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+
+				if( bkgFiller.length > 0 ) {
+
+					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+					
+					bkgFiller.click( function() {
+						
+						popup.fadeOut( "fast" );
+					});
+				}
+
 				// Child at center of parent
 				popup.show(); // Need some better solution if it shows flicker effect
 
