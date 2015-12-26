@@ -5,20 +5,20 @@
 // TODO: Validate for max file size if possible
 
 // File Uploader Plugin
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtFileUploader = function( options ) {
+	cmtjq.fn.cmtFileUploader = function( options ) {
 
 		// == Init == //
 
 		// Configure Modules
-		var settings 		= cmt.extend( {}, cmt.fn.cmtFileUploader.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtFileUploader.defaults, options );
 		var fileUploaders	= this;
 
 		// Iterate and initialise all the uploaders
 		fileUploaders.each( function() {
 
-			var fileUploader = cmt( this );
+			var fileUploader = cmtjq( this );
 
 			init( fileUploader );
 		});
@@ -45,7 +45,7 @@
 					fileUploader.find( ".post-action" ).hide();
 
 					// Clear Old Values
-					if( Cmt.utils.isCanvasSupported() && fileUploader.attr( "type" ) == "image" ) {
+					if( cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
 
 						fileUploader.find( ".preview canvas" ).hide();
 					}
@@ -55,12 +55,12 @@
 					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
 	
 					// Modern Uploader
-					if ( Cmt.utils.isFileApiSupported() ) {
+					if ( cmt.utils.browser.isFileApi() ) {
 	
 						progressContainer.css( "width", "0%" );
 					}
 					// Form Data Uploader
-					else if( Cmt.utils.isFormDataSupported() ) {
+					else if( cmt.utils.browser.isFormData() ) {
 	
 						progressContainer.html( "" );
 					}
@@ -68,7 +68,7 @@
 			}
 
 			// Modern Uploader
-			if ( Cmt.utils.isFileApiSupported() ) {
+			if ( cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
 				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
@@ -97,7 +97,7 @@
 				});
 			}
 			// Form Data Uploader
-			else if( Cmt.utils.isFormDataSupported() ) {
+			else if( cmt.utils.browser.isFormData() ) {
 
 				var directory	= fileUploader.attr( "directory" );
 				var type		= fileUploader.attr( "type" );
@@ -131,13 +131,13 @@
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && Cmt.utils.isCanvasSupported() && type == "image" ) {
+			if( settings.preview && cmt.utils.browser.isCanvas() && type == "image" ) {
 
 				var canvas		= fileUploader.find( ".preview canvas" );
 
 				canvas.show();
 
-				Cmt.utils.drawImageOnCanvas( canvas[0], files[0] );
+				cmt.utils.image.drawAtCanvasCenter( canvas[0], files[0] );
 			}
 
 			// Upload File
@@ -281,7 +281,7 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtFileUploader.defaults = {
+	cmtjq.fn.cmtFileUploader.defaults = {
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
 		uploadListener: null,
 		preview: true

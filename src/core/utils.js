@@ -1,22 +1,18 @@
-// CMGTools Utilities - Collection of commonly used utility functions available for CMGTools
-Cmt.utils = {
-	
-};
+/*
+ * Dependencies: jquery
+ */
+
+/**
+ * CMGTools Utilities - Collection of commonly used utility functions available for CMGTools.
+ */
+cmt.utils = {};
 
 // Browser Features ------------------------------------------
 
-Cmt.utils.browser = {
-
-	/**
-	 * Detect whether browser supports canvas.
-	 */
-	isCanvas: function() {
-
-		var elem 			= document.createElement( 'canvas' );
-		var canvasSupported = !!( elem.getContext && elem.getContext( '2d' ) );
-
-		return canvasSupported;
-	},
+/**
+ * Browser utility provides commonly used browser feature detection methods.
+ */
+cmt.utils.browser = {
 
 	/**
 	 * Detect whether browser supports xhr.
@@ -45,6 +41,17 @@ Cmt.utils.browser = {
 	},
 
 	/**
+	 * Detect whether browser supports canvas.
+	 */
+	isCanvas: function() {
+
+		var elem 			= document.createElement( 'canvas' );
+		var canvasSupported = !!( elem.getContext && elem.getContext( '2d' ) );
+
+		return canvasSupported;
+	},
+
+	/**
 	 * Detect whether browser supports canvas data url feature.
 	 */
 	isCanvasDataUrl: function() {
@@ -61,7 +68,10 @@ Cmt.utils.browser = {
 	
 // Image Processing ------------------------------------------
 
-Cmt.utils.image = {
+/**
+ * Image utility provides commonly used image processing methods.
+ */
+cmt.utils.image = {
 
 	/**
 	 * It returns an array having width and height for the given image and target dimensions maintaining aspect ratio.
@@ -93,9 +103,9 @@ Cmt.utils.image = {
 	/**
 	 * It draws the provided image file at center of canvas.
 	 */
-	drawOnCanvas: function( canvas, imageFile ) {
+	drawAtCanvasCenter: function( canvas, imageUrl ) {
 
-		if( null != canvas && null != imageFile ) {
+		if( null != canvas && null != imageUrl ) {
 
 			var width		= canvas.width;
 			var height		= canvas.height;
@@ -103,17 +113,17 @@ Cmt.utils.image = {
 			var context 	= canvas.getContext( '2d' );
 		    var image 		= new Image();
 		    var image_url 	= window.URL || window.webkitURL;
-		    var image_src 	= image_url.createObjectURL( imageFile );
+		    var image_src 	= image_url.createObjectURL( imageUrl );
 		    image.src 		= image_src;
 
 		    image.onload = function() {
 
-		        var dims = Cmt.utils.arDimensions( image, width, height );
-				
+		        var dims = cmt.utils.image.arDimensions( image, width, height );
+
 				context.translate( width/2, height/2 );
 
 		        context.drawImage( image, -(dims[0] / 2), -(dims[1] / 2), dims[0], dims[1] );
-				
+
 				context.translate( -(width/2), -(height/2) );
 
 		        image_url.revokeObjectURL( image_src );
@@ -124,7 +134,10 @@ Cmt.utils.image = {
 
 // Data Processing -------------------------------------------
 
-Cmt.utils.data = {
+/**
+ * Data utility provides methods to convert form elements to json format. The json data can be used to send request to server side apis.
+ */
+cmt.utils.data = {
 
 	/**
 	 * It reads elementId and convert the input fields present within the element to parameters url.
@@ -176,7 +189,7 @@ Cmt.utils.data = {
 			}
 		});
 
-		return Cmt.utils.data.generateJsonMap( dataArr );
+		return cmt.utils.data.generateJsonMap( dataArr );
 	},
 
 	/**
@@ -224,7 +237,7 @@ Cmt.utils.data = {
 			formData	= formId.serializeArray();
 		}
 
-		return Cmt.utils.data.generateJsonMap( formData );
+		return cmt.utils.data.generateJsonMap( formData );
 	},
 
 	/**
@@ -368,3 +381,153 @@ Cmt.utils.data = {
 	    return baseUrl;
 	}
 };
+
+// Object Utilities ------------------------------------------
+
+/**
+ * Object utility provides methods to initialise or manipulate objects.
+ */
+cmt.utils.object = {
+
+	/**
+	 * Return object/instance associated to given string with namespace. It also check the type of Object.
+	 */
+	strToObject: function( str ) {
+
+	    var arr 		= str.split( "." );
+		var objClass	= ( window || this );
+
+	    for( var i = 0, arrLength = arr.length; i < arrLength; i++ ) {
+
+	        objClass	= objClass[ arr[ i ] ];
+	    }
+
+		var obj		= new objClass;
+
+		if ( typeof obj !== 'object' ) {
+
+			throw new Error( str +" not found" );
+		}
+
+		return obj;
+	}
+};
+
+// UI Utilities ----------------------------------------------
+
+/**
+ * UI utility provides methods to format or manage UI elements.
+ */
+cmt.utils.ui = {
+
+	/**
+	 * Aligns child element content at the center of parent vertically and horizontally. It expect parent to be positioned.
+	 */
+	alignMiddle: function( parent, child ) {
+
+		var parent			= jQuery( parent );
+		var child			= jQuery( child );
+
+		var parentHeight	= parent.height();
+		var parentWidth		= parent.width();
+		var childHeight		= child.height();
+		var childWidth		= child.width();
+
+		if( childHeight <= parentHeight && childWidth <= parentWidth ) {
+
+			var top 	= (parentHeight - childHeight) / 2;
+			var left 	= (parentWidth - childWidth) / 2;
+
+			child.css( { "position": "absolute", "top": top, "left": left } );	
+		}
+	},
+	// it converts checkboxes to yes/no
+	initFormCheckbox: function( formSelector, yesNo ) {
+
+		var checkboxes = jQuery( formSelector ).find( "input[type='checkbox']" );
+
+		checkboxes.each( function() {
+
+			if( yesNo ) {
+
+				if( jQuery( this ).parent().find( ".customcheck" ).val() == 'Yes' ) {
+
+					jQuery( this ).prop( 'checked', true );
+				}
+			}
+		});
+
+		checkboxes.change( function() {
+
+			if( yesNo ) {
+
+				if( jQuery( this ).prop( 'checked' ) ) {
+
+					jQuery( this ).parent().find( ".customcheck" ).val( 'Yes' );
+				}
+				else {
+
+					jQuery( this ).parent().find( ".customcheck" ).val( 'No' );
+				}
+			}
+		});
+	}
+};
+
+// Common fixes -----------------------------------------------
+
+//Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
+Function.prototype.inherits = function( parent ) {
+
+	var d	= 0;
+	var p 	= ( this.prototype = new parent() );
+
+	this.prototype.uber	= function( name ) {
+
+		var f;
+		var r;
+		var t = d;
+		var v = parent.prototype;
+
+		if( t ) {
+
+			while( t ) {
+
+	              v		= v.constructor.prototype;
+	              t 	-= 1;
+			}
+	
+			f = v[ name ];
+		}
+		else {
+
+			f	= p[ name ];
+	
+			if( f == this[ name ] ) {
+
+				f = v[ name ];
+			}
+		}
+
+		d		+= 1;
+		r		 = f.apply(this, Array.prototype.slice.apply(arguments, [1]));
+		d		-= 1;
+
+		return r;
+	};
+};
+
+// Fix hash tag issues for SNS login
+if( window.location.hash == '#_=_' ) {
+
+    if( history.replaceState ) {
+
+        var cleanHref = window.location.href.split( '#' )[ 0 ];
+
+        history.replaceState( null, null, cleanHref );
+    }
+    else {
+
+        window.location.hash = '';
+    }
+}

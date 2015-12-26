@@ -1,23 +1,23 @@
 /*
  * Dependencies: jquery
  */
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtPopup = function( options ) {
+	cmtjq.fn.cmtPopup = function( options ) {
 
 		// == Init == //
 
 		// Configure Popups
-		var settings 		= cmt.extend( {}, cmt.fn.cmtPopup.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtPopup.defaults, options );
 		var elements		= this;
-		var documentHeight 	= cmt( document ).height();
-		var screenHeight	= cmt( window ).height();
-		var screenWidth		= cmt( window ).width();
+		var documentHeight 	= cmtjq( document ).height();
+		var screenHeight	= cmtjq( window ).height();
+		var screenWidth		= cmtjq( window ).width();
 
 		// Iterate and initialise all the popups
 		elements.each( function() {
 
-			var element	= cmt( this );
+			var element	= cmtjq( this );
 
 			init( element );
 		});
@@ -43,18 +43,43 @@
 
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-	
-				// background to cover window
-				popup.children( ".popup-background" ).css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-	
+				
+				// Background
+				var bkg			= popup.find( ".popup-bkg" );
+				
+				if( bkg.length > 0 ) {
+					
+					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+				}
+
+				// Filler Layer to listen for close
+				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+
+				if( bkgFiller.length > 0 ) {
+
+					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
+					
+					bkgFiller.click( function() {
+						
+						popup.fadeOut( "fast" );
+					});
+				}
+
 				// Child at center of parent
-				popupData.css( { 'top': screenHeight/2 - popupData.height()/2, 'left': screenWidth/2 - popupData.width()/2 } );
+				popup.show(); // Need some better solution if it shows flicker effect
+
+				var popupDataHeight	=  popupData.height();
+				var popupDataWidth	=  popupData.width();
+
+				popup.hide();
+
+				popupData.css( { 'top': screenHeight/2 - popupDataHeight/2, 'left': screenWidth/2 - popupDataWidth/2 } );
 			}
 		}
 	};
 
 	// Default Settings
-	cmt.fn.cmtPopup.defaults = {
+	cmtjq.fn.cmtPopup.defaults = {
 		modal: true
 	};
 

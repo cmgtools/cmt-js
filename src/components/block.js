@@ -2,24 +2,24 @@
  * Dependencies: jquery
  */
 
-( function( cmt ) {
+( function( cmtjq ) {
 
-	cmt.fn.cmtBlock = function( options ) {
+	cmtjq.fn.cmtBlock = function( options ) {
 
 		// == Init == //
 
 		// Configure Blocks
-		var settings 		= cmt.extend( {}, cmt.fn.cmtBlock.defaults, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtBlock.defaults, options );
 		var blocks			= this;
-		var screenHeight	= cmt( window ).height();
-		var screenWidth		= cmt( window ).width();
+		var screenHeight	= cmtjq( window ).height();
+		var screenWidth		= cmtjq( window ).width();
 		var blocksConfig	= settings.blocks;
 		var blocksKeys		= Object.keys( blocksConfig );
 
 		// Iterate and initialise all the page blocks
 		blocks.each( function() {
 
-			var block	= cmt( this );
+			var block	= cmtjq( this );
 
 			init( block );
 		});
@@ -27,7 +27,7 @@
 		// Initialise parallax
 		if( settings.backgroundParallax ) {
 
-			cmt( window ).scroll( scrollBackground );
+			cmtjq( window ).scroll( scrollBackground );
 		}
 
 		// return control
@@ -38,15 +38,13 @@
 		// Initialise Block
 		function init( block ) {
 
-			// -- Apply Common Settings for all the Blocks
-
 			// -- Apply Block Specific Settings
+			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
 
-			if( cmt.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
-
-				var blockConfig			= blocksConfig[ block.attr( "id" ) ];
+				var blockConfig				= blocksConfig[ block.attr( "id" ) ];
 				var height					= blockConfig[ "height" ];
 				var fullHeight				= blockConfig[ "fullHeight" ];
+				var halfHeight				= blockConfig[ "halfHeight" ];
 				var heightAuto				= blockConfig[ "heightAuto" ];
 				var heightAutoMobile		= blockConfig[ "heightAutoMobile" ];
 				var heightAutoMobileWidth	= blockConfig[ "heightAutoMobileWidth" ];
@@ -69,12 +67,26 @@
 
 						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
 					}
+					else if( null != halfHeight && halfHeight ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+					}
+					else {
+						
+						block.css( { 'height': 'auto' } );
+					}
 				}
 
 				// Apply Full Height
 				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
 					block.css( { 'height': screenHeight + "px" } );
+				}
+
+				// Apply Half Height
+				if( null == height && null == heightAuto && ( null != halfHeight && halfHeight ) ) {
+
+					block.css( { 'height': ( screenHeight / 2 ) + "px" } );
 				}
 
 				// Check whether min height and height auto is required for mobile to handle overlapped content
@@ -93,19 +105,55 @@
 					}
 				}
 
+				// adjust content wrap and block height in case content height exceeds
+				var contentWrap	= block.find( ".block-wrap-content" );
+				var content		= block.find( ".block-content" );
+
+				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
+
+					var newHeight 	= ( content.height() + 100 ) + 'px';
+					var diff		= content.height() - contentWrap.height();
+
+					contentWrap.height( newHeight );
+
+					newHeight = ( block.height() + diff + 100 ) + 'px';
+
+					block.height( newHeight );
+				}
+
 				// Check whether additional css is required
 				if( null != css && css ) {
 
 					block.css( css );
 				}
 			}
-			// Config in absence of block specific config
+			// -- Apply Common Settings for all the Blocks
 			else {
 
 				// Apply Full Height
 				if( settings.fullHeight ) {
-	
-					block.css( { 'height': screenHeight + "px" } );
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+					}
+					else {
+
+						block.css( { 'height': screenHeight + "px" } );
+					}
+				}
+
+				// Apply Half Height
+				if( settings.halfHeight ) {
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+					}
+					else {
+
+						block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+					}
 				}
 			}
 		}
@@ -113,14 +161,14 @@
 		// Initialise parallax
 		function scrollBackground() {
 
-			var winHeight 	= cmt( window ).height();
-		    var winTop 		= cmt( window ).scrollTop();
+			var winHeight 	= cmtjq( window ).height();
+		    var winTop 		= cmtjq( window ).scrollTop();
 		    var winBottom 	= winTop + winHeight;
 		    var winCurrent 	= winTop + winHeight / 2;
 		    
 		    blocks.each( function( i ) {
 
-		        var block 			= cmt( this );
+		        var block 			= cmtjq( this );
 		        var blockHeight 	= block.height();
 		        var blockTop 		= block.offset().top;
 		        var blockBottom 	= blockTop + blockHeight;
@@ -144,9 +192,11 @@
 	};
 
 	// Default Settings
-	cmt.fn.cmtBlock.defaults = {
+	cmtjq.fn.cmtBlock.defaults = {
 		// Controls
 		fullHeight: true,
+		halfHeight: false,
+		heightAuto: false,
 		backgroundParallax: true,
 		blocks: {
 			/* An array of blocks which need extra configuration. Ex:

@@ -1,2 +1,2 @@
 // Global Namespace for CMGTools
-var Cmt = Cmt || {};
+var cmt = cmt || {};
