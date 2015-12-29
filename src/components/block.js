@@ -1,5 +1,5 @@
-/*
- * Dependencies: jquery
+/**
+ * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
  */
 
 ( function( cmtjq ) {

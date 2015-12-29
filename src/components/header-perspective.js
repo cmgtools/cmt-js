@@ -1,5 +1,5 @@
-/*
- * Dependencies: jquery
+/**
+ * Perspective Header plugin can be used to change header styling by adding header-small class on scolling a pre-defined amount.
  */
 
 ( function( cmtjq ) {

@@ -1,3 +1,7 @@
+/**
+ * Form Info is a small plugin to flip form information and form fields. The form information can be formed only by labels whereas fields can be formed using labels and form elements.
+ */
+
 ( function( cmtjq ) {
 
 	cmtjq.fn.cmtFormInfo = function( options ) {

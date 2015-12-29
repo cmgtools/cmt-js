@@ -1,6 +1,7 @@
-/*
- * Dependencies: jquery
+/**
+ * The Pop-up plugin can be used to show pop-ups. Most common usage is modal dialogs.
  */
+
 ( function( cmtjq ) {
 
 	cmtjq.fn.cmtPopup = function( options ) {

@@ -1,5 +1,6 @@
-/*
- * Dependencies: jquery, cmt-utils
+/**
+ * File Uploader plugin can be used to upload files. The appropriate backend code should be able to handle the file sent by this plugin.
+ * It works fine for CMSGears using it's File Uploader and Avatar Uploader widgets.
  */
 
 // TODO: Validate for max file size if possible

@@ -1,3 +1,7 @@
+/**
+ * It's a custom select plugin used to wrap original select using overlapping html elements and hiding the select element.
+ */
+
 ( function( cmtjq ) {
 
 // TODO: Add option for multi select

@@ -1,10 +1,9 @@
-/*
- * Dependencies: jquery, core/main.js, core/utils.js, mvc/core.js, mvc/controllers.js
- */
-
 /**
  * An application is a collection of config and controllers.
  */
+
+// TODO: Remove jquery plugin nature.
+
 cmt.api.Application = function() {
 
 	/**
@@ -19,6 +18,15 @@ cmt.api.Application = function() {
 
 	// Default controller to be used as fallback in case no controller is mentioned
 	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
+	
+	/**
+	 * -----------------------------
+	 * Routing
+	 * -----------------------------
+	 * Request routing in CMGTools JS - MVC is handled by controllers list which is an associative array of controller name and classpath. The app should 
+	 * know all the controllers it's dealing with. It also maintains a seperate list of active controllers which are already initialised. The active controllers list 
+	 * is associative array of controller name and object.
+	 */
 
 	/**
 	 * An exhaustive list of all the controllers available for the application. Each application can use this listing to maintain it's controllers list.
@@ -33,43 +41,12 @@ cmt.api.Application = function() {
 };
 
 /**
- * JQuery Plugin to initialise application.
- */
-( function( cmtjq ) {
-
-	cmtjq.fn.processAjax = function( options ) {
-
-		// == Init == //
-
-		// Configure Modules
-		var settings 	= cmtjq.extend( {}, cmtjq.fn.processAjax.defaults, options );
-		var app			= new cmt.api.Application();
-
-		// Initialise application
-		app.config.json	= settings.json;
-		app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
-
-		app.init( this );
-
-		// return control
-		return;
-	};
-
-	// Default Settings
-	cmtjq.fn.processAjax.defaults = {
-		json: false,
-		controllers: []
-	};
-
-}( jQuery ) );
-
-/**
  * App Globals
  */
 
 //Defaults
 cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller
-cmt.api.Application.ACTION_DEFAULT		=  'default';			// Default Controller Actions
+cmt.api.Application.ACTION_DEFAULT		= 'default';			// Default Controller Actions
 
 // Statics
 cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set for form or request
@@ -81,10 +58,10 @@ cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute speci
 cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure
 
 /**
- * Initialise application
+ * Initialise request triggers
  * @param requestTriggers - All the triggers passed by JQuery selector using application plugin.
  */
-cmt.api.Application.prototype.init = function( requestTriggers ) {
+cmt.api.Application.prototype.registerTriggers = function( requestTriggers ) {
 
 	var app	= this;
 
@@ -96,24 +73,34 @@ cmt.api.Application.prototype.init = function( requestTriggers ) {
 		// Form Submits
 		if( requestTrigger.is( "form" ) ) {
 
+			requestTrigger.unbind( "submit" );
+
 			requestTrigger.submit( function( event ) {
 
 				event.preventDefault();
-	
+
 				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), true, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 			});
 		}
 
-		// Button Submits
-		requestTrigger.find( cmt.api.Application.STATIC_SUBMIT ).click( function( event ) {
+		// Button Clicks
+		var clickTrigger = requestTrigger.find( cmt.api.Application.STATIC_SUBMIT );
+
+		clickTrigger.unbind( "click" );
+
+		clickTrigger.click( function( event ) {
 
 			event.preventDefault();
 
 			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
 
-		// Select Submits
-		requestTrigger.find( cmt.api.Application.STATIC_SELECT ).change( function() {
+		// Select Change
+		var selectTrigger = requestTrigger.find( cmt.api.Application.STATIC_SELECT );
+
+		selectTrigger.unbind( "change" );
+
+		selectTrigger.change( function() {
 
 			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
 		});
@@ -400,3 +387,38 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		}
 	}
 };
+
+/**
+ * JQuery Plugin to initialise application.
+ */
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtApiProcessor = function( options ) {
+
+		// == Init == //
+
+		// Configure Modules
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtApiProcessor.defaults, options );
+		var app			= settings.app;
+
+		if( null != app ) {
+
+			// Initialise application
+			app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
+
+			app.registerTriggers( this );
+		}
+
+		// return control
+		return;
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtApiProcessor.defaults = {
+		// The app which must handle these selectors
+		app: null,
+		// Used to add controllers dynamically
+		controllers: []
+	};
+
+}( jQuery ) );

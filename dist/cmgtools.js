@@ -1,24 +1,27 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-26
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-29
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
  */
-// Global Namespace for CMGTools
-var cmt = cmt || {};;/*
- * Dependencies: jquery
+
+/**
+ * The library CMGTools JS require JQuery for most of it's usage. 
  */
+
+// Global Namespace for CMGTools
+var cmt = cmt || {};
 
 /**
  * CMGTools Utilities - Collection of commonly used utility functions available for CMGTools.
  */
-cmt.utils = {};
 
-// Browser Features ------------------------------------------
+cmt.utils = cmt.utils || {};
 
 /**
  * Browser utility provides commonly used browser feature detection methods.
  */
+
 cmt.utils.browser = {
 
 	/**
@@ -72,78 +75,11 @@ cmt.utils.browser = {
 		return toDataUrlSupported;
 	}
 };
-	
-// Image Processing ------------------------------------------
 
 /**
- * Image utility provides commonly used image processing methods.
+ * Data utility provides methods to convert form elements to json format and to manipulate url parameters. The json data can be used to send request to server side apis.
  */
-cmt.utils.image = {
 
-	/**
-	 * It returns an array having width and height for the given image and target dimensions maintaining aspect ratio.
-	 */
-	arDimensions: function( image, targetWidth, targetHeight ) {
-
-	        var ratio 	= 0;
-	        var width 	= image.width;
-	        var height 	= image.height;
-
-	        // Check if the current width is larger than the max
-	        if( width > targetWidth ) {
-
-	            ratio 	= targetWidth / width;
-	            height 	= height * ratio;
-	            width 	= width * ratio;
-	        }
-
-	        // Check if current height is larger than max
-	        if( height > targetHeight ) {
-
-	            ratio 	= targetHeight / height;
-	            width 	= width * ratio;
-	        }
-
-	        return new Array( width, height );
-	},
-
-	/**
-	 * It draws the provided image file at center of canvas.
-	 */
-	drawAtCanvasCenter: function( canvas, imageUrl ) {
-
-		if( null != canvas && null != imageUrl ) {
-
-			var width		= canvas.width;
-			var height		= canvas.height;
-
-			var context 	= canvas.getContext( '2d' );
-		    var image 		= new Image();
-		    var image_url 	= window.URL || window.webkitURL;
-		    var image_src 	= image_url.createObjectURL( imageUrl );
-		    image.src 		= image_src;
-
-		    image.onload = function() {
-
-		        var dims = cmt.utils.image.arDimensions( image, width, height );
-
-				context.translate( width/2, height/2 );
-
-		        context.drawImage( image, -(dims[0] / 2), -(dims[1] / 2), dims[0], dims[1] );
-
-				context.translate( -(width/2), -(height/2) );
-
-		        image_url.revokeObjectURL( image_src );
-		    };
-		}
-	}
-};
-
-// Data Processing -------------------------------------------
-
-/**
- * Data utility provides methods to convert form elements to json format. The json data can be used to send request to server side apis.
- */
 cmt.utils.data = {
 
 	/**
@@ -313,7 +249,7 @@ cmt.utils.data = {
 	},
 
 	/**
-	 * Edit parameter for the given URL.
+	 * Add/Update parameter for the given URL.
 	 */
 	updateUrlParam: function( sourceUrl, e, t ) {
 
@@ -389,11 +325,75 @@ cmt.utils.data = {
 	}
 };
 
-// Object Utilities ------------------------------------------
+/**
+ * Image utility provides commonly used image processing methods.
+ */
+
+cmt.utils.image = {
+
+	/**
+	 * It returns an array having width and height for the given image and target dimensions maintaining aspect ratio.
+	 */
+	arDimensions: function( image, targetWidth, targetHeight ) {
+
+	        var ratio 	= 0;
+	        var width 	= image.width;
+	        var height 	= image.height;
+
+	        // Check if the current width is larger than the max
+	        if( width > targetWidth ) {
+
+	            ratio 	= targetWidth / width;
+	            height 	= height * ratio;
+	            width 	= width * ratio;
+	        }
+
+	        // Check if current height is larger than max
+	        if( height > targetHeight ) {
+
+	            ratio 	= targetHeight / height;
+	            width 	= width * ratio;
+	        }
+
+	        return new Array( width, height );
+	},
+
+	/**
+	 * It draws the provided image file at center of canvas.
+	 */
+	drawAtCanvasCenter: function( canvas, imageUrl ) {
+
+		if( null != canvas && null != imageUrl ) {
+
+			var width		= canvas.width;
+			var height		= canvas.height;
+
+			var context 	= canvas.getContext( '2d' );
+		    var image 		= new Image();
+		    var image_url 	= window.URL || window.webkitURL;
+		    var image_src 	= image_url.createObjectURL( imageUrl );
+		    image.src 		= image_src;
+
+		    image.onload = function() {
+
+		        var dims = cmt.utils.image.arDimensions( image, width, height );
+
+				context.translate( width/2, height/2 );
+
+		        context.drawImage( image, -(dims[0] / 2), -(dims[1] / 2), dims[0], dims[1] );
+
+				context.translate( -(width/2), -(height/2) );
+
+		        image_url.revokeObjectURL( image_src );
+		    };
+		}
+	}
+};
 
 /**
  * Object utility provides methods to initialise or manipulate objects.
  */
+
 cmt.utils.object = {
 
 	/**
@@ -420,11 +420,10 @@ cmt.utils.object = {
 	}
 };
 
-// UI Utilities ----------------------------------------------
-
 /**
  * UI utility provides methods to format or manage UI elements.
  */
+
 cmt.utils.ui = {
 
 	/**
@@ -481,9 +480,7 @@ cmt.utils.ui = {
 	}
 };
 
-// Common fixes -----------------------------------------------
-
-//Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
+// Inheritance - Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
 Function.prototype.inherits = function( parent ) {
 
 	var d	= 0;
@@ -524,7 +521,7 @@ Function.prototype.inherits = function( parent ) {
 	};
 };
 
-// Fix hash tag issues for SNS login
+// Hash Tag - Fix hash tag issues for SNS login
 if( window.location.hash == '#_=_' ) {
 
     if( history.replaceState ) {
@@ -537,467 +534,10 @@ if( window.location.hash == '#_=_' ) {
 
         window.location.hash = '';
     }
-};/*
- * Dependencies: jquery, core/main.js, core/utils.js
- */
-
-// TODO: Add Data Binding Support to bind data sent by server to respective ui component
-// TODO: Add Data Binding with Pagination for Data Grid
-// TODO: Add Page History and Caching Support
+}
 
 /**
- * CMGTools API library provide methods to process AJAX request. These requests can be either form or regular
- */
-cmt.api = {};;/*
- * Dependencies: jquery, mvc/core.js
- */
-
-/**
- * Controller namespace providing base class for all the Controllers.
- */
-cmt.api.controllers = {};
-
-cmt.api.controllers.BaseController = function() {
-	
-	// Base Controller
-};
-
-cmt.api.controllers.BaseController.prototype.init = function() {
-	
-	// Init method to initialise controller
-};
-
-// Default Controller
-
-cmt.api.controllers.DefaultController = function() {};
-
-cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
-
-cmt.api.controllers.DefaultController.prototype.init = function() {
-	
-	console.log( "Initialised default controller." );
-};
-
-cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
-
-	console.log( "Pre processing default action." );
-	
-	return true;
-};
-
-cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {
-
-	if( success ) {
-
-		console.log( "Processing success for default action." );
-	}
-	else {
-
-		console.log( "Processing failure for default action." );
-	}
-};;/*
- * Dependencies: jquery, core/main.js, core/utils.js, mvc/core.js, mvc/controllers.js
- */
-
-/**
- * An application is a collection of config and controllers.
- */
-cmt.api.Application = function() {
-
-	/**
-	 * Config Object
-	 */
-	this.config = {
-		json: false, 				// Identify whether all the request must be processed using json format
-		errorClass: 'error',		// Default error css class
-		messageClass: 'message',	// Default message css class
-		spinnerClass: 'spinner'		// Default spinner css class
-	};
-
-	// Default controller to be used as fallback in case no controller is mentioned
-	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
-
-	/**
-	 * An exhaustive list of all the controllers available for the application. Each application can use this listing to maintain it's controllers list.
-	 */
-	this.controllers 						= [];
-	this.controllers[ defaultController ] 	= "cmt.api.controllers.DefaultController";
-
-	/**
-	 * List of all the active controllers which are already initialised. It will save us from re-initialising each controller to process a request.
-	 */
-	this.activeControllers 	= [];
-};
-
-/**
- * JQuery Plugin to initialise application.
- */
-( function( cmtjq ) {
-
-	cmtjq.fn.processAjax = function( options ) {
-
-		// == Init == //
-
-		// Configure Modules
-		var settings 	= cmtjq.extend( {}, cmtjq.fn.processAjax.defaults, options );
-		var app			= new cmt.api.Application();
-
-		// Initialise application
-		app.config.json	= settings.json;
-		app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
-
-		app.init( this );
-
-		// return control
-		return;
-	};
-
-	// Default Settings
-	cmtjq.fn.processAjax.defaults = {
-		json: false,
-		controllers: []
-	};
-
-}( jQuery ) );
-
-/**
- * App Globals
- */
-
-//Defaults
-cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller
-cmt.api.Application.ACTION_DEFAULT		=  'default';			// Default Controller Actions
-
-// Statics
-cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set for form or request
-cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set for form or request
-cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify form and request.
-cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';		// The class to be set for element which submit request on click
-cmt.api.Application.STATIC_SELECT		=  '.cmt-select';		// The class to be set for select box which submit request on change
-cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether form/request need to be cleared on success.
-cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure
-
-/**
- * Initialise application
- * @param requestTriggers - All the triggers passed by JQuery selector using application plugin.
- */
-cmt.api.Application.prototype.init = function( requestTriggers ) {
-
-	var app	= this;
-
-	// Iterate and initialise all the triggers
-	requestTriggers.each( function() {
-
-		var requestTrigger = jQuery( this );
-
-		// Form Submits
-		if( requestTrigger.is( "form" ) ) {
-
-			requestTrigger.submit( function( event ) {
-
-				event.preventDefault();
-	
-				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), true, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-			});
-		}
-
-		// Button Submits
-		requestTrigger.find( cmt.api.Application.STATIC_SUBMIT ).click( function( event ) {
-
-			event.preventDefault();
-
-			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-		});
-
-		// Select Submits
-		requestTrigger.find( cmt.api.Application.STATIC_SELECT ).change( function() {
-
-			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-		});
-	});
-};
-
-cmt.api.Application.prototype.findController = function( controller ) {
-
-	// Return active controller
-	if( this.activeControllers[ controller ] ) {
-		
-		return this.activeControllers[ controller ];
-	}
-	// Create a controller instance from registered controllers
-	else {
-
-		try {
-
-			// Check whether controller is registered and throw exception
-			if( this.controllers[ controller ] == undefined ) throw "Controller with name " + controller + " is not registered with this application.";
-
-			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
-
-			// Initialise
-			cont.init();
-
-			// Add to active registry
-			this.activeControllers[ controller ] = cont;
-
-			return this.activeControllers[ controller ];
-		}
-		catch( err ) {
-
-			console.log( err );
-
-			console.log( "Falling back to default controller." );
-
-			if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
-
-				return this.findController( cmt.api.Application.CONTROLLER_DEFAULT );
-			}
-		}
-	}
-};
-
-// Init triggers required to process request -------------
-
-cmt.api.Application.prototype.initRequestTrigger = function( requestId, form, controller, action ) {
-
-	// Use default controller
-	if( null == controller ) {
-
-		controller = cmt.api.Application.CONTROLLER_DEFAULT;
-	}
-
-	// Use default action
-	if( null == action ) {
-
-		action = cmt.api.Application.ACTION_DEFAULT;
-	}
-
-	// Search Controller
-	var controllerObj	= this.findController( controller );
-
-	if( form ) {
-
-		if( this.config.json ) {
-
-			this.handleRestForm( requestId, controllerObj, action );
-		}
-		else {
-
-			this.handleAjaxForm( requestId, controllerObj, action );
-		}
-	}
-	else {
-
-		this.handleAjaxRequest( requestId, controllerObj, action );
-	}
-};
-
-cmt.api.Application.prototype.handleRestForm = function( formId, controller, action ) {
-		
-		var app			= this;
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
-		var preAction	= action + "ActionPre";
-
-		// Hide message element
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
-
-		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
-
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= cmt.utils.data.formToJson( formId );
-
-		// Show Spinner
-		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
-
-		jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: JSON.stringify( formData ),
-			dataType: "JSON",
-			contentType: "application/json;charset=UTF-8",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processAjaxResponse( formId, controller, action, message, response );
-			}
-		});
-
-		return false;
-};
-
-cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, action ) {
-		
-		var app			= this;
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
-		var preAction	= action + "ActionPre";
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
-
-		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
-
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= cmt.utils.data.serialiseForm( formId );
-
-		// Show Spinner
-		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
-
-		jQuery.ajax( {
-			type: httpMethod,
-			url: actionUrl,
-			data: formData,
-			dataType: "JSON",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processAjaxResponse( formId, controller, action, message, response );
-			}
-		});
-
-		return false;
-};
-
-cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, action ) {
-
-		var app			= this;
-		var element		= jQuery( "#" + elementId );
-		var httpMethod	= element.attr( "method" );
-		var actionUrl	= element.attr( "action" );
-		var message		= jQuery( "#" + elementId + " ." + this.config.messageClass );
-		var preAction	= action + "ActionPre";
-
-		if( null == httpMethod ) {
-
-			httpMethod = 'post';
-		}
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
-
-		// Pre Process Request
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
-
-			return false;
-		}
-
-		// Generate request data for submission
-		var requestData	= cmt.utils.data.serialiseElement( elementId );
-
-		// Show Spinner
-		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
-
-		jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: requestData,
-			dataType: "JSON",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processAjaxResponse( elementId, controller, action, message, response );
-			}
-		});
-
-		return false;
-};
-
-cmt.api.Application.prototype.processAjaxResponse = function( requestId, controller, action, message, response ) {
-
-	var result 		= response[ 'result' ];
-	var messageStr 	= response[ 'message' ];
-	var data		= response[ 'data' ];
-	var errors		= response[ 'errors' ];
-	var postAction	= action + "ActionPost";
-
-	if( result == 1 ) {
-
-		// Show message
-		message.html( messageStr );
-		message.show();
-
-		// Hide all errors
-		jQuery( "#" + requestId + " ." + this.config.errorClass ).hide();
-
-		// Hide Spinner
-		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
-
-		// Check to clear form data
-		var clearData = jQuery( "#" + requestId ).attr( cmt.api.Application.STATIC_CLEAR );
-
-		if( null == clearData ) {
-
-			clearData	= true;
-		}
-		else {
-
-			clearData	= clearData === 'true';
-		}
-
-		if( clearData ) {
-
-			// Clear all form fields
-			jQuery( "#" + requestId + " input[type='text']" ).val( '' );
-			jQuery( "#" + requestId + " input[type='password']" ).val( '' );
-			jQuery( "#" + requestId + " textarea" ).val( '' );
-		}
-
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
-
-			controller[ postAction ]( true, requestId, message, response );
-		}
-	}
-	else if( result == 0 ) {
-
-		// Show message
-		message.html( messageStr );
-		message.show();
-
-		// Hide Spinner
-		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
-
-		// Show Errors
-		for( var key in errors ) {
-
-        	var fieldName 		= key;
-        	var errorMessage 	= errors[ key ];
-        	var errorField		= jQuery( "#" + requestId + " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
-
-        	errorField.html( errorMessage );
-        	errorField.show();
-    	}
-
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
-
-			controller[ postAction ]( false, requestId, message, response );
-		}
-	}
-};;/*
- * Dependencies: jquery
+ * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
  */
 
 ( function( cmtjq ) {
@@ -1210,8 +750,11 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		}
 	};
 
-}( jQuery ) );;;/*
- * Dependencies: jquery, cmt-utils
+}( jQuery ) );
+
+/**
+ * File Uploader plugin can be used to upload files. The appropriate backend code should be able to handle the file sent by this plugin.
+ * It works fine for CMSGears using it's File Uploader and Avatar Uploader widgets.
  */
 
 // TODO: Validate for max file size if possible
@@ -1499,7 +1042,13 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		preview: true
 	};
 
-}( jQuery ) );;( function( cmtjq ) {
+}( jQuery ) );
+
+/**
+ * Form Info is a small plugin to flip form information and form fields. The form information can be formed only by labels whereas fields can be formed using labels and form elements.
+ */
+
+( function( cmtjq ) {
 
 	cmtjq.fn.cmtFormInfo = function( options ) {
 
@@ -1548,8 +1097,10 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		// default config
 	};
 
-}( jQuery ) );;/*
- * Dependencies: jquery
+}( jQuery ) );
+
+/**
+ * Perspective Header plugin can be used to change header styling by adding header-small class on scolling a pre-defined amount.
  */
 
 ( function( cmtjq ) {
@@ -1618,7 +1169,13 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		scrollDistance: 300
 	};
 
-}( jQuery ) );;( function( cmtjq ) {
+}( jQuery ) );
+
+/**
+ * Sliding Menu is a special pop-up displayed on clicking the element defined while initialising the plugin.
+ */
+
+( function( cmtjq ) {
 
 	cmtjq.fn.cmtSlidingMenu = function( options ) {
 
@@ -1729,9 +1286,12 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		mainMenu: false
 	};
 
-}( jQuery ) );;/*
- * Dependencies: jquery
+}( jQuery ) );
+
+/**
+ * The Pop-up plugin can be used to show pop-ups. Most common usage is modal dialogs.
  */
+
 ( function( cmtjq ) {
 
 	cmtjq.fn.cmtPopup = function( options ) {
@@ -1851,7 +1411,13 @@ function showMessagePopup( message ) {
 function hideMessagePopup() {
 
 	closePopup( "#message-popup" );
-};( function( cmtjq ) {
+}
+
+/**
+ * It's a custom select plugin used to wrap original select using overlapping html elements and hiding the select element.
+ */
+
+( function( cmtjq ) {
 
 // TODO: Add option for multi select
 
@@ -2002,8 +1568,10 @@ function hideMessagePopup() {
 		iconHtml: null
 	};
 
-}( jQuery ) );;/*
- * Dependencies: jquery
+}( jQuery ) );
+
+/**
+ * Smooth Scroll plugin can be used to listen for hash tags to scroll smoothly to pre-defined page sections.
  */
 
 ( function( cmtjq ) {
@@ -2058,3 +1626,482 @@ function hideMessagePopup() {
 	};
 
 }( jQuery ) );
+
+// TODO: Add Data Binding Support to bind data sent by server to respective ui component
+// TODO: Add Data Binding with Pagination for Data Grid
+// TODO: Add Page History and Caching Support
+
+/**
+ * CMGTools API library provide methods to process AJAX request. These requests can be either form or regular
+ */
+
+cmt.api = {};
+
+/**
+ * An application is a collection of config and controllers.
+ */
+
+// TODO: Remove jquery plugin nature.
+
+cmt.api.Application = function() {
+
+	/**
+	 * Config Object
+	 */
+	this.config = {
+		json: false, 				// Identify whether all the request must be processed using json format
+		errorClass: 'error',		// Default error css class
+		messageClass: 'message',	// Default message css class
+		spinnerClass: 'spinner'		// Default spinner css class
+	};
+
+	// Default controller to be used as fallback in case no controller is mentioned
+	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
+	
+	/**
+	 * -----------------------------
+	 * Routing
+	 * -----------------------------
+	 * Request routing in CMGTools JS - MVC is handled by controllers list which is an associative array of controller name and classpath. The app should 
+	 * know all the controllers it's dealing with. It also maintains a seperate list of active controllers which are already initialised. The active controllers list 
+	 * is associative array of controller name and object.
+	 */
+
+	/**
+	 * An exhaustive list of all the controllers available for the application. Each application can use this listing to maintain it's controllers list.
+	 */
+	this.controllers 						= [];
+	this.controllers[ defaultController ] 	= "cmt.api.controllers.DefaultController";
+
+	/**
+	 * List of all the active controllers which are already initialised. It will save us from re-initialising each controller to process a request.
+	 */
+	this.activeControllers 	= [];
+};
+
+/**
+ * App Globals
+ */
+
+//Defaults
+cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller
+cmt.api.Application.ACTION_DEFAULT		= 'default';			// Default Controller Actions
+
+// Statics
+cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set for form or request
+cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set for form or request
+cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify form and request.
+cmt.api.Application.STATIC_SUBMIT		=  '.cmt-submit';		// The class to be set for element which submit request on click
+cmt.api.Application.STATIC_SELECT		=  '.cmt-select';		// The class to be set for select box which submit request on change
+cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether form/request need to be cleared on success.
+cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure
+
+/**
+ * Initialise request triggers
+ * @param requestTriggers - All the triggers passed by JQuery selector using application plugin.
+ */
+cmt.api.Application.prototype.registerTriggers = function( requestTriggers ) {
+
+	var app	= this;
+
+	// Iterate and initialise all the triggers
+	requestTriggers.each( function() {
+
+		var requestTrigger = jQuery( this );
+
+		// Form Submits
+		if( requestTrigger.is( "form" ) ) {
+
+			requestTrigger.unbind( "submit" );
+
+			requestTrigger.submit( function( event ) {
+
+				event.preventDefault();
+
+				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), true, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+
+		// Button Clicks
+		var clickTrigger = requestTrigger.find( cmt.api.Application.STATIC_SUBMIT );
+
+		clickTrigger.unbind( "click" );
+
+		clickTrigger.click( function( event ) {
+
+			event.preventDefault();
+
+			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
+		});
+
+		// Select Change
+		var selectTrigger = requestTrigger.find( cmt.api.Application.STATIC_SELECT );
+
+		selectTrigger.unbind( "change" );
+
+		selectTrigger.change( function() {
+
+			app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
+		});
+	});
+};
+
+cmt.api.Application.prototype.findController = function( controller ) {
+
+	// Return active controller
+	if( this.activeControllers[ controller ] ) {
+		
+		return this.activeControllers[ controller ];
+	}
+	// Create a controller instance from registered controllers
+	else {
+
+		try {
+
+			// Check whether controller is registered and throw exception
+			if( this.controllers[ controller ] == undefined ) throw "Controller with name " + controller + " is not registered with this application.";
+
+			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
+
+			// Initialise
+			cont.init();
+
+			// Add to active registry
+			this.activeControllers[ controller ] = cont;
+
+			return this.activeControllers[ controller ];
+		}
+		catch( err ) {
+
+			console.log( err );
+
+			console.log( "Falling back to default controller." );
+
+			if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
+
+				return this.findController( cmt.api.Application.CONTROLLER_DEFAULT );
+			}
+		}
+	}
+};
+
+// Init triggers required to process request -------------
+
+cmt.api.Application.prototype.initRequestTrigger = function( requestId, form, controller, action ) {
+
+	// Use default controller
+	if( null == controller ) {
+
+		controller = cmt.api.Application.CONTROLLER_DEFAULT;
+	}
+
+	// Use default action
+	if( null == action ) {
+
+		action = cmt.api.Application.ACTION_DEFAULT;
+	}
+
+	// Search Controller
+	var controllerObj	= this.findController( controller );
+
+	if( form ) {
+
+		if( this.config.json ) {
+
+			this.handleRestForm( requestId, controllerObj, action );
+		}
+		else {
+
+			this.handleAjaxForm( requestId, controllerObj, action );
+		}
+	}
+	else {
+
+		this.handleAjaxRequest( requestId, controllerObj, action );
+	}
+};
+
+cmt.api.Application.prototype.handleRestForm = function( formId, controller, action ) {
+		
+		var app			= this;
+		var form		= jQuery( "#" + formId );
+		var httpMethod	= form.attr( "method" );
+		var actionUrl	= form.attr( "action" );
+		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		// Hide message element
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+
+		// Pre Process Form
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+
+			return false;
+		}
+
+		// Generate form data for submission
+		var formData	= cmt.utils.data.formToJson( formId );
+
+		// Show Spinner
+		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: JSON.stringify( formData ),
+			dataType: "JSON",
+			contentType: "application/json;charset=UTF-8",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				app.processAjaxResponse( formId, controller, action, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, action ) {
+		
+		var app			= this;
+		var form		= jQuery( "#" + formId );
+		var httpMethod	= form.attr( "method" );
+		var actionUrl	= form.attr( "action" );
+		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		// Hide message
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+
+		// Pre Process Form
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+
+			return false;
+		}
+
+		// Generate form data for submission
+		var formData	= cmt.utils.data.serialiseForm( formId );
+
+		// Show Spinner
+		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+
+		jQuery.ajax( {
+			type: httpMethod,
+			url: actionUrl,
+			data: formData,
+			dataType: "JSON",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				app.processAjaxResponse( formId, controller, action, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, action ) {
+
+		var app			= this;
+		var element		= jQuery( "#" + elementId );
+		var httpMethod	= element.attr( "method" );
+		var actionUrl	= element.attr( "action" );
+		var message		= jQuery( "#" + elementId + " ." + this.config.messageClass );
+		var preAction	= action + "ActionPre";
+
+		if( null == httpMethod ) {
+
+			httpMethod = 'post';
+		}
+
+		// Hide message
+		message.hide();
+
+		// Hide all errors
+		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
+
+		// Pre Process Request
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
+
+			return false;
+		}
+
+		// Generate request data for submission
+		var requestData	= cmt.utils.data.serialiseElement( elementId );
+
+		// Show Spinner
+		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
+
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: requestData,
+			dataType: "JSON",
+			success: function( response, textStatus, XMLHttpRequest ) {
+
+				// Process response
+				app.processAjaxResponse( elementId, controller, action, message, response );
+			}
+		});
+
+		return false;
+};
+
+cmt.api.Application.prototype.processAjaxResponse = function( requestId, controller, action, message, response ) {
+
+	var result 		= response[ 'result' ];
+	var messageStr 	= response[ 'message' ];
+	var data		= response[ 'data' ];
+	var errors		= response[ 'errors' ];
+	var postAction	= action + "ActionPost";
+
+	if( result == 1 ) {
+
+		// Show message
+		message.html( messageStr );
+		message.show();
+
+		// Hide all errors
+		jQuery( "#" + requestId + " ." + this.config.errorClass ).hide();
+
+		// Hide Spinner
+		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+
+		// Check to clear form data
+		var clearData = jQuery( "#" + requestId ).attr( cmt.api.Application.STATIC_CLEAR );
+
+		if( null == clearData ) {
+
+			clearData	= true;
+		}
+		else {
+
+			clearData	= clearData === 'true';
+		}
+
+		if( clearData ) {
+
+			// Clear all form fields
+			jQuery( "#" + requestId + " input[type='text']" ).val( '' );
+			jQuery( "#" + requestId + " input[type='password']" ).val( '' );
+			jQuery( "#" + requestId + " textarea" ).val( '' );
+		}
+
+		// Pass the data for post processing
+		if( typeof controller[ postAction ] !== 'undefined' ) {
+
+			controller[ postAction ]( true, requestId, message, response );
+		}
+	}
+	else if( result == 0 ) {
+
+		// Show message
+		message.html( messageStr );
+		message.show();
+
+		// Hide Spinner
+		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+
+		// Show Errors
+		for( var key in errors ) {
+
+        	var fieldName 		= key;
+        	var errorMessage 	= errors[ key ];
+        	var errorField		= jQuery( "#" + requestId + " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
+
+        	errorField.html( errorMessage );
+        	errorField.show();
+    	}
+
+		// Pass the data for post processing
+		if( typeof controller[ postAction ] !== 'undefined' ) {
+
+			controller[ postAction ]( false, requestId, message, response );
+		}
+	}
+};
+
+/**
+ * JQuery Plugin to initialise application.
+ */
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtApiProcessor = function( options ) {
+
+		// == Init == //
+
+		// Configure Modules
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtApiProcessor.defaults, options );
+		var app			= settings.app;
+
+		if( null != app ) {
+
+			// Initialise application
+			app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
+
+			app.registerTriggers( this );
+		}
+
+		// return control
+		return;
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtApiProcessor.defaults = {
+		// The app which must handle these selectors
+		app: null,
+		// Used to add controllers dynamically
+		controllers: []
+	};
+
+}( jQuery ) );
+
+/**
+ * Controller namespace providing base class for all the Controllers.
+ */
+
+cmt.api.controllers = cmt.api.controllers || {};
+
+cmt.api.controllers.BaseController = function() {
+
+	// Base Controller
+};
+
+cmt.api.controllers.BaseController.prototype.init = function() {
+
+	// Init method to initialise controller
+};
+
+cmt.api.controllers.DefaultController = function() {};
+
+cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.DefaultController.prototype.init = function() {
+
+	console.log( "Initialised default controller." );
+};
+
+cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
+
+	console.log( "Pre processing default action." );
+
+	return true;
+};
+
+cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {
+
+	if( success ) {
+
+		console.log( "Processing success for default action." );
+	}
+	else {
+
+		console.log( "Processing failure for default action." );
+	}
+};
