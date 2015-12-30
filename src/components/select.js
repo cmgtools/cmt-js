@@ -153,4 +153,4 @@
 		iconHtml: null
 	};
 
-}( jQuery ) );
+})( jQuery );

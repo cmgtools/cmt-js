@@ -288,4 +288,4 @@
 		preview: true
 	};
 
-}( jQuery ) );
+})( jQuery );

@@ -113,4 +113,4 @@
 		mainMenu: false
 	};
 
-}( jQuery ) );
+})( jQuery );

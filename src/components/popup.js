@@ -84,7 +84,7 @@
 		modal: true
 	};
 
-}( jQuery ) );
+})( jQuery );
 
 
 function showPopup( popupSelector ) {

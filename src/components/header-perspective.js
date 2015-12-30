@@ -68,4 +68,4 @@
 		scrollDistance: 300
 	};
 
-}( jQuery ) );
+})( jQuery );
