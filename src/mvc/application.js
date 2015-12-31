@@ -438,7 +438,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		// == Init == //
 
 		// Configure Modules
-		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtApiProcessor.defaults, options );
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtRequestProcessor.defaults, options );
 		var app			= settings.app;
 
 		if( null != app ) {
@@ -454,7 +454,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 	};
 
 	// Default Settings
-	cmtjq.fn.cmtApiProcessor.defaults = {
+	cmtjq.fn.cmtRequestProcessor.defaults = {
 		// The app which must handle these selectors
 		app: null,
 		// Used to add controllers dynamically

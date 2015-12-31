@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-30
+ * CMGTools JS - v1.0.0-alpha1 - 2015-12-31
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -2078,7 +2078,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		// == Init == //
 
 		// Configure Modules
-		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtApiProcessor.defaults, options );
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtRequestProcessor.defaults, options );
 		var app			= settings.app;
 
 		if( null != app ) {
@@ -2094,7 +2094,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 	};
 
 	// Default Settings
-	cmtjq.fn.cmtApiProcessor.defaults = {
+	cmtjq.fn.cmtRequestProcessor.defaults = {
 		// The app which must handle these selectors
 		app: null,
 		// Used to add controllers dynamically
