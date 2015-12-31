@@ -10,9 +10,9 @@ cmt.api.Application = function() {
 	 */
 	this.config = {
 		json: false, 				// Identify whether all the request must be processed using json format
-		errorClass: 'error',		// Default css class for error elements
-		messageClass: 'message',	// Default css class for showing request result as message
-		spinnerClass: 'spinner'		// Default css class for showing spinner till the request gets processed
+		errorClass: '.error',		// Default css class for error elements
+		messageClass: '.message',	// Default css class for showing request result as message
+		spinnerClass: '.spinner'		// Default css class for showing spinner till the request gets processed
 	};
 
 	// Default controller to be used as fallback in case no controller is mentioned
@@ -235,7 +235,7 @@ cmt.api.Application.prototype.handleRestForm = function( formId, controller, act
 		message.hide();
 
 		// Hide all errors
-		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+		form.find( this.config.errorClass ).hide();
 
 		// Pre Process Form
 		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
@@ -247,7 +247,7 @@ cmt.api.Application.prototype.handleRestForm = function( formId, controller, act
 		var formData	= cmt.utils.data.formToJson( formId );
 
 		// Show Spinner
-		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+		form.find( this.config.spinnerClass ).show();
 
 		jQuery.ajax({
 			type: httpMethod,
@@ -258,7 +258,7 @@ cmt.api.Application.prototype.handleRestForm = function( formId, controller, act
 			success: function( response, textStatus, XMLHttpRequest ) {
 
 				// Process response
-				app.processAjaxResponse( formId, controller, action, message, response );
+				app.processAjaxResponse( form, controller, action, message, response );
 			}
 		});
 
@@ -271,14 +271,14 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 		var form		= jQuery( "#" + formId );
 		var httpMethod	= form.attr( "method" );
 		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
+		var message		= form.find( this.config.messageClass );
 		var preAction	= action + "ActionPre";
 
 		// Hide message
 		message.hide();
 
 		// Hide all errors
-		jQuery( "#" + formId + " ." + this.config.errorClass ).hide();
+		form.find( this.config.errorClass ).hide();
 
 		// Pre Process Form
 		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
@@ -290,7 +290,7 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 		var formData	= cmt.utils.data.serialiseForm( formId );
 
 		// Show Spinner
-		jQuery( "#" + formId + " ." + this.config.spinnerClass ).show();
+		form.find( this.config.spinnerClass ).show();
 
 		jQuery.ajax( {
 			type: httpMethod,
@@ -300,7 +300,7 @@ cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, act
 			success: function( response, textStatus, XMLHttpRequest ) {
 
 				// Process response
-				app.processAjaxResponse( formId, controller, action, message, response );
+				app.processAjaxResponse( form, controller, action, message, response );
 			}
 		});
 
@@ -313,7 +313,7 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 		var element		= jQuery( "#" + elementId );
 		var httpMethod	= element.attr( "method" );
 		var actionUrl	= element.attr( "action" );
-		var message		= jQuery( "#" + elementId + " ." + this.config.messageClass );
+		var message		= element.find( this.config.messageClass );
 		var preAction	= action + "ActionPre";
 
 		if( null == httpMethod ) {
@@ -325,7 +325,7 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 		message.hide();
 
 		// Hide all errors
-		jQuery( "#" + elementId + " ." + this.errorClass ).hide();
+		element.find( this.errorClass ).hide();
 
 		// Pre Process Request
 		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
@@ -337,7 +337,7 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 		var requestData	= cmt.utils.data.serialiseElement( elementId );
 
 		// Show Spinner
-		jQuery( "#" + elementId + " ." + this.spinnerClass ).show();
+		element.find( this.spinnerClass ).show();
 
 		jQuery.ajax({
 			type: httpMethod,
@@ -347,14 +347,14 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 			success: function( response, textStatus, XMLHttpRequest ) {
 
 				// Process response
-				app.processAjaxResponse( elementId, controller, action, message, response );
+				app.processAjaxResponse( element, controller, action, message, response );
 			}
 		});
 
 		return false;
 };
 
-cmt.api.Application.prototype.processAjaxResponse = function( requestId, controller, action, message, response ) {
+cmt.api.Application.prototype.processAjaxResponse = function( parentElement, controller, action, message, response ) {
 
 	var result 		= response[ 'result' ];
 	var messageStr 	= response[ 'message' ];
@@ -369,13 +369,13 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		message.show();
 
 		// Hide all errors
-		jQuery( "#" + requestId + " ." + this.config.errorClass ).hide();
+		parentElement.find( this.config.errorClass ).hide();
 
 		// Hide Spinner
-		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+		parentElement.find( this.config.spinnerClass ).hide();
 
 		// Check to clear form data
-		var clearData = jQuery( "#" + requestId ).attr( cmt.api.Application.STATIC_CLEAR );
+		var clearData = parentElement.attr( cmt.api.Application.STATIC_CLEAR );
 
 		if( null == clearData ) {
 
@@ -389,15 +389,15 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		if( clearData ) {
 
 			// Clear all form fields
-			jQuery( "#" + requestId + " input[type='text']" ).val( '' );
-			jQuery( "#" + requestId + " input[type='password']" ).val( '' );
-			jQuery( "#" + requestId + " textarea" ).val( '' );
+			parentElement.find( " input[type='text']" ).val( '' );
+			parentElement.find( " input[type='password']" ).val( '' );
+			parentElement.find( " textarea" ).val( '' );
 		}
 
 		// Pass the data for post processing
 		if( typeof controller[ postAction ] !== 'undefined' ) {
 
-			controller[ postAction ]( true, requestId, message, response );
+			controller[ postAction ]( true, parentElement, message, response );
 		}
 	}
 	else if( result == 0 ) {
@@ -407,14 +407,14 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		message.show();
 
 		// Hide Spinner
-		jQuery( "#" + requestId + " ." + this.config.spinnerClass ).hide();
+		parentElement.find( this.config.spinnerClass ).hide();
 
 		// Show Errors
 		for( var key in errors ) {
 
         	var fieldName 		= key;
         	var errorMessage 	= errors[ key ];
-        	var errorField		= jQuery( "#" + requestId + " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
+        	var errorField		= parentElement.find( " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
 
         	errorField.html( errorMessage );
         	errorField.show();
@@ -423,7 +423,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( requestId, control
 		// Pass the data for post processing
 		if( typeof controller[ postAction ] !== 'undefined' ) {
 
-			controller[ postAction ]( false, requestId, message, response );
+			controller[ postAction ]( false, parentElement, message, response );
 		}
 	}
 };
