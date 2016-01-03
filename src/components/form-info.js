@@ -39,8 +39,8 @@
 				}
 				else {
 
-					info.show();
-					form.fadeOut( "slow" );			
+					info.fadeIn( "fast" );
+					form.hide();			
 				}
 			});
 		}

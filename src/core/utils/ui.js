@@ -24,36 +24,5 @@ cmt.utils.ui = {
 
 			child.css( { "position": "absolute", "top": top, "left": left } );	
 		}
-	},
-	// it converts checkboxes to yes/no
-	initFormCheckbox: function( formSelector, yesNo ) {
-
-		var checkboxes = jQuery( formSelector ).find( "input[type='checkbox']" );
-
-		checkboxes.each( function() {
-
-			if( yesNo ) {
-
-				if( jQuery( this ).parent().find( ".customcheck" ).val() == 'Yes' ) {
-
-					jQuery( this ).prop( 'checked', true );
-				}
-			}
-		});
-
-		checkboxes.change( function() {
-
-			if( yesNo ) {
-
-				if( jQuery( this ).prop( 'checked' ) ) {
-
-					jQuery( this ).parent().find( ".customcheck" ).val( 'Yes' );
-				}
-				else {
-
-					jQuery( this ).parent().find( ".customcheck" ).val( 'No' );
-				}
-			}
-		});
 	}
 };

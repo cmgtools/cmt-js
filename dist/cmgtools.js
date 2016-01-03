@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2015-12-31
+ * CMGTools JS - v1.0.0-alpha1 - 2016-01-03
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -447,37 +447,6 @@ cmt.utils.ui = {
 
 			child.css( { "position": "absolute", "top": top, "left": left } );	
 		}
-	},
-	// it converts checkboxes to yes/no
-	initFormCheckbox: function( formSelector, yesNo ) {
-
-		var checkboxes = jQuery( formSelector ).find( "input[type='checkbox']" );
-
-		checkboxes.each( function() {
-
-			if( yesNo ) {
-
-				if( jQuery( this ).parent().find( ".customcheck" ).val() == 'Yes' ) {
-
-					jQuery( this ).prop( 'checked', true );
-				}
-			}
-		});
-
-		checkboxes.change( function() {
-
-			if( yesNo ) {
-
-				if( jQuery( this ).prop( 'checked' ) ) {
-
-					jQuery( this ).parent().find( ".customcheck" ).val( 'Yes' );
-				}
-				else {
-
-					jQuery( this ).parent().find( ".customcheck" ).val( 'No' );
-				}
-			}
-		});
 	}
 };
 
@@ -749,6 +718,66 @@ if( window.location.hash == '#_=_' ) {
 			}
 			*/
 		}
+	};
+
+})( jQuery );
+
+/**
+ * It's a custom checkbox plugin used to make origin checkbox submit value everytime.
+ */
+
+( function( cmtjq ) {
+
+// TODO: Add option for multi select
+
+	cmtjq.fn.cmtCheckbox = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtCheckbox.defaults, options );
+		var checkboxes		= this;
+
+		// Iterate and initialise all the fox sliders
+		checkboxes.each( function() {
+
+			var checkbox = cmtjq( this );
+
+			init( checkbox );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( checkbox ) {
+
+			var field 	= checkbox.find( "input[type='checkbox']" );
+			var input 	= checkbox.find( "input[type='hidden']" );
+
+			if( input.val() == 1 ) {
+
+				field.prop( 'checked', true );
+			}
+
+			field.change( function() {
+
+				if( field.is( ':checked' ) ) {
+
+ 					input.val( 1 );
+ 				}
+ 				else {
+
+ 					input.val( 0 );
+ 				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtCheckbox.defaults = {
+		// options
 	};
 
 })( jQuery );
@@ -1086,8 +1115,8 @@ if( window.location.hash == '#_=_' ) {
 				}
 				else {
 
-					info.show();
-					form.fadeOut( "slow" );			
+					info.fadeIn( "fast" );
+					form.hide();			
 				}
 			});
 		}
