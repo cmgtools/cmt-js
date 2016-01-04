@@ -180,22 +180,26 @@
 
 						if( xhr.status == 200 ) {
 
-							var jsonResponse = JSON.parse( xhr.responseText );
+							var jsonResponse 	= JSON.parse( xhr.responseText );
 
-							if( jsonResponse['result'] == 1 ) {
+							if( jsonResponse[ 'result' ] == 1 ) {
+
+								var responseData	= jsonResponse[ 'data' ];
 
 								if( settings.uploadListener ) {
 
-									settings.uploadListener( fileUploader.attr( "id" ), directory, type, jsonResponse['data'] );
+									settings.uploadListener( fileUploader.attr( "id" ), directory, type, responseData );
 								}
 								else {
 
-									fileUploaded( fileUploader, directory, type, jsonResponse['data'] );
+									fileUploaded( fileUploader, directory, type, responseData );
 								}
 							}
 							else {
-	
-								alert( "File upload failed." );
+								
+								var responseData	= jsonResponse[ 'errors' ];
+
+								alert( responseData.error );
 							}
 						}
 					}
@@ -264,15 +268,30 @@
 
 			var fileName	= result[ 'name' ] + "." + result[ 'extension' ];
 
-			if( type == "image" ) {
+			switch( type ) {
+				
+				case "image": {
 
-				fileUploader.find( ".postview .wrap-image" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
+					fileUploader.find( ".postview .wrap-image" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
+	
+					var fileFields	= fileUploader.find( ".fields" );
+	
+					fileFields.children( ".name" ).val( result[ 'name' ] );
+					fileFields.children( ".extension" ).val( result[ 'extension' ] );
+					fileFields.children( ".change" ).val( 1 );
 
-				var fileFields	= fileUploader.find( ".fields" );
+					break;
+				}
+				case "video": {
 
-				fileFields.children( ".name" ).val( result[ 'name' ] );
-				fileFields.children( ".extension" ).val( result[ 'extension' ] );
-				fileFields.children( ".change" ).val( 1 );
+					fileUploader.find( ".postview .wrap-image" ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
+
+					var fileFields	= fileUploader.find( ".fields" );
+	
+					fileFields.children( ".name" ).val( result[ 'name' ] );
+					fileFields.children( ".extension" ).val( result[ 'extension' ] );
+					fileFields.children( ".change" ).val( 1 );
+				}
 			}
 
 			// Show Hide
