@@ -291,6 +291,21 @@
 					fileFields.children( ".name" ).val( result[ 'name' ] );
 					fileFields.children( ".extension" ).val( result[ 'extension' ] );
 					fileFields.children( ".change" ).val( 1 );
+					
+					break;
+				}
+				case "document":
+				case "compressed": {
+
+					fileUploader.find( ".postview .wrap-image" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
+
+					var fileFields	= fileUploader.find( ".fields" );
+	
+					fileFields.children( ".name" ).val( result[ 'name' ] );
+					fileFields.children( ".extension" ).val( result[ 'extension' ] );
+					fileFields.children( ".change" ).val( 1 );
+					
+					break;
 				}
 			}
 
