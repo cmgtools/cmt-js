@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-01-13
+ * CMGTools JS - v1.0.0-alpha1 - 2016-01-15
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1056,7 +1056,7 @@ if( window.location.hash == '#_=_' ) {
 				
 				case "image": {
 
-					fileUploader.find( ".postview .wrap-image" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
+					fileUploader.find( ".postview .wrap-file" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
 	
 					var fileFields	= fileUploader.find( ".fields" );
 	
@@ -1068,7 +1068,7 @@ if( window.location.hash == '#_=_' ) {
 				}
 				case "video": {
 
-					fileUploader.find( ".postview .wrap-image" ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
+					fileUploader.find( ".postview .wrap-file" ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
 					var fileFields	= fileUploader.find( ".fields" );
 	
@@ -1081,7 +1081,7 @@ if( window.location.hash == '#_=_' ) {
 				case "document":
 				case "compressed": {
 
-					fileUploader.find( ".postview .wrap-image" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
+					fileUploader.find( ".postview .wrap-file" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
 					var fileFields	= fileUploader.find( ".fields" );
 	
