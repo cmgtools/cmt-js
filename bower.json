@@ -1,7 +1,7 @@
 {
   "name": "cmt-js",
   "title": "CMGTools JS",
-  "version": "1.0.0-alpha1",
+  "version": "1.0.0-alpha",
   "homepage": "http://www.cmsgtools.org/",
   "authors": [
     "Bhagwat Singh Chouhan"
@@ -17,12 +17,10 @@
   ],
   "license": "GPLv3",
   "ignore": [
-    "**/.*",
     ".gitignore",
     "gruntfile.js",
     "package.json",
-    "README.md",
-    "test"
+    "examples"
   ],
   "main": "dist/cmgtools.js",
   "dependencies": {
