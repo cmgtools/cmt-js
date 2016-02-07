@@ -2,6 +2,7 @@ module.exports = function( grunt ) {
 
  	grunt.loadNpmTasks( 'grunt-contrib-concat' );
 	grunt.loadNpmTasks( 'grunt-contrib-uglify' );
+	grunt.loadNpmTasks( 'grunt-contrib-copy' );
 
     grunt.initConfig({
         pkg: grunt.file.readJSON( 'package.json' ),
@@ -34,8 +35,15 @@ module.exports = function( grunt ) {
 	          		'dist/cmgtools.min.js': [ 'dist/cmgtools.js' ]
 	        	}
       		}
-    	}
+    	},
+		copy: {
+			main: {
+				files: [
+					{ expand: true, cwd: 'dist/', src: ['*.js'], dest: 'examples/scripts/', filter: 'isFile' }
+				]
+			}
+		}
     });
 
-    grunt.registerTask( 'default', [ 'concat', 'uglify' ] );
+    grunt.registerTask( 'default', [ 'concat', 'uglify', 'copy' ] );
 };

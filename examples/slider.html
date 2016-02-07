@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en-US">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="description" content="Slider Demo">
+		<meta name="keywords" content="slider, carousel">
+		<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+		<title>Slider Demo</title>
+
+		<!-- IE fix for console -->
+		<script type="text/javascript"> if (!window.console) console = {log: function() {}}; </script>
+
+		<!-- Icons -->
+		<link href="images/favicon.ico" rel="shortcut icon">
+		<link href="images/icon.jpg" rel="apple-touch-icon-precomposed">
+
+		<!-- Styles -->
+		<link rel="stylesheet" href="styles/slider.css" />
+		<link rel="stylesheet" href="styles/main.css" />
+
+		<!-- Vendor Scripts -->
+		<script type="text/javascript" src="scripts/vendor/jquery-1.11.2.min.js" ></script>
+		<script type="text/javascript" src="scripts/cmgtools.js"></script>
+		<script type="text/javascript" src="scripts/main.js"></script>
+	</head>
+	<body class="container-main">
+		<div id="cmt-slider" class="cmt-slider">
+			<div>
+				Slide 1
+			</div>
+			<div>
+				Slide 2
+			</div>
+			<div>
+				Slide 3
+			</div>
+			<div> 
+				Slide 4
+			</div>
+			<div>
+				Slide 5
+			</div>
+		</div>
+		<script type="text/javascript">
+
+			jQuery( document ).ready( function() {
+
+				jQuery( '#cmt-slider' ).cmtSlider( { onSlideClick: function( slider, slide, index ) { alert( index ); } } );
+			});
+
+		</script>
+	</body>
+</html>
