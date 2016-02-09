@@ -25,9 +25,9 @@
 
 			// Iterate and resize all the fox sliders
 			sliders.each( function() {
-	
+
 				var slider	= cmtjq( this );
-	
+
 				normaliseSlides( slider );
 			});
 		});
@@ -36,7 +36,7 @@
 		return;
 
 		// == Private Functions ===================================================== //
-		
+
 		// == Bootstrap ==================================== //
 
 		// Initialise Slider
@@ -44,7 +44,7 @@
 
 			// Update Slider html
 			initSliderHtml( slider );
-			
+
 			// Set Slider and Slides based on configuration params
 			normaliseSlides( slider );
 
@@ -61,14 +61,6 @@
 				var slide = cmtjq( this );
 
 				slide.addClass( 'slide' );
-
-				if( null != settings.onSlideClick ) {
-
-					slide.click( function() {
-alert( "hi " );
-						settings.onSlideClick( slider, slide, slide.attr( 'slide' ) );
-					});
-				}
 			});
 
 			// wrap the slides
@@ -105,6 +97,8 @@ alert( "hi " );
 				currentSlide.attr( 'slide', count );
 
 				currentPosition += slideWidth;
+
+				resetSlide( slider, currentSlide );
 			});
 		}
 
@@ -134,8 +128,23 @@ alert( "hi " );
 			});
 		}
 
+		function resetSlide( slider, slide ) {
+
+			if( null != settings.onSlideClick ) {
+
+				// remove existing click event
+				slide.unbind( 'click' );
+
+				// reset click event
+				slide.click( function() {
+
+					settings.onSlideClick( slider, slide, slide.attr( 'slide' ) );
+				});
+			}
+		}
+
 		// == Slides Movements ============================= //
-		
+
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
@@ -163,13 +172,13 @@ alert( "hi " );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
-	
+
 			// do pre processing
 			if( null != settings.preSlideChange ) {
-	
+
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
 			}
-	
+
 			// do animation - animate slider
 			filmstrip.animate(
 				{ left: -slideWidth },
@@ -186,6 +195,7 @@ alert( "hi " );
 						firstSlide.css( 'right', -slideWidth );
 
 						resetSlides( slider );
+						//resetSlide( slider, firstSlide );
 					}
 				}
 			);
@@ -206,38 +216,38 @@ alert( "hi " );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
-	
+
 			// do pre processing
 			if( null != settings.preSlideChange ) {
-	
+
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
-	
+
 			// Remove last and append to first
 			var lastSlide		= slidesSelector.last();
 			lastSlide.insertBefore( slidesSelector.eq(0) );
 			lastSlide.css( 'left', -slideWidth );
 			var activeSlide		= lastSlide.attr( 'slide' );
-	
+
 			// do animation - animate slider
 			filmstrip.animate(
 				{ left: slideWidth },
 				{
 					duration: 500,
 					complete: function() {
-						
+
 						var slider = cmtjq( this ).parent();
-						
+
 						resetSlides( slider );
 					}
 				}
 			);
-			
+
 			firstSlide	= slidesSelector.first();
-	
+
 			// do post processing
 			if( null != settings.postSlideChange ) {
-				
+
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
 			}
 		}

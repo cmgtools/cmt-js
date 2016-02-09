@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-02-07
+ * CMGTools JS - v1.0.0-alpha1 - 2016-02-09
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1862,9 +1862,9 @@ function hideMessagePopup() {
 
 			// Iterate and resize all the fox sliders
 			sliders.each( function() {
-	
+
 				var slider	= cmtjq( this );
-	
+
 				normaliseSlides( slider );
 			});
 		});
@@ -1873,7 +1873,7 @@ function hideMessagePopup() {
 		return;
 
 		// == Private Functions ===================================================== //
-		
+
 		// == Bootstrap ==================================== //
 
 		// Initialise Slider
@@ -1881,7 +1881,7 @@ function hideMessagePopup() {
 
 			// Update Slider html
 			initSliderHtml( slider );
-			
+
 			// Set Slider and Slides based on configuration params
 			normaliseSlides( slider );
 
@@ -1898,14 +1898,6 @@ function hideMessagePopup() {
 				var slide = cmtjq( this );
 
 				slide.addClass( 'slide' );
-
-				if( null != settings.onSlideClick ) {
-
-					slide.click( function() {
-alert( "hi " );
-						settings.onSlideClick( slider, slide, slide.attr( 'slide' ) );
-					});
-				}
 			});
 
 			// wrap the slides
@@ -1942,6 +1934,8 @@ alert( "hi " );
 				currentSlide.attr( 'slide', count );
 
 				currentPosition += slideWidth;
+
+				resetSlide( slider, currentSlide );
 			});
 		}
 
@@ -1971,8 +1965,23 @@ alert( "hi " );
 			});
 		}
 
+		function resetSlide( slider, slide ) {
+
+			if( null != settings.onSlideClick ) {
+
+				// remove existing click event
+				slide.unbind( 'click' );
+
+				// reset click event
+				slide.click( function() {
+
+					settings.onSlideClick( slider, slide, slide.attr( 'slide' ) );
+				});
+			}
+		}
+
 		// == Slides Movements ============================= //
-		
+
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
@@ -2000,13 +2009,13 @@ alert( "hi " );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
-	
+
 			// do pre processing
 			if( null != settings.preSlideChange ) {
-	
+
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
 			}
-	
+
 			// do animation - animate slider
 			filmstrip.animate(
 				{ left: -slideWidth },
@@ -2023,6 +2032,7 @@ alert( "hi " );
 						firstSlide.css( 'right', -slideWidth );
 
 						resetSlides( slider );
+						//resetSlide( slider, firstSlide );
 					}
 				}
 			);
@@ -2043,38 +2053,38 @@ alert( "hi " );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
-	
+
 			// do pre processing
 			if( null != settings.preSlideChange ) {
-	
+
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
-	
+
 			// Remove last and append to first
 			var lastSlide		= slidesSelector.last();
 			lastSlide.insertBefore( slidesSelector.eq(0) );
 			lastSlide.css( 'left', -slideWidth );
 			var activeSlide		= lastSlide.attr( 'slide' );
-	
+
 			// do animation - animate slider
 			filmstrip.animate(
 				{ left: slideWidth },
 				{
 					duration: 500,
 					complete: function() {
-						
+
 						var slider = cmtjq( this ).parent();
-						
+
 						resetSlides( slider );
 					}
 				}
 			);
-			
+
 			firstSlide	= slidesSelector.first();
-	
+
 			// do post processing
 			if( null != settings.postSlideChange ) {
-				
+
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
 			}
 		}
@@ -2163,8 +2173,28 @@ alert( "hi " );
 cmt.api = {};
 
 /**
- * An application is a collection of config and controllers. A project can create multiple applications based on it's needs.
- * The request triggers present within view elements use the Request Processing Engine to route submitted requests to controllers for pre and post processing.
+ * Key Concepts
+ * -------------------------
+ * 1. Application
+ * 2. Controller
+ * 3. Action
+ * 4. User
+ * 5. Route
+ * 6. Request Element
+ * 7. Trigger Element
+ * 8. Get, Post, Put and Delete
+ * 9. View
+ * 
+ * An application is a collection of app config and controllers. Each controller can define several actions that can be executed by app user. 
+ * A project can create multiple applications based on it's needs. The request triggers present within request elements use the Request Processing Engine 
+ * to fire submitted requests to controllers for pre and post processing. The request elements can also specify the controller, action, route, method and 
+ * consist of at least one trigger to fire the request.
+ * 
+ * Apart from request elements and request triggers, we can also call the application methods to process request directly via get, post, put or delete.
+ * 
+ * The CMT API does not provided functionality to render view, leaving the view template engine as a choice for developer. Moustache, Handlebars are few 
+ * among the well know templating engines used to render view. These can be used to render view while post processing a particular request utilising data 
+ * sent back by server. 
  */
 
 cmt.api.Application = function() {
@@ -2174,20 +2204,26 @@ cmt.api.Application = function() {
 	 */
 	this.config = {
 		json: false, 				// Identify whether all the request must be processed using json format
+		basePath: null,				// Base path to be used to create requests.
 		errorClass: '.error',		// Default css class for error elements
 		messageClass: '.message',	// Default css class for showing request result as message
-		spinnerClass: '.spinner'		// Default css class for showing spinner till the request gets processed
+		spinnerClass: '.spinner'	// Default css class for showing spinner till the request gets processed
 	};
 
-	// Default controller to be used as fallback in case no controller is mentioned
+	// Default controllers to be used as fallback in case no controller is mentioned
 	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
-	
+	var postController		= cmt.api.Application.CONTROLLER_POST;
+
+	// TODO: Add Apix and REST based default controllers to handle CRUD operations.
+
+	// TODO: Add routing table to automatically detect controller based on request route.
+
 	/**
 	 * -----------------------------
 	 * Routing
 	 * -----------------------------
-	 * Request routing in CMGTools JS - MVC is handled by controllers list which is an associative array of controller name and classpath. The app should 
-	 * know all the controllers it's dealing with. It also maintains a seperate list of active controllers which are already initialised. The active controllers list 
+	 * Request routing in CMGTools JS - MVC is handled by controllers map which is an associative array of controller name and classpath. The app should 
+	 * know all the controllers it's dealing with. It also maintains a seperate map of active controllers which are already initialised. The active controllers map 
 	 * is associative array of controller name and object.
 	 * 
 	 * The Request Processing Engine use the pre-defined controllers to process a request and fallback to default controller and action in case it does not 
@@ -2195,17 +2231,16 @@ cmt.api.Application = function() {
 	 */
 
 	/**
-	 * An exhaustive list of all the controllers available for the application. Each application can use this listing to maintain it's controllers list.
+	 * An exhaustive map of all the controllers (alias, classpath) available for the application. Each application can use this map to maintain it's controllers list.
 	 */
 	this.controllers 						= [];
-	this.controllers[ defaultController ] 	= "cmt.api.controllers.DefaultController";
+	this.controllers[ defaultController ] 	= 'cmt.api.controllers.DefaultController';
+	this.controllers[ postController ] 		= 'cmt.api.controllers.PostController';
 
 	/**
-	 * List of all the active controllers which are already initialised. It will save us from re-initialising controllers.
+	 * Map of all the active controllers (alias, object) which are already initialised. It will save us from re-initialising controllers.
 	 */
 	this.activeControllers 	= [];
-	
-	// TODO: Add routing table to automatically detect controller based on request route.
 };
 
 /**
@@ -2213,16 +2248,19 @@ cmt.api.Application = function() {
  */
 
 //Defaults
-cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller
+cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller Alias
+cmt.api.Application.CONTROLLER_POST		= 'post';				// Post Controller Alias
 cmt.api.Application.ACTION_DEFAULT		= 'default';			// Default Controller's default Action
 
 // Statics
 cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set on request element.
-cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set for form or request
-cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify form and request.
-cmt.api.Application.STATIC_CLICK		=  '.cmt-click';		// The class to be set for element which trigger request on click.
-cmt.api.Application.STATIC_CHANGE		=  '.cmt-change';		// The class to be set for element which trigger request on value change.
-cmt.api.Application.STATIC_KEY_UP		=  '.cmt-key-up';		// The class to be set for element which trigger request on key up.
+cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set on request element.
+cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify request element.
+
+cmt.api.Application.STATIC_CLICK		=  '.cmt-click';		// The class to be set for trigger element which fire request on click.
+cmt.api.Application.STATIC_CHANGE		=  '.cmt-change';		// The class to be set for trigger element which fire request on value change.
+cmt.api.Application.STATIC_KEY_UP		=  '.cmt-key-up';		// The class to be set for trigger element which fire request on key up.
+
 cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether request element's form fields need to be cleared on success.
 cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure.
 
@@ -2230,92 +2268,25 @@ cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to disp
  * -----------------------------
  * Request Processing Engine (RPE)
  * -----------------------------
- * The Request Processing Engine (RPE) process the requests by initialising the triggers. These triggers can be form submit, button click, select change.
- * We need to use the jQuery plugin to register these triggers. Example:
+ * The Request Processing Engine (RPE) process the requests by initialising the request elements having appropriate trigger. 
+ * These triggers can be form submit, button click, select change. We can use the jQuery plugin to register these triggers. Example:
  * 
- * jQuery( "<selector>" ).cmtRequestProcessor( { app: <application> } );
+ * jQuery( '<selector>' ).cmtRequestProcessor( { app: <application> } );
  * 
- * The selectors passed to request processor plugin forming the view can wrap form elements and the request trigger element. A request can be initiated 
+ * The selectors passed to request processor plugin forming the view i.e. request element can wrap form elements and the trigger element. A request can be fired 
  * based on trigger type and user action. The request triggers pass request to RPE which further find the appropriate controller and initialise it for 
  * first time and update active controllers map. RPE is responsible for calling pre processor method(if exist) for identified action and pass request to
  * backend. RPE also process response sent back by server and pass it to post processor method(if exist). The controller might define pre and post processor methods 
  * for an action. The post processor method can define logic to handle response and use appropriate templating engine to update view.
  */
 
-/**
- * Initialise request triggers
- * @param requestTriggers - All the triggers passed by JQuery selector using application plugin.
- */
-cmt.api.Application.prototype.registerTriggers = function( requestTriggers ) {
+// Controller Detection ----------------------------------
 
-	var app	= this;
-
-	// Iterate and initialise all the triggers
-	requestTriggers.each( function() {
-
-		var requestTrigger = jQuery( this );
-
-		// Form Submits
-		if( requestTrigger.is( "form" ) ) {
-
-			requestTrigger.unbind( "submit" );
-
-			requestTrigger.submit( function( event ) {
-
-				event.preventDefault();
-
-				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), true, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-			});
-		}
-
-		// Button Clicks
-		var clickTrigger = requestTrigger.find( cmt.api.Application.STATIC_CLICK );
-
-		if( clickTrigger.length > 0 ) {
-
-			clickTrigger.unbind( "click" );
-
-			clickTrigger.click( function( event ) {
-
-				event.preventDefault();
-
-				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-			});
-		}
-
-		// Select Change
-		var selectTrigger = requestTrigger.find( cmt.api.Application.STATIC_CHANGE );
-
-		if( selectTrigger.length > 0 ) {
-
-			selectTrigger.unbind( "change" );
-
-			selectTrigger.change( function() {
-
-				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-			});
-		}
-
-		// Key Up
-		var keyupTrigger = requestTrigger.find( cmt.api.Application.STATIC_KEY_UP );
-
-		if( keyupTrigger.length > 0 ) {
-
-			keyupTrigger.unbind( "keyup" );
-
-			keyupTrigger.keyup( function() {
-
-				app.initRequestTrigger( requestTrigger.attr( cmt.api.Application.STATIC_ID ), false, requestTrigger.attr( cmt.api.Application.STATIC_CONTROLLER ), requestTrigger.attr( cmt.api.Application.STATIC_ACTION ) );
-			});
-		}
-	});
-};
-
-cmt.api.Application.prototype.findController = function( controller ) {
+cmt.api.Application.prototype.findController = function( controllerAlias ) {
 
 	// Return active controller
 	if( this.activeControllers[ controller ] ) {
-		
+
 		return this.activeControllers[ controller ];
 	}
 	// Create a controller instance from registered controllers
@@ -2324,11 +2295,11 @@ cmt.api.Application.prototype.findController = function( controller ) {
 		try {
 
 			// Check whether controller is registered and throw exception
-			if( this.controllers[ controller ] == undefined ) throw "Controller with name " + controller + " is not registered with this application.";
+			if( this.controllers[ controller ] == undefined ) throw 'Controller with name ' + controller + ' is not registered with this application.';
 
 			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
 
-			// Initialise
+			// Initialise Controller
 			cont.init();
 
 			// Add to active registry
@@ -2340,7 +2311,7 @@ cmt.api.Application.prototype.findController = function( controller ) {
 
 			console.log( err );
 
-			console.log( "Falling back to default controller." );
+			console.log( 'Falling back to default controller.' );
 
 			if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
 
@@ -2350,135 +2321,206 @@ cmt.api.Application.prototype.findController = function( controller ) {
 	}
 };
 
-// Init triggers required to process request -------------
+// Register Request Elements -----------------------------
 
-cmt.api.Application.prototype.initRequestTrigger = function( requestId, form, controller, action ) {
+/**
+ * Initialise request elements
+ * @param requestElements - All the request elements having trigger passed by JQuery selector using application plugin.
+ */
+cmt.api.Application.prototype.registerElements = function( requestElements ) {
+
+	var app	= this;
+
+	// Iterate and initialise all the requests
+	requestElements.each( function() {
+
+		var requestElement = jQuery( this );
+
+		// Form Submits
+		if( requestElement.is( 'form' ) ) {
+
+			requestElement.unbind( 'submit' );
+
+			requestElement.submit( function( event ) {
+
+				event.preventDefault();
+
+				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), true, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+
+		// Button Clicks
+		var clickTrigger = requestElement.find( cmt.api.Application.STATIC_CLICK );
+
+		if( clickTrigger.length > 0 ) {
+
+			clickTrigger.unbind( 'click' );
+
+			clickTrigger.click( function( event ) {
+
+				event.preventDefault();
+
+				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+
+		// Select Change
+		var selectTrigger = requestElement.find( cmt.api.Application.STATIC_CHANGE );
+
+		if( selectTrigger.length > 0 ) {
+
+			selectTrigger.unbind( 'change' );
+
+			selectTrigger.change( function() {
+
+				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+
+		// Key Up
+		var keyupTrigger = requestElement.find( cmt.api.Application.STATIC_KEY_UP );
+
+		if( keyupTrigger.length > 0 ) {
+
+			keyupTrigger.unbind( 'keyup' );
+
+			keyupTrigger.keyup( function() {
+
+				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+			});
+		}
+	});
+};
+
+// Process Request Elements Triggers ---------------------
+
+cmt.api.Application.prototype.handleRequest = function( requestId, isForm, controllerName, actionName ) {
 
 	// Use default controller
-	if( null == controller ) {
+	if( null == controllerName ) {
 
-		controller = cmt.api.Application.CONTROLLER_DEFAULT;
+		controllerName = cmt.api.Application.CONTROLLER_DEFAULT;
 	}
 
 	// Use default action
-	if( null == action ) {
+	if( null == actionName ) {
 
-		action = cmt.api.Application.ACTION_DEFAULT;
+		actionName = cmt.api.Application.ACTION_DEFAULT;
 	}
 
 	// Search Controller
-	var controllerObj	= this.findController( controller );
+	var controller	= this.findController( controllerName );
 
-	if( form ) {
+	if( isForm ) {
 
 		if( this.config.json ) {
 
-			this.handleRestForm( requestId, controllerObj, action );
+			this.handleRestForm( requestId, controller, actionName );
 		}
 		else {
 
-			this.handleAjaxForm( requestId, controllerObj, action );
+			this.handleAjaxForm( requestId, controller, actionName );
 		}
 	}
 	else {
 
-		this.handleAjaxRequest( requestId, controllerObj, action );
+		this.handleAjaxRequest( requestId, controller, actionName );
 	}
 };
 
-cmt.api.Application.prototype.handleRestForm = function( formId, controller, action ) {
-		
-		var app			= this;
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= jQuery( "#" + formId + " ." + this.config.messageClass );
-		var preAction	= action + "ActionPre";
+cmt.api.Application.prototype.handleRestForm = function( formId, controller, actionName ) {
 
-		// Hide message element
-		message.hide();
+	var app			= this;
+	var form		= jQuery( '#' + formId );
+	var httpMethod	= form.attr( 'method' );
+	var actionUrl	= form.attr( 'action' );
+	var message		= jQuery( '#' + formId + ' .' + this.config.messageClass );
+	var preAction	= actionName + 'ActionPre';
 
-		// Hide all errors
-		form.find( this.config.errorClass ).hide();
+	// Hide message element
+	message.hide();
 
-		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+	// Hide all errors
+	form.find( this.config.errorClass ).hide();
 
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= cmt.utils.data.formToJson( formId );
-
-		// Show Spinner
-		form.find( this.config.spinnerClass ).show();
-
-		jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: JSON.stringify( formData ),
-			dataType: "JSON",
-			contentType: "application/json;charset=UTF-8",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processAjaxResponse( form, controller, action, message, response );
-			}
-		});
+	// Pre Process Form
+	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
 
 		return false;
+	}
+
+	// Generate form data for submission
+	var formData	= cmt.utils.data.formToJson( formId );
+
+	// Show Spinner
+	form.find( this.config.spinnerClass ).show();
+
+	jQuery.ajax({
+		type: httpMethod,
+		url: actionUrl,
+		data: JSON.stringify( formData ),
+		dataType: 'JSON',
+		contentType: 'application/json;charset=UTF-8',
+		success: function( response, textStatus, XMLHttpRequest ) {
+
+			// Process response
+			app.processAjaxResponse( form, controller, actionName, message, response );
+		}
+	});
+
+	return false;
 };
 
-cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, action ) {
-		
-		var app			= this;
-		var form		= jQuery( "#" + formId );
-		var httpMethod	= form.attr( "method" );
-		var actionUrl	= form.attr( "action" );
-		var message		= form.find( this.config.messageClass );
-		var preAction	= action + "ActionPre";
+cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, actionName ) {
 
-		// Hide message
-		message.hide();
+	var app			= this;
+	var form		= jQuery( '#' + formId );
+	var httpMethod	= form.attr( 'method' );
+	var actionUrl	= form.attr( 'action' );
+	var message		= form.find( this.config.messageClass );
+	var preAction	= actionName + 'ActionPre';
 
-		// Hide all errors
-		form.find( this.config.errorClass ).hide();
+	// Hide message
+	message.hide();
 
-		// Pre Process Form
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+	// Hide all errors
+	form.find( this.config.errorClass ).hide();
 
-			return false;
-		}
-
-		// Generate form data for submission
-		var formData	= cmt.utils.data.serialiseForm( formId );
-
-		// Show Spinner
-		form.find( this.config.spinnerClass ).show();
-
-		jQuery.ajax( {
-			type: httpMethod,
-			url: actionUrl,
-			data: formData,
-			dataType: "JSON",
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processAjaxResponse( form, controller, action, message, response );
-			}
-		});
+	// Pre Process Form
+	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
 
 		return false;
+	}
+
+	// Generate form data for submission
+	var formData	= cmt.utils.data.serialiseForm( formId );
+
+	// Show Spinner
+	form.find( this.config.spinnerClass ).show();
+
+	jQuery.ajax({
+		type: httpMethod,
+		url: actionUrl,
+		data: formData,
+		dataType: 'JSON',
+		success: function( response, textStatus, XMLHttpRequest ) {
+
+			// Process response
+			app.processAjaxResponse( form, controller, actionName, message, response );
+		}
+	});
+
+	return false;
 };
 
-cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, action ) {
+cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, actionName ) {
 
 		var app			= this;
-		var element		= jQuery( "#" + elementId );
-		var httpMethod	= element.attr( "method" );
-		var actionUrl	= element.attr( "action" );
+		var element		= jQuery( '#' + elementId );
+		var httpMethod	= element.attr( 'method' );
+		var actionUrl	= element.attr( 'action' );
 		var message		= element.find( this.config.messageClass );
-		var preAction	= action + "ActionPre";
+		var preAction	= actionName + 'ActionPre';
 
 		if( null == httpMethod ) {
 
@@ -2507,24 +2549,24 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
-			dataType: "JSON",
+			dataType: 'JSON',
 			success: function( response, textStatus, XMLHttpRequest ) {
 
 				// Process response
-				app.processAjaxResponse( element, controller, action, message, response );
+				app.processAjaxResponse( element, controller, actionName, message, response );
 			}
 		});
 
 		return false;
 };
 
-cmt.api.Application.prototype.processAjaxResponse = function( parentElement, controller, action, message, response ) {
+cmt.api.Application.prototype.processAjaxResponse = function( parentElement, controller, actionName, message, response ) {
 
 	var result 		= response[ 'result' ];
 	var messageStr 	= response[ 'message' ];
 	var data		= response[ 'data' ];
 	var errors		= response[ 'errors' ];
-	var postAction	= action + "ActionPost";
+	var postAction	= actionName + 'ActionPost';
 
 	if( result == 1 ) {
 
@@ -2553,9 +2595,9 @@ cmt.api.Application.prototype.processAjaxResponse = function( parentElement, con
 		if( clearData ) {
 
 			// Clear all form fields
-			parentElement.find( " input[type='text']" ).val( '' );
-			parentElement.find( " input[type='password']" ).val( '' );
-			parentElement.find( " textarea" ).val( '' );
+			parentElement.find( ' input[type="text"]' ).val( '' );
+			parentElement.find( ' input[type="password"]' ).val( '' );
+			parentElement.find( ' textarea' ).val( '' );
 		}
 
 		// Pass the data for post processing
@@ -2578,7 +2620,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( parentElement, con
 
         	var fieldName 		= key;
         	var errorMessage 	= errors[ key ];
-        	var errorField		= parentElement.find( " span[" + cmt.api.Application.STATIC_ERROR + "='" + fieldName + "']" );
+        	var errorField		= parentElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
 
         	errorField.html( errorMessage );
         	errorField.show();
@@ -2592,8 +2634,10 @@ cmt.api.Application.prototype.processAjaxResponse = function( parentElement, con
 	}
 };
 
+// Init Request Elements registration --------------------
+
 /**
- * JQuery Plugin to initialise request triggers for the given application.
+ * JQuery Plugin to initialise request elements having request triggers for the given application.
  */
 ( function( cmtjq ) {
 
@@ -2610,7 +2654,7 @@ cmt.api.Application.prototype.processAjaxResponse = function( parentElement, con
 			// Initialise application
 			app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
 
-			app.registerTriggers( this );
+			app.registerElements( this );
 		}
 
 		// return control
@@ -2668,5 +2712,33 @@ cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( su
 	else {
 
 		console.log( "Processing failure for default action." );
+	}
+};
+
+cmt.api.controllers.PostController = function() {};
+
+cmt.api.controllers.PostController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.PostController.prototype.init = function() {
+
+	console.log( "Initialised post controller." );
+};
+
+cmt.api.controllers.PostController.prototype.defaultActionPre = function() {
+
+	console.log( "Pre processing post action." );
+
+	return true;
+};
+
+cmt.api.controllers.PostController.prototype.defaultActionPost = function( success, message, response ) {
+
+	if( success ) {
+
+		console.log( "Processing success for post action." );
+	}
+	else {
+
+		console.log( "Processing failure for post action." );
 	}
 };

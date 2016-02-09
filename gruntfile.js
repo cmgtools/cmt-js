@@ -18,7 +18,9 @@ module.exports = function( grunt ) {
       		dist: {
         		src: [ 'src/core/main.js', 'src/core/utils/main.js', 'src/core/utils/browser.js', 'src/core/utils/data.js', 'src/core/utils/image.js', 'src/core/utils/object.js', 'src/core/utils/ui.js', 'src/core/utils/fixes.js',
 						'src/components/**/*.js',
-						'src/mvc/core.js', 'src/mvc/application.js', 'src/mvc/controllers/main.js', 'src/mvc/controllers/BaseController.js', 'src/mvc/controllers/DefaultController.js' ],
+						'src/mvc/core.js', 'src/mvc/application.js', 'src/mvc/request-element.js', 
+						'src/mvc/controllers/main.js', 'src/mvc/controllers/BaseController.js', 'src/mvc/controllers/DefaultController.js', 'src/mvc/controllers/PostController.js' 
+					],
         		dest: 'dist/cmgtools.js'
       		}
     	},
