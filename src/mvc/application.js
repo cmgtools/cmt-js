@@ -23,7 +23,7 @@
  * sent back by server. 
  */
 
-cmt.api.Application = function() {
+cmt.api.Application = function( options ) {
 
 	/**
 	 * Config Object
@@ -31,14 +31,17 @@ cmt.api.Application = function() {
 	this.config = {
 		json: false, 				// Identify whether all the request must be processed using json format
 		basePath: null,				// Base path to be used to create requests.
+		csrfGet: false,				// CSRF Token for Get Request
 		errorClass: '.error',		// Default css class for error elements
 		messageClass: '.message',	// Default css class for showing request result as message
 		spinnerClass: '.spinner'	// Default css class for showing spinner till the request gets processed
 	};
 
-	// Default controllers to be used as fallback in case no controller is mentioned
+	// Merge default config and application options
+	jQuery.extend( this.config, options );
+
+	// Default controller to be used as fallback in case no controller is mentioned
 	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
-	var postController		= cmt.api.Application.CONTROLLER_POST;
 
 	// TODO: Add Apix and REST based default controllers to handle CRUD operations.
 
@@ -61,7 +64,6 @@ cmt.api.Application = function() {
 	 */
 	this.controllers 						= [];
 	this.controllers[ defaultController ] 	= 'cmt.api.controllers.DefaultController';
-	this.controllers[ postController ] 		= 'cmt.api.controllers.PostController';
 
 	/**
 	 * Map of all the active controllers (alias, object) which are already initialised. It will save us from re-initialising controllers.
@@ -75,20 +77,23 @@ cmt.api.Application = function() {
 
 //Defaults
 cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller Alias
-cmt.api.Application.CONTROLLER_POST		= 'post';				// Post Controller Alias
 cmt.api.Application.ACTION_DEFAULT		= 'default';			// Default Controller's default Action
 
-// Statics
+// Static - Attributes - Request Element
 cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set on request element.
 cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set on request element.
+cmt.api.Application.STATIC_CUSTOM		=  'cmt-custom';		// Identify whether custom data is required.
 cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify request element.
+cmt.api.Application.STATIC_KEEP			=  'cmt-keep';			// The keep attribute specify whether request element's form fields need to be retained on success.
 
+// Static - Attributes - Errors
+cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure.
+
+// Static - Triggers
 cmt.api.Application.STATIC_CLICK		=  '.cmt-click';		// The class to be set for trigger element which fire request on click.
 cmt.api.Application.STATIC_CHANGE		=  '.cmt-change';		// The class to be set for trigger element which fire request on value change.
 cmt.api.Application.STATIC_KEY_UP		=  '.cmt-key-up';		// The class to be set for trigger element which fire request on key up.
-
-cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether request element's form fields need to be cleared on success.
-cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure.
+cmt.api.Application.STATIC_BLUR			=  '.cmt-blur';			// The class to be set for trigger element which fire request on key up.
 
 /**
  * -----------------------------
@@ -108,12 +113,12 @@ cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to disp
 
 // Controller Detection ----------------------------------
 
-cmt.api.Application.prototype.findController = function( controllerAlias ) {
+cmt.api.Application.prototype.findController = function( alias ) {
 
 	// Return active controller
-	if( this.activeControllers[ controller ] ) {
+	if( this.activeControllers[ alias ] ) {
 
-		return this.activeControllers[ controller ];
+		return this.activeControllers[ alias ];
 	}
 	// Create a controller instance from registered controllers
 	else {
@@ -121,17 +126,17 @@ cmt.api.Application.prototype.findController = function( controllerAlias ) {
 		try {
 
 			// Check whether controller is registered and throw exception
-			if( this.controllers[ controller ] == undefined ) throw 'Controller with name ' + controller + ' is not registered with this application.';
+			if( this.controllers[ alias ] == undefined ) throw 'Controller with alias ' + alias + ' is not registered with this application.';
 
-			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
+			var controller 	= cmt.utils.object.strToObject( this.controllers[ alias ] );
 
 			// Initialise Controller
-			cont.init();
+			controller.init();
 
 			// Add to active registry
-			this.activeControllers[ controller ] = cont;
+			this.activeControllers[ alias ] = controller;
 
-			return this.activeControllers[ controller ];
+			return this.activeControllers[ alias ];
 		}
 		catch( err ) {
 

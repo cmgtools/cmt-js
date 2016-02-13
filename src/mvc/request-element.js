@@ -22,7 +22,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), true, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, true );
 			});
 		}
 
@@ -37,7 +37,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
 			});
 		}
 
@@ -50,7 +50,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			selectTrigger.change( function() {
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
 			});
 		}
 
@@ -63,15 +63,31 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			keyupTrigger.keyup( function() {
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
+			});
+		}
+
+		// Blur
+		var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR );
+
+		if( blurTrigger.length > 0 ) {
+
+			blurTrigger.unbind( 'blur' );
+
+			blurTrigger.blur( function() {
+
+				app.triggerRequest( requestElement, false );
 			});
 		}
 	});
 };
 
-// Process Request Elements Triggers ---------------------
+// Handle Request Elements Triggers ----------------------
 
-cmt.api.Application.prototype.handleRequest = function( requestId, isForm, controllerName, actionName ) {
+cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm ) {
+
+	var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
+	var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
 
 	// Use default controller
 	if( null == controllerName ) {
@@ -92,135 +108,136 @@ cmt.api.Application.prototype.handleRequest = function( requestId, isForm, contr
 
 		if( this.config.json ) {
 
-			this.handleRestForm( requestId, controller, actionName );
+			this.handleJsonForm( requestElement, controller, actionName );
 		}
 		else {
 
-			this.handleAjaxForm( requestId, controller, actionName );
+			this.handleDataForm( requestElement, controller, actionName );
 		}
 	}
 	else {
 
-		this.handleAjaxRequest( requestId, controller, actionName );
+		this.handleRequest( requestElement, controller, actionName );
 	}
 };
 
-cmt.api.Application.prototype.handleRestForm = function( formId, controller, actionName ) {
+cmt.api.Application.prototype.handleJsonForm = function( requestElement, controller, actionName ) {
 
-	var app			= this;
-	var form		= jQuery( '#' + formId );
-	var httpMethod	= form.attr( 'method' );
-	var actionUrl	= form.attr( 'action' );
-	var message		= jQuery( '#' + formId + ' .' + this.config.messageClass );
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate form data for submission
+		var formData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.formToJson( requestElement );
+		}
+
+		// process request
+		this.processRequest( requestElement, controller, actionName, formData );
+	}
+
+	return false;
+};
+
+cmt.api.Application.prototype.handleDataForm = function( requestElement, controller, actionName ) {
+
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate form data for submission
+		var formData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.serialiseForm( requestElement );
+		}
+
+		// Process request
+		this.processRequest( requestElement, controller, actionName, formData );
+	}
+
+	return false;
+};
+
+cmt.api.Application.prototype.handleRequest = function( requestElement, controller, actionName ) {
+
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate request data for submission
+		var requestData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			requestData	= cmt.utils.data.serialiseElement( requestElement );
+		}
+
+		// Process request
+		this.processRequest( requestElement, controller, actionName, requestData );
+	}
+
+	return false;
+};
+
+// Process Request Elements Triggers ---------------------
+
+cmt.api.Application.prototype.preProcessRequest = function( requestElement, controller, actionName ) {
+
 	var preAction	= actionName + 'ActionPre';
 
 	// Hide message element
-	message.hide();
+	requestElement.find( this.config.messageClass ).hide();
 
 	// Hide all errors
-	form.find( this.config.errorClass ).hide();
+	requestElement.find( this.config.errorClass ).hide();
 
-	// Pre Process Form
-	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+	// Pre Process Request
+	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
 
 		return false;
 	}
 
-	// Generate form data for submission
-	var formData	= cmt.utils.data.formToJson( formId );
-
 	// Show Spinner
-	form.find( this.config.spinnerClass ).show();
-
-	jQuery.ajax({
-		type: httpMethod,
-		url: actionUrl,
-		data: JSON.stringify( formData ),
-		dataType: 'JSON',
-		contentType: 'application/json;charset=UTF-8',
-		success: function( response, textStatus, XMLHttpRequest ) {
-
-			// Process response
-			app.processAjaxResponse( form, controller, actionName, message, response );
-		}
-	});
-
-	return false;
+	requestElement.find( this.config.spinnerClass ).show();
+	
+	return true;
 };
 
-cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, actionName ) {
+cmt.api.Application.prototype.processRequest = function( requestElement, controller, actionName, requestData ) {
 
 	var app			= this;
-	var form		= jQuery( '#' + formId );
-	var httpMethod	= form.attr( 'method' );
-	var actionUrl	= form.attr( 'action' );
-	var message		= form.find( this.config.messageClass );
-	var preAction	= actionName + 'ActionPre';
+	var httpMethod	= 'post';
+	var actionUrl	= requestElement.attr( 'action' );
 
-	// Hide message
-	message.hide();
+	// Set method if exist
+	if( requestElement.attr( 'method' ) ) {
 
-	// Hide all errors
-	form.find( this.config.errorClass ).hide();
-
-	// Pre Process Form
-	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
-
-		return false;
+		httpMethod	= requestElement.attr( 'method' );
 	}
 
-	// Generate form data for submission
-	var formData	= cmt.utils.data.serialiseForm( formId );
+	if( null != app.config.basePath ) {
 
-	// Show Spinner
-	form.find( this.config.spinnerClass ).show();
+		actionUrl	= app.config.basePath + actionUrl;
+	}
 
-	jQuery.ajax({
-		type: httpMethod,
-		url: actionUrl,
-		data: formData,
-		dataType: 'JSON',
-		success: function( response, textStatus, XMLHttpRequest ) {
+	if( this.config.json ) {
 
-			// Process response
-			app.processAjaxResponse( form, controller, actionName, message, response );
-		}
-	});
-
-	return false;
-};
-
-cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, actionName ) {
-
-		var app			= this;
-		var element		= jQuery( '#' + elementId );
-		var httpMethod	= element.attr( 'method' );
-		var actionUrl	= element.attr( 'action' );
-		var message		= element.find( this.config.messageClass );
-		var preAction	= actionName + 'ActionPre';
-
-		if( null == httpMethod ) {
-
-			httpMethod = 'post';
-		}
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		element.find( this.errorClass ).hide();
-
-		// Pre Process Request
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
-
-			return false;
-		}
-
-		// Generate request data for submission
-		var requestData	= cmt.utils.data.serialiseElement( elementId );
-
-		// Show Spinner
-		element.find( this.spinnerClass ).show();
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: requestData,
+			dataType: 'JSON',
+			contentType: 'application/json;charset=UTF-8',
+			success: function( response, textStatus, XMLHttpRequest ) {
+	
+				// Process response
+				app.processResponse( requestElement, controller, actionName, response );
+			}
+		});
+	}
+	else {
 
 		jQuery.ajax({
 			type: httpMethod,
@@ -228,86 +245,67 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 			data: requestData,
 			dataType: 'JSON',
 			success: function( response, textStatus, XMLHttpRequest ) {
-
+	
 				// Process response
-				app.processAjaxResponse( element, controller, actionName, message, response );
+				app.processResponse( requestElement, controller, actionName, response );
 			}
 		});
-
-		return false;
+	}
 };
 
-cmt.api.Application.prototype.processAjaxResponse = function( parentElement, controller, actionName, message, response ) {
+cmt.api.Application.prototype.processResponse = function( requestElement, controller, actionName, response ) {
 
-	var result 		= response[ 'result' ];
-	var messageStr 	= response[ 'message' ];
-	var data		= response[ 'data' ];
-	var errors		= response[ 'errors' ];
-	var postAction	= actionName + 'ActionPost';
+	var result 	= response[ 'result' ];
+	var errors	= response[ 'errors' ];
 
 	if( result == 1 ) {
 
-		// Show message
-		message.html( messageStr );
-		message.show();
+		// Check to clear form data
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_KEEP + ']' ) ) {
+	
+			// Clear all form fields
+			requestElement.find( ' input[type="text"]' ).val( '' );
+			requestElement.find( ' input[type="password"]' ).val( '' );
+			requestElement.find( ' textarea' ).val( '' );
+		}
 
 		// Hide all errors
-		parentElement.find( this.config.errorClass ).hide();
-
-		// Hide Spinner
-		parentElement.find( this.config.spinnerClass ).hide();
-
-		// Check to clear form data
-		var clearData = parentElement.attr( cmt.api.Application.STATIC_CLEAR );
-
-		if( null == clearData ) {
-
-			clearData	= true;
-		}
-		else {
-
-			clearData	= clearData === 'true';
-		}
-
-		if( clearData ) {
-
-			// Clear all form fields
-			parentElement.find( ' input[type="text"]' ).val( '' );
-			parentElement.find( ' input[type="password"]' ).val( '' );
-			parentElement.find( ' textarea' ).val( '' );
-		}
-
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
-
-			controller[ postAction ]( true, parentElement, message, response );
-		}
+		requestElement.find( this.config.errorClass ).hide();
 	}
 	else if( result == 0 ) {
-
-		// Show message
-		message.html( messageStr );
-		message.show();
-
-		// Hide Spinner
-		parentElement.find( this.config.spinnerClass ).hide();
 
 		// Show Errors
 		for( var key in errors ) {
 
         	var fieldName 		= key;
         	var errorMessage 	= errors[ key ];
-        	var errorField		= parentElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
+        	var errorField		= requestElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
 
         	errorField.html( errorMessage );
         	errorField.show();
     	}
+	}
 
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
+	this.postProcessResponse( requestElement, controller, actionName, response );
+};
 
-			controller[ postAction ]( false, parentElement, message, response );
-		}
+cmt.api.Application.prototype.postProcessResponse = function( requestElement, controller, actionName, response ) {
+
+	var message		= requestElement.find( this.config.messageClass );
+	var messageStr 	= response[ 'message' ];
+	var postAction	= actionName + 'ActionPost';
+
+	// Show message
+	message.html( messageStr );
+	message.show();
+
+	// Hide Spinner
+	requestElement.find( this.config.spinnerClass ).hide();
+
+	// Pass the data for post processing
+	if( typeof controller[ postAction ] !== 'undefined' ) {
+
+		controller[ postAction ]( response[ 'result' ], requestElement, response );
 	}
 };
 

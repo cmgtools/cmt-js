@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-02-09
+ * CMGTools JS - v1.0.0-alpha1 - 2016-02-13
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -89,7 +89,16 @@ cmt.utils.data = {
 	serialiseElement: function( elementId ) {
 
 		var dataArr		= [];
-		var elements 	= jQuery( '#' + elementId ).find( ':input' ).get();
+		var elements 	= null;
+
+		if( typeof elementId == 'string' ) {
+
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+		}
+		else {
+
+			elements	= elementId.find( ':input' ).get();
+		}
 
 		jQuery.each( elements, function() {
 
@@ -121,7 +130,16 @@ cmt.utils.data = {
 	elementToJson: function( elementId ) {
 
 		var dataArr		= [];
-		var elements 	= jQuery( '#' + elementId ).find(':input').get();
+		var elements 	= null;
+
+		if( typeof elementId == 'string' ) {
+
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+		}
+		else {
+
+			elements	= elementId.find( ':input' ).get();
+		}
 
 		jQuery.each( elements, function() {
 
@@ -326,6 +344,62 @@ cmt.utils.data = {
 	}
 };
 
+// Inheritance - Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
+Function.prototype.inherits = function( parent ) {
+
+	var d	= 0;
+	var p 	= ( this.prototype = new parent() );
+
+	this.prototype.uber	= function( name ) {
+
+		var f;
+		var r;
+		var t = d;
+		var v = parent.prototype;
+
+		if( t ) {
+
+			while( t ) {
+
+	              v		= v.constructor.prototype;
+	              t 	-= 1;
+			}
+	
+			f = v[ name ];
+		}
+		else {
+
+			f	= p[ name ];
+	
+			if( f == this[ name ] ) {
+
+				f = v[ name ];
+			}
+		}
+
+		d		+= 1;
+		r		 = f.apply(this, Array.prototype.slice.apply(arguments, [1]));
+		d		-= 1;
+
+		return r;
+	};
+};
+
+// Hash Tag - Fix hash tag issues for SNS login
+if( window.location.hash == '#_=_' ) {
+
+    if( history.replaceState ) {
+
+        var cleanHref = window.location.href.split( '#' )[ 0 ];
+
+        history.replaceState( null, null, cleanHref );
+    }
+    else {
+
+        window.location.hash = '';
+    }
+}
+
 /**
  * Image utility provides commonly used image processing methods.
  */
@@ -449,62 +523,6 @@ cmt.utils.ui = {
 		}
 	}
 };
-
-// Inheritance - Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
-Function.prototype.inherits = function( parent ) {
-
-	var d	= 0;
-	var p 	= ( this.prototype = new parent() );
-
-	this.prototype.uber	= function( name ) {
-
-		var f;
-		var r;
-		var t = d;
-		var v = parent.prototype;
-
-		if( t ) {
-
-			while( t ) {
-
-	              v		= v.constructor.prototype;
-	              t 	-= 1;
-			}
-	
-			f = v[ name ];
-		}
-		else {
-
-			f	= p[ name ];
-	
-			if( f == this[ name ] ) {
-
-				f = v[ name ];
-			}
-		}
-
-		d		+= 1;
-		r		 = f.apply(this, Array.prototype.slice.apply(arguments, [1]));
-		d		-= 1;
-
-		return r;
-	};
-};
-
-// Hash Tag - Fix hash tag issues for SNS login
-if( window.location.hash == '#_=_' ) {
-
-    if( history.replaceState ) {
-
-        var cleanHref = window.location.href.split( '#' )[ 0 ];
-
-        history.replaceState( null, null, cleanHref );
-    }
-    else {
-
-        window.location.hash = '';
-    }
-}
 
 /**
  * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
@@ -2197,7 +2215,7 @@ cmt.api = {};
  * sent back by server. 
  */
 
-cmt.api.Application = function() {
+cmt.api.Application = function( options ) {
 
 	/**
 	 * Config Object
@@ -2205,14 +2223,17 @@ cmt.api.Application = function() {
 	this.config = {
 		json: false, 				// Identify whether all the request must be processed using json format
 		basePath: null,				// Base path to be used to create requests.
+		csrfGet: false,				// CSRF Token for Get Request
 		errorClass: '.error',		// Default css class for error elements
 		messageClass: '.message',	// Default css class for showing request result as message
 		spinnerClass: '.spinner'	// Default css class for showing spinner till the request gets processed
 	};
 
-	// Default controllers to be used as fallback in case no controller is mentioned
+	// Merge default config and application options
+	jQuery.extend( this.config, options );
+
+	// Default controller to be used as fallback in case no controller is mentioned
 	var defaultController	= cmt.api.Application.CONTROLLER_DEFAULT;
-	var postController		= cmt.api.Application.CONTROLLER_POST;
 
 	// TODO: Add Apix and REST based default controllers to handle CRUD operations.
 
@@ -2235,7 +2256,6 @@ cmt.api.Application = function() {
 	 */
 	this.controllers 						= [];
 	this.controllers[ defaultController ] 	= 'cmt.api.controllers.DefaultController';
-	this.controllers[ postController ] 		= 'cmt.api.controllers.PostController';
 
 	/**
 	 * Map of all the active controllers (alias, object) which are already initialised. It will save us from re-initialising controllers.
@@ -2249,20 +2269,23 @@ cmt.api.Application = function() {
 
 //Defaults
 cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller Alias
-cmt.api.Application.CONTROLLER_POST		= 'post';				// Post Controller Alias
 cmt.api.Application.ACTION_DEFAULT		= 'default';			// Default Controller's default Action
 
-// Statics
+// Static - Attributes - Request Element
 cmt.api.Application.STATIC_CONTROLLER	=  'cmt-controller';	// Controller attribute set on request element.
 cmt.api.Application.STATIC_ACTION		=  'cmt-action';		// Action attribute set on request element.
+cmt.api.Application.STATIC_CUSTOM		=  'cmt-custom';		// Identify whether custom data is required.
 cmt.api.Application.STATIC_ID			=  'id';				// Id to uniquely identify request element.
+cmt.api.Application.STATIC_KEEP			=  'cmt-keep';			// The keep attribute specify whether request element's form fields need to be retained on success.
 
+// Static - Attributes - Errors
+cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure.
+
+// Static - Triggers
 cmt.api.Application.STATIC_CLICK		=  '.cmt-click';		// The class to be set for trigger element which fire request on click.
 cmt.api.Application.STATIC_CHANGE		=  '.cmt-change';		// The class to be set for trigger element which fire request on value change.
 cmt.api.Application.STATIC_KEY_UP		=  '.cmt-key-up';		// The class to be set for trigger element which fire request on key up.
-
-cmt.api.Application.STATIC_CLEAR		=  'cmt-clear';			// The clear attribute specify whether request element's form fields need to be cleared on success.
-cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to display model property validation failure.
+cmt.api.Application.STATIC_BLUR			=  '.cmt-blur';			// The class to be set for trigger element which fire request on key up.
 
 /**
  * -----------------------------
@@ -2282,12 +2305,12 @@ cmt.api.Application.STATIC_ERROR		=  'cmt-error';			// The error element to disp
 
 // Controller Detection ----------------------------------
 
-cmt.api.Application.prototype.findController = function( controllerAlias ) {
+cmt.api.Application.prototype.findController = function( alias ) {
 
 	// Return active controller
-	if( this.activeControllers[ controller ] ) {
+	if( this.activeControllers[ alias ] ) {
 
-		return this.activeControllers[ controller ];
+		return this.activeControllers[ alias ];
 	}
 	// Create a controller instance from registered controllers
 	else {
@@ -2295,17 +2318,17 @@ cmt.api.Application.prototype.findController = function( controllerAlias ) {
 		try {
 
 			// Check whether controller is registered and throw exception
-			if( this.controllers[ controller ] == undefined ) throw 'Controller with name ' + controller + ' is not registered with this application.';
+			if( this.controllers[ alias ] == undefined ) throw 'Controller with alias ' + alias + ' is not registered with this application.';
 
-			var cont 	= cmt.utils.object.strToObject( this.controllers[ controller ] );
+			var controller 	= cmt.utils.object.strToObject( this.controllers[ alias ] );
 
 			// Initialise Controller
-			cont.init();
+			controller.init();
 
 			// Add to active registry
-			this.activeControllers[ controller ] = cont;
+			this.activeControllers[ alias ] = controller;
 
-			return this.activeControllers[ controller ];
+			return this.activeControllers[ alias ];
 		}
 		catch( err ) {
 
@@ -2345,7 +2368,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), true, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, true );
 			});
 		}
 
@@ -2360,7 +2383,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
 			});
 		}
 
@@ -2373,7 +2396,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			selectTrigger.change( function() {
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
 			});
 		}
 
@@ -2386,15 +2409,31 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			keyupTrigger.keyup( function() {
 
-				app.handleRequest( requestElement.attr( cmt.api.Application.STATIC_ID ), false, requestElement.attr( cmt.api.Application.STATIC_CONTROLLER ), requestElement.attr( cmt.api.Application.STATIC_ACTION ) );
+				app.triggerRequest( requestElement, false );
+			});
+		}
+
+		// Blur
+		var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR );
+
+		if( blurTrigger.length > 0 ) {
+
+			blurTrigger.unbind( 'blur' );
+
+			blurTrigger.blur( function() {
+
+				app.triggerRequest( requestElement, false );
 			});
 		}
 	});
 };
 
-// Process Request Elements Triggers ---------------------
+// Handle Request Elements Triggers ----------------------
 
-cmt.api.Application.prototype.handleRequest = function( requestId, isForm, controllerName, actionName ) {
+cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm ) {
+
+	var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
+	var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
 
 	// Use default controller
 	if( null == controllerName ) {
@@ -2415,135 +2454,136 @@ cmt.api.Application.prototype.handleRequest = function( requestId, isForm, contr
 
 		if( this.config.json ) {
 
-			this.handleRestForm( requestId, controller, actionName );
+			this.handleJsonForm( requestElement, controller, actionName );
 		}
 		else {
 
-			this.handleAjaxForm( requestId, controller, actionName );
+			this.handleDataForm( requestElement, controller, actionName );
 		}
 	}
 	else {
 
-		this.handleAjaxRequest( requestId, controller, actionName );
+		this.handleRequest( requestElement, controller, actionName );
 	}
 };
 
-cmt.api.Application.prototype.handleRestForm = function( formId, controller, actionName ) {
+cmt.api.Application.prototype.handleJsonForm = function( requestElement, controller, actionName ) {
 
-	var app			= this;
-	var form		= jQuery( '#' + formId );
-	var httpMethod	= form.attr( 'method' );
-	var actionUrl	= form.attr( 'action' );
-	var message		= jQuery( '#' + formId + ' .' + this.config.messageClass );
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate form data for submission
+		var formData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.formToJson( requestElement );
+		}
+
+		// process request
+		this.processRequest( requestElement, controller, actionName, formData );
+	}
+
+	return false;
+};
+
+cmt.api.Application.prototype.handleDataForm = function( requestElement, controller, actionName ) {
+
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate form data for submission
+		var formData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.serialiseForm( requestElement );
+		}
+
+		// Process request
+		this.processRequest( requestElement, controller, actionName, formData );
+	}
+
+	return false;
+};
+
+cmt.api.Application.prototype.handleRequest = function( requestElement, controller, actionName ) {
+
+	// Pre process
+	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
+
+		// Generate request data for submission
+		var requestData	= controller.requestData;
+
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			requestData	= cmt.utils.data.serialiseElement( requestElement );
+		}
+
+		// Process request
+		this.processRequest( requestElement, controller, actionName, requestData );
+	}
+
+	return false;
+};
+
+// Process Request Elements Triggers ---------------------
+
+cmt.api.Application.prototype.preProcessRequest = function( requestElement, controller, actionName ) {
+
 	var preAction	= actionName + 'ActionPre';
 
 	// Hide message element
-	message.hide();
+	requestElement.find( this.config.messageClass ).hide();
 
 	// Hide all errors
-	form.find( this.config.errorClass ).hide();
+	requestElement.find( this.config.errorClass ).hide();
 
-	// Pre Process Form
-	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
+	// Pre Process Request
+	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
 
 		return false;
 	}
 
-	// Generate form data for submission
-	var formData	= cmt.utils.data.formToJson( formId );
-
 	// Show Spinner
-	form.find( this.config.spinnerClass ).show();
-
-	jQuery.ajax({
-		type: httpMethod,
-		url: actionUrl,
-		data: JSON.stringify( formData ),
-		dataType: 'JSON',
-		contentType: 'application/json;charset=UTF-8',
-		success: function( response, textStatus, XMLHttpRequest ) {
-
-			// Process response
-			app.processAjaxResponse( form, controller, actionName, message, response );
-		}
-	});
-
-	return false;
+	requestElement.find( this.config.spinnerClass ).show();
+	
+	return true;
 };
 
-cmt.api.Application.prototype.handleAjaxForm = function( formId, controller, actionName ) {
+cmt.api.Application.prototype.processRequest = function( requestElement, controller, actionName, requestData ) {
 
 	var app			= this;
-	var form		= jQuery( '#' + formId );
-	var httpMethod	= form.attr( 'method' );
-	var actionUrl	= form.attr( 'action' );
-	var message		= form.find( this.config.messageClass );
-	var preAction	= actionName + 'ActionPre';
+	var httpMethod	= 'post';
+	var actionUrl	= requestElement.attr( 'action' );
 
-	// Hide message
-	message.hide();
+	// Set method if exist
+	if( requestElement.attr( 'method' ) ) {
 
-	// Hide all errors
-	form.find( this.config.errorClass ).hide();
-
-	// Pre Process Form
-	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( form ) ) ) {
-
-		return false;
+		httpMethod	= requestElement.attr( 'method' );
 	}
 
-	// Generate form data for submission
-	var formData	= cmt.utils.data.serialiseForm( formId );
+	if( null != app.config.basePath ) {
 
-	// Show Spinner
-	form.find( this.config.spinnerClass ).show();
+		actionUrl	= app.config.basePath + actionUrl;
+	}
 
-	jQuery.ajax({
-		type: httpMethod,
-		url: actionUrl,
-		data: formData,
-		dataType: 'JSON',
-		success: function( response, textStatus, XMLHttpRequest ) {
+	if( this.config.json ) {
 
-			// Process response
-			app.processAjaxResponse( form, controller, actionName, message, response );
-		}
-	});
-
-	return false;
-};
-
-cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controller, actionName ) {
-
-		var app			= this;
-		var element		= jQuery( '#' + elementId );
-		var httpMethod	= element.attr( 'method' );
-		var actionUrl	= element.attr( 'action' );
-		var message		= element.find( this.config.messageClass );
-		var preAction	= actionName + 'ActionPre';
-
-		if( null == httpMethod ) {
-
-			httpMethod = 'post';
-		}
-
-		// Hide message
-		message.hide();
-
-		// Hide all errors
-		element.find( this.errorClass ).hide();
-
-		// Pre Process Request
-		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( element ) ) ) {
-
-			return false;
-		}
-
-		// Generate request data for submission
-		var requestData	= cmt.utils.data.serialiseElement( elementId );
-
-		// Show Spinner
-		element.find( this.spinnerClass ).show();
+		jQuery.ajax({
+			type: httpMethod,
+			url: actionUrl,
+			data: requestData,
+			dataType: 'JSON',
+			contentType: 'application/json;charset=UTF-8',
+			success: function( response, textStatus, XMLHttpRequest ) {
+	
+				// Process response
+				app.processResponse( requestElement, controller, actionName, response );
+			}
+		});
+	}
+	else {
 
 		jQuery.ajax({
 			type: httpMethod,
@@ -2551,86 +2591,67 @@ cmt.api.Application.prototype.handleAjaxRequest = function( elementId, controlle
 			data: requestData,
 			dataType: 'JSON',
 			success: function( response, textStatus, XMLHttpRequest ) {
-
+	
 				// Process response
-				app.processAjaxResponse( element, controller, actionName, message, response );
+				app.processResponse( requestElement, controller, actionName, response );
 			}
 		});
-
-		return false;
+	}
 };
 
-cmt.api.Application.prototype.processAjaxResponse = function( parentElement, controller, actionName, message, response ) {
+cmt.api.Application.prototype.processResponse = function( requestElement, controller, actionName, response ) {
 
-	var result 		= response[ 'result' ];
-	var messageStr 	= response[ 'message' ];
-	var data		= response[ 'data' ];
-	var errors		= response[ 'errors' ];
-	var postAction	= actionName + 'ActionPost';
+	var result 	= response[ 'result' ];
+	var errors	= response[ 'errors' ];
 
 	if( result == 1 ) {
 
-		// Show message
-		message.html( messageStr );
-		message.show();
+		// Check to clear form data
+		if( !requestElement.is( '[' + cmt.api.Application.STATIC_KEEP + ']' ) ) {
+	
+			// Clear all form fields
+			requestElement.find( ' input[type="text"]' ).val( '' );
+			requestElement.find( ' input[type="password"]' ).val( '' );
+			requestElement.find( ' textarea' ).val( '' );
+		}
 
 		// Hide all errors
-		parentElement.find( this.config.errorClass ).hide();
-
-		// Hide Spinner
-		parentElement.find( this.config.spinnerClass ).hide();
-
-		// Check to clear form data
-		var clearData = parentElement.attr( cmt.api.Application.STATIC_CLEAR );
-
-		if( null == clearData ) {
-
-			clearData	= true;
-		}
-		else {
-
-			clearData	= clearData === 'true';
-		}
-
-		if( clearData ) {
-
-			// Clear all form fields
-			parentElement.find( ' input[type="text"]' ).val( '' );
-			parentElement.find( ' input[type="password"]' ).val( '' );
-			parentElement.find( ' textarea' ).val( '' );
-		}
-
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
-
-			controller[ postAction ]( true, parentElement, message, response );
-		}
+		requestElement.find( this.config.errorClass ).hide();
 	}
 	else if( result == 0 ) {
-
-		// Show message
-		message.html( messageStr );
-		message.show();
-
-		// Hide Spinner
-		parentElement.find( this.config.spinnerClass ).hide();
 
 		// Show Errors
 		for( var key in errors ) {
 
         	var fieldName 		= key;
         	var errorMessage 	= errors[ key ];
-        	var errorField		= parentElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
+        	var errorField		= requestElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
 
         	errorField.html( errorMessage );
         	errorField.show();
     	}
+	}
 
-		// Pass the data for post processing
-		if( typeof controller[ postAction ] !== 'undefined' ) {
+	this.postProcessResponse( requestElement, controller, actionName, response );
+};
 
-			controller[ postAction ]( false, parentElement, message, response );
-		}
+cmt.api.Application.prototype.postProcessResponse = function( requestElement, controller, actionName, response ) {
+
+	var message		= requestElement.find( this.config.messageClass );
+	var messageStr 	= response[ 'message' ];
+	var postAction	= actionName + 'ActionPost';
+
+	// Show message
+	message.html( messageStr );
+	message.show();
+
+	// Hide Spinner
+	requestElement.find( this.config.spinnerClass ).hide();
+
+	// Pass the data for post processing
+	if( typeof controller[ postAction ] !== 'undefined' ) {
+
+		controller[ postAction ]( response[ 'result' ], requestElement, response );
 	}
 };
 
@@ -2687,7 +2708,14 @@ cmt.api.controllers.BaseController.prototype.init = function() {
 	// Init method to initialise controller
 };
 
-cmt.api.controllers.DefaultController = function() {};
+/** 
+ * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers. 
+ * It provides a default action as a fallback in case action is not specified by the Request Element.
+ */
+cmt.api.controllers.DefaultController = function() {
+
+	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
+};
 
 cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
 
@@ -2696,16 +2724,16 @@ cmt.api.controllers.DefaultController.prototype.init = function() {
 	console.log( "Initialised default controller." );
 };
 
-cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( parentElement ) {
+cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( requestElement ) {
 
 	console.log( "Pre processing default action." );
 
 	return true;
 };
 
-cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( success, parentElement, message, response ) {
+cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( result, requestElement, response ) {
 
-	if( success ) {
+	if( result ) {
 
 		console.log( "Processing success for default action." );
 	}
@@ -2715,30 +2743,265 @@ cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( su
 	}
 };
 
-cmt.api.controllers.PostController = function() {};
+/** 
+ * The GridController and classes extending it can be used to manage data grids providing searching, sorting and crud operations. 
+ * It differs from RestController in default action names i.e. it provides default actions to perform actions including all, create, update and delete.
+ */
+cmt.api.controllers.GridController = function() {
 
-cmt.api.controllers.PostController.inherits( cmt.api.controllers.BaseController );
+	// Request and Collection
+	this.endpoint	= null;	// Endpoint where all the requests need to be sent
+	this.model		= null;	// The model name appended at last of endpoint and before action name. We do not need action name in case of get, post, put and delete.
+	this.collection	= null; // The collection returned by server and cached locally.
 
-cmt.api.controllers.PostController.prototype.init = function() {
-
-	console.log( "Initialised post controller." );
+	// Pagination
+	this.pages		= 0;	// Total Pages formed using collection
+	this.pageLimit	= 0;	// Total items in a page
+	this.lastPage	= 0;	// The last page loaded when user scroll to bottom
 };
 
-cmt.api.controllers.PostController.prototype.defaultActionPre = function() {
+cmt.api.controllers.GridController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.GridController.prototype.init = function() {
+
+	console.log( "Initialised grid controller." );
+};
+
+// Read --------------------------
+
+cmt.api.controllers.GridController.prototype.allActionPre = function() {
+
+	console.log( "Pre processing all action." );
+
+	return true;
+};
+
+cmt.api.controllers.GridController.prototype.allActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for all action." );
+	}
+	else {
+
+		console.log( "Processing failure for all action." );
+	}
+};
+
+// Create ------------------------
+
+cmt.api.controllers.GridController.prototype.createActionPre = function() {
+
+	console.log( "Pre processing create action." );
+
+	return true;
+};
+
+cmt.api.controllers.GridController.prototype.createActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for create action." );
+	}
+	else {
+
+		console.log( "Processing failure for create action." );
+	}
+};
+
+// Update ------------------------
+
+cmt.api.controllers.GridController.prototype.updateActionPre = function() {
+
+	console.log( "Pre processing update action." );
+
+	return true;
+};
+
+cmt.api.controllers.GridController.prototype.updateActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for update action." );
+	}
+	else {
+
+		console.log( "Processing failure for update action." );
+	}
+};
+
+// Delete ------------------------
+
+cmt.api.controllers.GridController.prototype.deleteActionPre = function() {
+
+	console.log( "Pre processing delete action." );
+
+	return true;
+};
+
+cmt.api.controllers.GridController.prototype.deleteActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for delete action." );
+	}
+	else {
+
+		console.log( "Processing failure for delete action." );
+	}
+};
+
+/** 
+ * The RequestController and classes extending it can be used to post arbitrary requests to server by calling execute method where actual request data will be formed.
+ * It's required where Request Element and Request Trigger is not needed and request can be triggered by calling execute method.
+ * 
+ * Ex:
+ * myApp.findController( 'user' ).defaultAction();
+ */
+cmt.api.controllers.RequestController = function() {
+
+	this.requestData	= null;	// Request data for post requests
+};
+
+cmt.api.controllers.RequestController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.RequestController.prototype.init = function() {
+
+	console.log( "Initialised default controller." );
+};
+
+cmt.api.controllers.RequestController.prototype.defaultAction = function() {
+
+	console.log( "Pre processing default action." );
+
+	// 1. Prepare request data
+
+	// 2. Call method to process the request
+};
+
+cmt.api.controllers.RequestController.prototype.defaultActionPre = function() {
+
+	console.log( "Pre processing default action." );
+
+	return true;
+};
+
+cmt.api.controllers.RequestController.prototype.defaultActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for default action." );
+	}
+	else {
+
+		console.log( "Processing failure for default action." );
+	}
+};
+
+/** 
+ * The RestController and classes extending it can be used to manage classical rest requests providing searching, sorting and crud operations. 
+ * It provides default actions to perform rest actions including get, post, put and delete.
+ */
+cmt.api.controllers.RestController = function() {
+
+	// Request and Collection
+	this.endpoint	= null;	// Endpoint where all the requests need to be sent
+	this.model		= null;	// The model name appended at last of endpoint and before action name. We do not need action name in case of get, post, put and delete.
+	this.collection	= null; // The collection returned by server and cached locally.
+
+	// Pagination
+	this.pages		= 0;	// Total Pages formed using collection
+	this.pageLimit	= 0;	// Total items in a page
+	this.lastPage	= 0;	// The last page loaded when user scroll to bottom
+};
+
+cmt.api.controllers.RestController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.RestController.prototype.init = function() {
+
+	console.log( "Initialised rest controller." );
+};
+
+// Get ---------------------------
+
+cmt.api.controllers.RestController.prototype.getActionPre = function() {
+
+	console.log( "Pre processing get action." );
+
+	return true;
+};
+
+cmt.api.controllers.RestController.prototype.getActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for get action." );
+	}
+	else {
+
+		console.log( "Processing failure for get action." );
+	}
+};
+
+// Post --------------------------
+
+cmt.api.controllers.RestController.prototype.postActionPre = function() {
 
 	console.log( "Pre processing post action." );
 
 	return true;
 };
 
-cmt.api.controllers.PostController.prototype.defaultActionPost = function( success, message, response ) {
+cmt.api.controllers.RestController.prototype.postActionPost = function( result, response ) {
 
-	if( success ) {
+	if( result ) {
 
 		console.log( "Processing success for post action." );
 	}
 	else {
 
 		console.log( "Processing failure for post action." );
+	}
+};
+
+// Put ---------------------------
+
+cmt.api.controllers.RestController.prototype.putActionPre = function() {
+
+	console.log( "Pre processing put action." );
+
+	return true;
+};
+
+cmt.api.controllers.RestController.prototype.putActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for put action." );
+	}
+	else {
+
+		console.log( "Processing failure for put action." );
+	}
+};
+
+// Delete ------------------------
+
+cmt.api.controllers.RestController.prototype.deleteActionPre = function() {
+
+	console.log( "Pre processing delete action." );
+
+	return true;
+};
+
+cmt.api.controllers.RestController.prototype.deleteActionPost = function( result, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for delete action." );
+	}
+	else {
+
+		console.log( "Processing failure for delete action." );
 	}
 };

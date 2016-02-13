@@ -10,7 +10,16 @@ cmt.utils.data = {
 	serialiseElement: function( elementId ) {
 
 		var dataArr		= [];
-		var elements 	= jQuery( '#' + elementId ).find( ':input' ).get();
+		var elements 	= null;
+
+		if( typeof elementId == 'string' ) {
+
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+		}
+		else {
+
+			elements	= elementId.find( ':input' ).get();
+		}
 
 		jQuery.each( elements, function() {
 
@@ -42,7 +51,16 @@ cmt.utils.data = {
 	elementToJson: function( elementId ) {
 
 		var dataArr		= [];
-		var elements 	= jQuery( '#' + elementId ).find(':input').get();
+		var elements 	= null;
+
+		if( typeof elementId == 'string' ) {
+
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+		}
+		else {
+
+			elements	= elementId.find( ':input' ).get();
+		}
 
 		jQuery.each( elements, function() {
 
