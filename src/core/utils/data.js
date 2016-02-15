@@ -7,11 +7,13 @@ cmt.utils.data = {
 	/**
 	 * It reads elementId and convert the input fields present within the element to parameters url.
 	 */
-	serialiseElement: function( elementId ) {
+	serialiseElement: function( elementId, csrf ) {
 
 		var dataArr		= [];
 		var elements 	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof elementId == 'string' ) {
 
 			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
@@ -35,7 +37,7 @@ cmt.utils.data = {
 		var dataUrl = dataArr.join( "&" ).replace( /%20/g, "+" );
 
 		// Append CSRF token if available
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
@@ -48,11 +50,13 @@ cmt.utils.data = {
 	/**
 	 * It reads elementId and convert the input fields present within the element to json.
 	 */
-	elementToJson: function( elementId ) {
+	elementToJson: function( elementId, csrf ) {
 
 		var dataArr		= [];
 		var elements 	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof elementId == 'string' ) {
 
 			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
@@ -72,17 +76,19 @@ cmt.utils.data = {
 			}
 		});
 
-		return cmt.utils.data.generateJsonMap( dataArr );
+		return cmt.utils.data.generateJsonMap( dataArr, csrf );
 	},
 
 	/**
 	 * It reads formId and convert the input fields present within the form to parameters url. It use the serialize function provided by jQuery.
 	 */
-	serialiseForm: function( formId ) {
+	serialiseForm: function( formId, csrf ) {
 
 		// Generate form data for submission
 		var dataUrl	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof formId == 'string' ) {
 
 			dataUrl	= jQuery( '#' + formId ).serialize();	
@@ -93,7 +99,7 @@ cmt.utils.data = {
 		}
 
 		// Append CSRF token if available
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
@@ -106,10 +112,12 @@ cmt.utils.data = {
 	/**
 	 * It reads formId and convert the form input fields to a Json Array.
 	 */
-	formToJson: function( formId ) {
+	formToJson: function( formId, csrf ) {
 
 		// Generate form data for submission
 		var formData	= null;
+
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
 
 		if( typeof formId == 'string' ) {
 
@@ -120,18 +128,18 @@ cmt.utils.data = {
 			formData	= formId.serializeArray();
 		}
 
-		return cmt.utils.data.generateJsonMap( formData );
+		return cmt.utils.data.generateJsonMap( formData, csrf );
 	},
 
 	/**
 	 * It reads an data array having name value pair and convert it to json format.
 	 */
-	generateJsonMap: function( dataArray ) {
+	generateJsonMap: function( dataArray, csrf ) {
 
 		var json 		= {};
 
 		// Append csrf token if required
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 

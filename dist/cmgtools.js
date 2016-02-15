@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-02-14
+ * CMGTools JS - v1.0.0-alpha1 - 2016-02-15
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -86,11 +86,13 @@ cmt.utils.data = {
 	/**
 	 * It reads elementId and convert the input fields present within the element to parameters url.
 	 */
-	serialiseElement: function( elementId ) {
+	serialiseElement: function( elementId, csrf ) {
 
 		var dataArr		= [];
 		var elements 	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof elementId == 'string' ) {
 
 			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
@@ -114,7 +116,7 @@ cmt.utils.data = {
 		var dataUrl = dataArr.join( "&" ).replace( /%20/g, "+" );
 
 		// Append CSRF token if available
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
@@ -127,11 +129,13 @@ cmt.utils.data = {
 	/**
 	 * It reads elementId and convert the input fields present within the element to json.
 	 */
-	elementToJson: function( elementId ) {
+	elementToJson: function( elementId, csrf ) {
 
 		var dataArr		= [];
 		var elements 	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof elementId == 'string' ) {
 
 			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
@@ -151,17 +155,19 @@ cmt.utils.data = {
 			}
 		});
 
-		return cmt.utils.data.generateJsonMap( dataArr );
+		return cmt.utils.data.generateJsonMap( dataArr, csrf );
 	},
 
 	/**
 	 * It reads formId and convert the input fields present within the form to parameters url. It use the serialize function provided by jQuery.
 	 */
-	serialiseForm: function( formId ) {
+	serialiseForm: function( formId, csrf ) {
 
 		// Generate form data for submission
 		var dataUrl	= null;
-
+		
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+		
 		if( typeof formId == 'string' ) {
 
 			dataUrl	= jQuery( '#' + formId ).serialize();	
@@ -172,7 +178,7 @@ cmt.utils.data = {
 		}
 
 		// Append CSRF token if available
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
@@ -185,10 +191,12 @@ cmt.utils.data = {
 	/**
 	 * It reads formId and convert the form input fields to a Json Array.
 	 */
-	formToJson: function( formId ) {
+	formToJson: function( formId, csrf ) {
 
 		// Generate form data for submission
 		var formData	= null;
+
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
 
 		if( typeof formId == 'string' ) {
 
@@ -199,18 +207,18 @@ cmt.utils.data = {
 			formData	= formId.serializeArray();
 		}
 
-		return cmt.utils.data.generateJsonMap( formData );
+		return cmt.utils.data.generateJsonMap( formData, csrf );
 	},
 
 	/**
 	 * It reads an data array having name value pair and convert it to json format.
 	 */
-	generateJsonMap: function( dataArray ) {
+	generateJsonMap: function( dataArray, csrf ) {
 
 		var json 		= {};
 
 		// Append csrf token if required
-		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
@@ -2547,10 +2555,18 @@ cmt.api.Application.prototype.handleJsonForm = function( requestElement, control
 
 		// Generate form data for submission
 		var formData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			formData	= cmt.utils.data.formToJson( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				formData	= cmt.utils.data.formToJson( requestElement, false );
+			}
+			else {
+
+				formData	= cmt.utils.data.formToJson( requestElement );
+			}
 		}
 
 		// process request
@@ -2567,10 +2583,18 @@ cmt.api.Application.prototype.handleDataForm = function( requestElement, control
 
 		// Generate form data for submission
 		var formData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			formData	= cmt.utils.data.serialiseForm( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				formData	= cmt.utils.data.serialiseForm( requestElement, false );
+			}
+			else {
+
+				formData	= cmt.utils.data.serialiseForm( requestElement );
+			}
 		}
 
 		// Process request
@@ -2587,10 +2611,18 @@ cmt.api.Application.prototype.handleRequest = function( requestElement, controll
 
 		// Generate request data for submission
 		var requestData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			requestData	= cmt.utils.data.serialiseElement( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				requestData	= cmt.utils.data.serialiseElement( requestElement, false );
+			}
+			else {
+
+				requestData	= cmt.utils.data.serialiseElement( requestElement );
+			}
 		}
 
 		// Process request

@@ -128,10 +128,18 @@ cmt.api.Application.prototype.handleJsonForm = function( requestElement, control
 
 		// Generate form data for submission
 		var formData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			formData	= cmt.utils.data.formToJson( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				formData	= cmt.utils.data.formToJson( requestElement, false );
+			}
+			else {
+
+				formData	= cmt.utils.data.formToJson( requestElement );
+			}
 		}
 
 		// process request
@@ -148,10 +156,18 @@ cmt.api.Application.prototype.handleDataForm = function( requestElement, control
 
 		// Generate form data for submission
 		var formData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			formData	= cmt.utils.data.serialiseForm( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				formData	= cmt.utils.data.serialiseForm( requestElement, false );
+			}
+			else {
+
+				formData	= cmt.utils.data.serialiseForm( requestElement );
+			}
 		}
 
 		// Process request
@@ -168,10 +184,18 @@ cmt.api.Application.prototype.handleRequest = function( requestElement, controll
 
 		// Generate request data for submission
 		var requestData	= controller.requestData;
+		var method		= requestElement.attr( 'method' );
 
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
 
-			requestData	= cmt.utils.data.serialiseElement( requestElement );
+			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
+
+				requestData	= cmt.utils.data.serialiseElement( requestElement, false );
+			}
+			else {
+
+				requestData	= cmt.utils.data.serialiseElement( requestElement );
+			}
 		}
 
 		// Process request
