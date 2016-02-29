@@ -100,10 +100,25 @@
 
 				resetSlide( slider, currentSlide );
 			});
+
+			if( slidesWrapper.width() < slider.width() ) {
+
+				if( null != settings.smallerContent ) {
+	
+					settings.smallerContent( slider, slidesWrapper );
+				}
+			}
 		}
 
 		// Initialise the Slider controls
 		function initControls( slider ) {
+			
+			var slidesWrapper	= slider.find( '.slides-wrap' );
+
+			if( slidesWrapper.width() < slider.width() ) {
+
+				return;
+			}
 
 			// Show Controls
 			var controls 		= slider.find( '.controls' );
@@ -258,6 +273,8 @@
 		// Controls
 		lControlContent: null,
 		rControlContent: null,
+		// Callback - Content is less than slider
+		smallerContent: null,
 		// Listener Callback for slide click
 		onSlideClick: null,
 		// Listener Callback for pre processing

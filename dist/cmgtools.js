@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-02-15
+ * CMGTools JS - v1.0.0-alpha1 - 2016-02-29
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1681,27 +1681,27 @@ function closePopup( popupSelector ) {
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#error-popup .popup-content" ).html( errors );
+	jQuery( "#popup-error .popup-content" ).html( errors );
 
-	showPopup( "#error-popup" );
+	showPopup( "#popup-error" );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#error-popup" );
+	closePopup( "#popup-error" );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#message-popup .popup-content" ).html( message );
+	jQuery( "#popup-message .popup-content" ).html( message );
 
-	showPopup( "#message-popup" );
+	showPopup( "#popup-message" );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#message-popup" );
+	closePopup( "#popup-message" );
 }
 
 /**
@@ -2036,10 +2036,25 @@ function hideMessagePopup() {
 
 				resetSlide( slider, currentSlide );
 			});
+
+			if( slidesWrapper.width() < slider.width() ) {
+
+				if( null != settings.smallerContent ) {
+	
+					settings.smallerContent( slider, slidesWrapper );
+				}
+			}
 		}
 
 		// Initialise the Slider controls
 		function initControls( slider ) {
+			
+			var slidesWrapper	= slider.find( '.slides-wrap' );
+
+			if( slidesWrapper.width() < slider.width() ) {
+
+				return;
+			}
 
 			// Show Controls
 			var controls 		= slider.find( '.controls' );
@@ -2194,6 +2209,8 @@ function hideMessagePopup() {
 		// Controls
 		lControlContent: null,
 		rControlContent: null,
+		// Callback - Content is less than slider
+		smallerContent: null,
 		// Listener Callback for slide click
 		onSlideClick: null,
 		// Listener Callback for pre processing

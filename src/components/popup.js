@@ -100,25 +100,25 @@ function closePopup( popupSelector ) {
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#error-popup .popup-content" ).html( errors );
+	jQuery( "#popup-error .popup-content" ).html( errors );
 
-	showPopup( "#error-popup" );
+	showPopup( "#popup-error" );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#error-popup" );
+	closePopup( "#popup-error" );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#message-popup .popup-content" ).html( message );
+	jQuery( "#popup-message .popup-content" ).html( message );
 
-	showPopup( "#message-popup" );
+	showPopup( "#popup-message" );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#message-popup" );
+	closePopup( "#popup-message" );
 }
