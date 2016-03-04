@@ -269,6 +269,11 @@ cmt.utils.data = {
 	        baseUrl = baseUrl + "?" + paramsArr.join( "&" );
 	    }
 
+		if( baseUrl.slice( -1 ) == '?' ) {
+
+			baseUrl	= baseUrl.slice( 0, -1 );
+		}
+
 	    return baseUrl;
 	}
 };
