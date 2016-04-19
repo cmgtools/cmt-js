@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-03-04
+ * CMGTools JS - v1.0.0-alpha1 - 2016-04-19
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1267,7 +1267,7 @@ cmt.utils.ui = {
 })( jQuery );
 
 /**
- * LatLongPicker allows us to set marker based on given longitude, latidude. 
+ * LatLongPicker allows us to set marker based on given longitude, latidude.
  * It also find the latitude/longitude for given address and set marker accordingly.
  */
 
@@ -1297,7 +1297,10 @@ cmt.utils.ui = {
 		function init( mapPicker ) {
 
 			// Initialise Google Map
-			var gMap	= initMapPicker( mapPicker );
+			if( window.google ) {
+
+				var gMap	= initMapPicker( mapPicker );
+			}
 		}
 
 		function initMapPicker( mapPicker ) {
@@ -1341,17 +1344,17 @@ cmt.utils.ui = {
 			var gMap 			= new google.maps.Map( element, mapOptions );
 			var marker			= initMarker( mapPicker, gMap, mapOptions );
 
-			// search locations using geocoder 
+			// search locations using geocoder
 			if( settings.geocoder ) {
 
 				var geocoder 		= new google.maps.Geocoder();
-	
+
 				mapPicker.find( '.search-box' ).change( function() {
-	
+
 					var address	= cmtjq( this ).val();
-	
+
 					geocoder.geocode( { 'address': address }, function( results, status ) {
-	
+
 						if( status == google.maps.GeocoderStatus.OK ) {
 
 							var location	= results[ 0 ].geometry.location;
@@ -1415,7 +1418,7 @@ cmt.utils.ui = {
 
 				resetZoom( mapPicker, gMap );
 			});
-			
+
 			return marker;
 		}
 
@@ -1423,7 +1426,7 @@ cmt.utils.ui = {
 
 			mapPicker.find( '.latitude' ).val( position.lat );
 			mapPicker.find( '.longitude' ).val( position.lng );
-			
+
 			resetZoom( mapPicker, gMap );
 		}
 
@@ -1442,7 +1445,7 @@ cmt.utils.ui = {
 		function updateCenter( mapPicker, gMap, position, marker ) {
 
 			updatePosition( mapPicker, gMap, position );
-			
+
 			gMap.setCenter( position );
 			marker.setPosition( position );
 		}

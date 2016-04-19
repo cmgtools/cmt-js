@@ -1,5 +1,5 @@
 /**
- * LatLongPicker allows us to set marker based on given longitude, latidude. 
+ * LatLongPicker allows us to set marker based on given longitude, latidude.
  * It also find the latitude/longitude for given address and set marker accordingly.
  */
 
@@ -29,7 +29,10 @@
 		function init( mapPicker ) {
 
 			// Initialise Google Map
-			var gMap	= initMapPicker( mapPicker );
+			if( window.google ) {
+
+				var gMap	= initMapPicker( mapPicker );
+			}
 		}
 
 		function initMapPicker( mapPicker ) {
@@ -73,17 +76,17 @@
 			var gMap 			= new google.maps.Map( element, mapOptions );
 			var marker			= initMarker( mapPicker, gMap, mapOptions );
 
-			// search locations using geocoder 
+			// search locations using geocoder
 			if( settings.geocoder ) {
 
 				var geocoder 		= new google.maps.Geocoder();
-	
+
 				mapPicker.find( '.search-box' ).change( function() {
-	
+
 					var address	= cmtjq( this ).val();
-	
+
 					geocoder.geocode( { 'address': address }, function( results, status ) {
-	
+
 						if( status == google.maps.GeocoderStatus.OK ) {
 
 							var location	= results[ 0 ].geometry.location;
@@ -147,7 +150,7 @@
 
 				resetZoom( mapPicker, gMap );
 			});
-			
+
 			return marker;
 		}
 
@@ -155,7 +158,7 @@
 
 			mapPicker.find( '.latitude' ).val( position.lat );
 			mapPicker.find( '.longitude' ).val( position.lng );
-			
+
 			resetZoom( mapPicker, gMap );
 		}
 
@@ -174,7 +177,7 @@
 		function updateCenter( mapPicker, gMap, position, marker ) {
 
 			updatePosition( mapPicker, gMap, position );
-			
+
 			gMap.setCenter( position );
 			marker.setPosition( position );
 		}
