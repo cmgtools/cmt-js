@@ -35,26 +35,26 @@
 
 			        var distanceY		= window.pageYOffset || document.documentElement.scrollTop;
 			        var scrollDistance 	= settings.scrollDistance;
-	
+
 			        if ( distanceY > scrollDistance ) {
-	
+
 			            header.addClass( "header-small" );
-			            
+
 			            if( header.hasClass( "hidden" ) ) {
-			            	
-			            	header.slideDown( 'slow' ); 
+
+			            	header.slideDown( 'slow' );
 			            }
 			        }
 			        else {
 
-			            if ( header.hasClass( "header-small" ) ) {
-			
+			            if ( header.hasClass( "header-small" ) && !header.hasClass( "header-small-ignore" ) ) {
+
 			                header.removeClass( "header-small" );
 			            }
 
 			            if( header.hasClass( "hidden" ) ) {
-			            	
-			            	header.slideUp( 'false' ); 
+
+			            	header.slideUp( 'false' );
 			            }
 			        }
 			    });
