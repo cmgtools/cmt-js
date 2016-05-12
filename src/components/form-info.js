@@ -29,8 +29,9 @@
 
 			form.find( ".btn-edit" ).click( function() {
 
-				var info = jQuery( this ).parent().find( ".wrap-info" );
-				var form = jQuery( this ).parent().find( ".wrap-form" );
+				var parent	= jQuery( this ).closest( ".box-form" );
+				var info 	= parent.find( ".wrap-info" );
+				var form 	= parent.find( ".wrap-form" );
 
 				if( info.is( ":visible" ) ) {
 
@@ -40,7 +41,7 @@
 				else {
 
 					info.fadeIn( "fast" );
-					form.hide();			
+					form.hide();
 				}
 			});
 		}
