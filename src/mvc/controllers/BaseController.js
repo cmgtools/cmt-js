@@ -1,6 +1,6 @@
 cmt.api.controllers.BaseController = function() {
 
-	// Base Controller
+	this.currentRequest	= null;
 };
 
 cmt.api.controllers.BaseController.prototype.init = function() {

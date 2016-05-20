@@ -225,7 +225,7 @@ cmt.api.Application.prototype.preProcessRequest = function( requestElement, cont
 
 	// Show Spinner
 	requestElement.find( this.config.spinnerClass ).show();
-	
+
 	return true;
 };
 
@@ -246,16 +246,22 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 		actionUrl	= app.config.basePath + actionUrl;
 	}
 
+	if( null != controller.currentRequest ) {
+
+		controller.currentRequest = controller.currentRequest.abort();
+		controller.currentRequest = null;
+	}
+
 	if( this.config.json ) {
 
-		jQuery.ajax({
+		controller.currentRequest = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
 			dataType: 'JSON',
 			contentType: 'application/json;charset=UTF-8',
 			success: function( response, textStatus, XMLHttpRequest ) {
-	
+
 				// Process response
 				app.processResponse( requestElement, controller, actionName, response );
 			}
@@ -263,13 +269,13 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 	}
 	else {
 
-		jQuery.ajax({
+		controller.currentRequest = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
 			dataType: 'JSON',
 			success: function( response, textStatus, XMLHttpRequest ) {
-	
+
 				// Process response
 				app.processResponse( requestElement, controller, actionName, response );
 			}
@@ -286,7 +292,7 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
 
 		// Check to clear form data
 		if( !requestElement.is( '[' + cmt.api.Application.STATIC_KEEP + ']' ) ) {
-	
+
 			// Clear all form fields
 			requestElement.find( ' input[type="text"]' ).val( '' );
 			requestElement.find( ' input[type="password"]' ).val( '' );
