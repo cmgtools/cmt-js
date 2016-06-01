@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-05-20
+ * CMGTools JS - v1.0.0-alpha1 - 2016-06-01
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -718,7 +718,7 @@ cmt.utils.ui = {
 					var bkgWidth 		= background.width();
 	            	var bkgHeight 		= background.height();
 		            var min 			= 0;
-		            var max 			= bkgHeight - winHeight;
+		            var max 			= bkgHeight - winHeight * 0.5;
 		            var heightOverflow 	= blockHeight < winHeight ? bkgHeight - blockHeight : bkgHeight - winHeight;
 		            blockTop 			= blockTop - heightOverflow;
 		            blockBottom 		= blockBottom + heightOverflow;
