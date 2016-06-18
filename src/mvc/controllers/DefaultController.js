@@ -1,10 +1,9 @@
-/** 
- * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers. 
+/**
+ * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers.
  * It provides a default action as a fallback in case action is not specified by the Request Element.
  */
 cmt.api.controllers.DefaultController = function() {
 
-	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
 };
 
 cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );

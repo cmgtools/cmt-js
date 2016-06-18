@@ -22,7 +22,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.triggerRequest( requestElement, true );
+				app.triggerRequest( requestElement, true, null );
 			});
 		}
 
@@ -37,7 +37,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -50,7 +50,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			selectTrigger.change( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -63,7 +63,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			keyupTrigger.keyup( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -76,7 +76,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			blurTrigger.blur( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 	});
@@ -84,7 +84,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 // Handle Request Elements Triggers ----------------------
 
-cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm ) {
+cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm, requestTrigger ) {
 
 	var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
 	var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
@@ -102,7 +102,8 @@ cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm 
 	}
 
 	// Search Controller
-	var controller	= this.findController( controllerName );
+	var controller				= this.findController( controllerName );
+	controller.requestTrigger	= requestTrigger;
 
 	if( isForm ) {
 

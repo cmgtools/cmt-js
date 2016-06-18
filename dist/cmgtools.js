@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-06-01
+ * CMGTools JS - v1.0.0-alpha1 - 2016-06-18
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1472,6 +1472,68 @@ cmt.utils.ui = {
 })( jQuery );
 
 /**
+ * Sidebar plugin used to manage collapsible parent with our without children.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtCollapsibleMenu = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
+		var sidebars		= this;
+
+		// Iterate and initialise all the fox sliders
+		sidebars.each( function() {
+
+			var sidebar = cmtjq( this );
+
+			init( sidebar );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( sidebar ) {
+
+			// Initialise Sidebar Accordion
+			sidebar.find( '.collapsible-tab.has-children' ).click( function() {
+
+				var child = jQuery( this ).children( '.collapsible-tab-content' );
+
+				if( !jQuery( this ).hasClass( 'active' ) ) {
+
+					if( !child.hasClass( 'expanded' ) ) {
+
+						// Slide Down Slowly
+						jQuery( this ).addClass( 'pactive' );
+						child.addClass( 'expanded' );
+						child.slideDown( 'slow' );
+					}
+					else {
+
+						// Slide Up Slowly
+						jQuery( this ).removeClass( 'pactive' );
+						child.removeClass( 'expanded' );
+						child.slideUp( 'slow' );
+					}
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtCollapsibleMenu.defaults = {
+		// options
+	};
+
+})( jQuery );
+
+/**
  * Sliding Menu is a special pop-up displayed on clicking the element defined while initialising the plugin.
  */
 
@@ -2475,7 +2537,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.triggerRequest( requestElement, true );
+				app.triggerRequest( requestElement, true, null );
 			});
 		}
 
@@ -2490,7 +2552,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 				event.preventDefault();
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -2503,7 +2565,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			selectTrigger.change( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -2516,7 +2578,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			keyupTrigger.keyup( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 
@@ -2529,7 +2591,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 			blurTrigger.blur( function() {
 
-				app.triggerRequest( requestElement, false );
+				app.triggerRequest( requestElement, false, jQuery( this ) );
 			});
 		}
 	});
@@ -2537,7 +2599,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 // Handle Request Elements Triggers ----------------------
 
-cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm ) {
+cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm, requestTrigger ) {
 
 	var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
 	var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
@@ -2555,7 +2617,8 @@ cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm 
 	}
 
 	// Search Controller
-	var controller	= this.findController( controllerName );
+	var controller				= this.findController( controllerName );
+	controller.requestTrigger	= requestTrigger;
 
 	if( isForm ) {
 
@@ -2837,7 +2900,9 @@ cmt.api.controllers = cmt.api.controllers || {};
 
 cmt.api.controllers.BaseController = function() {
 
-	this.currentRequest	= null;
+	this.requestTrigger	= null;	// Trigger Element
+	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
+	this.currentRequest	= null;	// Request in execution
 };
 
 cmt.api.controllers.BaseController.prototype.init = function() {
@@ -2845,13 +2910,12 @@ cmt.api.controllers.BaseController.prototype.init = function() {
 	// Init method to initialise controller
 };
 
-/** 
- * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers. 
+/**
+ * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers.
  * It provides a default action as a fallback in case action is not specified by the Request Element.
  */
 cmt.api.controllers.DefaultController = function() {
 
-	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
 };
 
 cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
