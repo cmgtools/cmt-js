@@ -11,12 +11,12 @@ cmt.utils.data = {
 
 		var dataArr		= [];
 		var elements 	= null;
-		
+
 		if( typeof( csrf ) === 'undefined' ) csrf = true;
-		
+
 		if( typeof elementId == 'string' ) {
 
-			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();
 		}
 		else {
 
@@ -54,12 +54,12 @@ cmt.utils.data = {
 
 		var dataArr		= [];
 		var elements 	= null;
-		
+
 		if( typeof( csrf ) === 'undefined' ) csrf = true;
-		
+
 		if( typeof elementId == 'string' ) {
 
-			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();	
+			elements 	= jQuery( '#' + elementId ).find( ':input' ).get();
 		}
 		else {
 
@@ -86,12 +86,12 @@ cmt.utils.data = {
 
 		// Generate form data for submission
 		var dataUrl	= null;
-		
+
 		if( typeof( csrf ) === 'undefined' ) csrf = true;
-		
+
 		if( typeof formId == 'string' ) {
 
-			dataUrl	= jQuery( '#' + formId ).serialize();	
+			dataUrl	= jQuery( '#' + formId ).serialize();
 		}
 		else {
 
@@ -121,7 +121,7 @@ cmt.utils.data = {
 
 		if( typeof formId == 'string' ) {
 
-			formData	= jQuery( '#' + formId ).serializeArray();	
+			formData	= jQuery( '#' + formId ).serializeArray();
 		}
 		else {
 
@@ -189,11 +189,39 @@ cmt.utils.data = {
 				else {
 
 					json[n.name] = n.value || '';
-				}	
+				}
 			}
 		});
 
 		return json;
+	},
+
+	/**
+	 * Return parameter value for given name and url.
+	 */
+	getParameterByName: function( param, url ) {
+
+	    if( !url ) {
+
+	    	url = window.location.href;
+	    }
+
+	    param 		= param.replace(/[\[\]]/g, "\\$&");
+
+	    var regex 	= new RegExp("[?&]" + param + "(=([^&#]*)|&|#|$)");
+		var results = regex.exec( url );
+
+	    if( !results ) {
+
+			return null;
+	    }
+
+	    if( !results[ 2 ] ) {
+
+	    	return '';
+	    }
+
+	    return decodeURIComponent( results[ 2 ].replace( /\+/g, " " ) );
 	},
 
 	/**
@@ -209,35 +237,35 @@ cmt.utils.data = {
 		var a	= function( e ) { return decodeURIComponent( e.replace( o, " " ) ); };
 		var f 	= i.search.substring( 1 );
 		n		= {};
-	
+
 		while( s = u.exec( f ) ) {
-	
+
 			n[ a( s[1] ) ] = a( s[2] );
 		}
-	
+
 		if( !e && !t ) {
-	
+
 			return n;
 		}
 		else if( e && !t ) {
-	
+
 			return n[e];
 		}
 		else {
-	
+
 			n[e]	= t;
 			var l	= [];
-	
+
 			for( var c in n ) {
-	
+
 				l.push( encodeURIComponent( c ) + "=" + encodeURIComponent( n[c] ) );
 			}
-	
+
 			if( l.length > 0 ) {
-	
+
 				r = "?" + l.join( "&" );
 			}
-	
+
 			return i.origin + i.pathname + r;
 		}
 	},
