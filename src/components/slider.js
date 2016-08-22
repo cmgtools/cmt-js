@@ -79,7 +79,7 @@
 			var slidesWrapper	= slider.find( '.slides-wrap' );
 			var slidesSelector	= slider.find( '.slide' );
 
-			var slideWidth		= slidesSelector.width();
+			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
 
 			// Initialise Slide position
@@ -104,7 +104,7 @@
 			if( slidesWrapper.width() < slider.width() ) {
 
 				if( null != settings.smallerContent ) {
-	
+
 					settings.smallerContent( slider, slidesWrapper );
 				}
 			}
@@ -112,7 +112,7 @@
 
 		// Initialise the Slider controls
 		function initControls( slider ) {
-			
+
 			var slidesWrapper	= slider.find( '.slides-wrap' );
 
 			if( slidesWrapper.width() < slider.width() ) {
@@ -125,7 +125,7 @@
 			var lControlContent	= settings.lControlContent;
 			var rControlContent	= settings.rControlContent;
 
-			// Init Listeners				
+			// Init Listeners
 			var leftControl		= slider.find( '.control-left' );
 			var rightControl	= slider.find( '.control-right' );
 
@@ -191,7 +191,7 @@
 			// do pre processing
 			if( null != settings.preSlideChange ) {
 
-				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 
 			// do animation - animate slider
@@ -220,7 +220,7 @@
 			// do post processing
 			if( null != settings.postSlideChange ) {
 
-				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
 
@@ -263,7 +263,7 @@
 			// do post processing
 			if( null != settings.postSlideChange ) {
 
-				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
 	};

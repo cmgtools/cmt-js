@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-07-25
+ * CMGTools JS - v1.0.0-alpha1 - 2016-08-22
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -2114,7 +2114,7 @@ function hideMessagePopup() {
 			var slidesWrapper	= slider.find( '.slides-wrap' );
 			var slidesSelector	= slider.find( '.slide' );
 
-			var slideWidth		= slidesSelector.width();
+			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
 
 			// Initialise Slide position
@@ -2139,7 +2139,7 @@ function hideMessagePopup() {
 			if( slidesWrapper.width() < slider.width() ) {
 
 				if( null != settings.smallerContent ) {
-	
+
 					settings.smallerContent( slider, slidesWrapper );
 				}
 			}
@@ -2147,7 +2147,7 @@ function hideMessagePopup() {
 
 		// Initialise the Slider controls
 		function initControls( slider ) {
-			
+
 			var slidesWrapper	= slider.find( '.slides-wrap' );
 
 			if( slidesWrapper.width() < slider.width() ) {
@@ -2160,7 +2160,7 @@ function hideMessagePopup() {
 			var lControlContent	= settings.lControlContent;
 			var rControlContent	= settings.rControlContent;
 
-			// Init Listeners				
+			// Init Listeners
 			var leftControl		= slider.find( '.control-left' );
 			var rightControl	= slider.find( '.control-right' );
 
@@ -2226,7 +2226,7 @@ function hideMessagePopup() {
 			// do pre processing
 			if( null != settings.preSlideChange ) {
 
-				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 
 			// do animation - animate slider
@@ -2255,7 +2255,7 @@ function hideMessagePopup() {
 			// do post processing
 			if( null != settings.postSlideChange ) {
 
-				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
 
@@ -2298,7 +2298,7 @@ function hideMessagePopup() {
 			// do post processing
 			if( null != settings.postSlideChange ) {
 
-				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );				
+				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
 	};
