@@ -39,9 +39,10 @@ cmt.utils.data = {
 		// Append CSRF token if available
 		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
+			var csrfParam 	= jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
-			dataUrl += "&_csrf=" + csrfToken;
+			dataUrl 	   += "&" + csrfParam + "=" + csrfToken;
 		}
 
 		return dataUrl;
@@ -101,9 +102,10 @@ cmt.utils.data = {
 		// Append CSRF token if available
 		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
+			var csrfParam 	= jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
-			dataUrl 	   += "&_csrf=" + csrfToken;
+			dataUrl 	   += "&" + csrfParam + "=" + csrfToken;
 		}
 
 		return dataUrl;
