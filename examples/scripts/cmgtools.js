@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2016-10-11
+ * CMGTools JS - v1.0.0-alpha1 - 2016-11-12
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -222,9 +222,10 @@ cmt.utils.data = {
 		// Append csrf token if required
 		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
 
+			var csrfParam   = jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
 			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
 
-			dataArray.push( { name: "_csrf", value: csrfToken } );
+			dataArray.push( { name: csrfParam, value: csrfToken } );
 		}
 
 		jQuery.map( dataArray, function(n, i) {
