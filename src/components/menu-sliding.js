@@ -1,3 +1,7 @@
+/**
+ * Sliding Menu is a special pop-up displayed on clicking the element defined while initialising the plugin.
+ */
+
 ( function( cmtjq ) {
 
 	cmtjq.fn.cmtSlidingMenu = function( options ) {
@@ -109,4 +113,4 @@
 		mainMenu: false
 	};
 
-}( jQuery ) );
+})( jQuery );

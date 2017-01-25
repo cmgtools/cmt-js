@@ -1,0 +1,60 @@
+.cmt-slider {
+	position: relative;
+	width: 450px;
+	margin: 0px auto;
+	overflow: hidden;
+	height: 150px;
+	background-color: black;
+}
+
+.cmt-slider .slides-wrap {
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	height: 100%;
+}
+
+.cmt-slider .slide {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 150px;
+	height: 150px;
+	overflow: hidden;
+	background-color:white;
+	color: black;
+	text-align: center;
+}
+
+.cmt-slider .control {
+	color: #2B3442;
+	cursor: pointer;
+	font-weight: bold;
+	height: 80px;
+	width: 48px;
+	position: relative;
+	top: 35px;
+	background-image: url("../images/slider-arrow.png");
+	background-repeat: none;
+	background-position: 0px 0px;
+}
+
+.cmt-slider .control-left {
+	float: left;
+	left: 20px;
+	background-position: 0px 80px;
+}
+
+.cmt-slider .control-left:hover {
+	background-position: 0px 0px;
+}
+
+.cmt-slider .control-right {
+	float: right;
+	right: 20px;
+	background-position: -48px 80px;
+}
+
+.cmt-slider .control-right:hover {
+	background-position: -48px 0px;
+}

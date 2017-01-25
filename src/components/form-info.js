@@ -1,3 +1,7 @@
+/**
+ * Form Info is a small plugin to flip form information and form fields. The form information can be formed only by labels whereas fields can be formed using labels and form elements.
+ */
+
 ( function( cmtjq ) {
 
 	cmtjq.fn.cmtFormInfo = function( options ) {
@@ -25,8 +29,9 @@
 
 			form.find( ".btn-edit" ).click( function() {
 
-				var info = jQuery( this ).parent().find( ".wrap-info" );
-				var form = jQuery( this ).parent().find( ".wrap-form" );
+				var parent	= jQuery( this ).closest( ".box-form" );
+				var info 	= parent.find( ".wrap-info" );
+				var form 	= parent.find( ".wrap-form" );
 
 				if( info.is( ":visible" ) ) {
 
@@ -35,8 +40,8 @@
 				}
 				else {
 
-					info.show();
-					form.fadeOut( "slow" );			
+					info.fadeIn( "fast" );
+					form.hide();
 				}
 			});
 		}
@@ -47,4 +52,4 @@
 		// default config
 	};
 
-}( jQuery ) );
+})( jQuery );

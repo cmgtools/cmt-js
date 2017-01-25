@@ -1,5 +1,5 @@
-/*
- * Dependencies: jquery
+/**
+ * Smooth Scroll plugin can be used to listen for hash tags to scroll smoothly to pre-defined page sections.
  */
 
 ( function( cmtjq ) {
@@ -53,4 +53,4 @@
 
 	};
 
-}( jQuery ) );
+})( jQuery );

@@ -1,5 +1,5 @@
-/*
- * Dependencies: jquery
+/**
+ * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
  */
 
 ( function( cmtjq ) {
@@ -179,7 +179,7 @@
 					var bkgWidth 		= background.width();
 	            	var bkgHeight 		= background.height();
 		            var min 			= 0;
-		            var max 			= bkgHeight - winHeight;
+		            var max 			= bkgHeight - winHeight * 0.5;
 		            var heightOverflow 	= blockHeight < winHeight ? bkgHeight - blockHeight : bkgHeight - winHeight;
 		            blockTop 			= blockTop - heightOverflow;
 		            blockBottom 		= blockBottom + heightOverflow;
@@ -212,4 +212,4 @@
 		}
 	};
 
-}( jQuery ) );
+})( jQuery );
