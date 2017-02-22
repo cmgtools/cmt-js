@@ -213,10 +213,10 @@ cmt.api.Application.prototype.preProcessRequest = function( requestElement, cont
 	var preAction	= actionName + 'ActionPre';
 
 	// Hide message element
-	requestElement.find( this.config.messageClass ).hide();
+	requestElement.find( this.config.messageClass ).css( 'display', 'none' );
 
 	// Hide all errors
-	requestElement.find( this.config.errorClass ).hide();
+	requestElement.find( this.config.errorClass ).css( 'display', 'none' );
 
 	// Pre Process Request
 	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
@@ -225,7 +225,7 @@ cmt.api.Application.prototype.preProcessRequest = function( requestElement, cont
 	}
 
 	// Show Spinner
-	requestElement.find( this.config.spinnerClass ).show();
+	requestElement.find( this.config.spinnerClass ).css( 'display', 'inline-block' );
 
 	return true;
 };
@@ -301,7 +301,7 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
 		}
 
 		// Hide all errors
-		requestElement.find( this.config.errorClass ).hide();
+		requestElement.find( this.config.errorClass ).css( 'display', 'none' );
 	}
 	else if( result == 0 ) {
 
@@ -313,7 +313,7 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
         	var errorField		= requestElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
 
         	errorField.html( errorMessage );
-        	errorField.show();
+        	errorField.css( 'display', 'inline-block' );
     	}
 	}
 
@@ -322,13 +322,23 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
 
 cmt.api.Application.prototype.postProcessResponse = function( requestElement, controller, actionName, response ) {
 
-	var message		= requestElement.find( this.config.messageClass );
+	var result 		= response[ 'result' ];
+	var message		= null;
 	var messageStr 	= response[ 'message' ];
 	var postAction	= actionName + 'ActionPost';
 
+	if( result == 1 ) {
+
+		message	= requestElement.find( this.config.messageClass + ".success" );
+	}
+	else if( result == 0 ) {
+
+		message	= requestElement.find( this.config.messageClass + ".error" );
+	}
+
 	// Show message
 	message.html( messageStr );
-	message.show();
+	message.css( 'display', 'inline-block' );
 
 	// Hide Spinner
 	requestElement.find( this.config.spinnerClass ).hide();

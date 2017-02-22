@@ -30,20 +30,28 @@
 
 			element.on( 'click', function ( e ) {
 
-			    e.preventDefault();
+				var targetId	= this.hash;
 
-			    var targetId 	= this.hash;
-			    var target 		= cmtjq( targetId );
-		
-			    jQuery('html, body').stop().animate(
-			    	{ 'scrollTop': ( target.offset().top ) }, 
-			    	900, 
-			    	'swing', 
-			    	function () {
-		
-				        window.location.hash = targetId;				        
-			    	}
-			    );
+				// Process only if hash is set
+				if ( null != targetId && targetId.length > 0 ) {
+
+					// Prevent default anchor behavior
+			    	e.preventDefault();
+
+					// Find target element
+			    	var target 	= cmtjq( targetId );
+
+			    	cmtjq( 'html, body' ).stop().animate(
+			    		{ 'scrollTop': ( target.offset().top ) },
+			    		900,
+			    		'swing',
+			    		function () {
+
+							// Add hash to url
+				        	window.location.hash = targetId;
+			    		}
+			    	);
+				}
 			});
 		}
 	};

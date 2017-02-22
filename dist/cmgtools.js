@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-01-25
+ * CMGTools JS - v1.0.0-alpha1 - 2017-02-22
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -567,6 +567,47 @@ cmt.utils.ui = {
 		}
 	}
 };
+
+/**
+ * Auto Suggest is jQuery plugin which change the default behaviour of input field. It shows
+ * auto suggestions as user type and provide options to select single or multiple values.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtAutoSuggest = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtAutoSuggest.defaults, options );
+		var fields			= this;
+
+		// Iterate and initialise all the fields
+		fields.each( function() {
+
+			var field = cmtjq( this );
+
+			init( field );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( field ) {
+
+			// TODO: add logic to handle single and multi selects
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtAutoSuggest.defaults = {
+		// default config
+	};
+
+})( jQuery );
 
 /**
  * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
@@ -1299,6 +1340,71 @@ cmt.utils.ui = {
 })( jQuery );
 
 /**
+ * Icon Picker is jQuery plugin to pick an icon from various icon libraries. It works together with
+ * Icon Picker Plugin of CMSGears.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtIconPicker = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtIconPicker.defaults, options );
+		var pickers			= this;
+
+		// Iterate and initialise all the pickers
+		pickers.each( function() {
+
+			var picker = cmtjq( this );
+
+			init( picker );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( picker ) {
+
+			picker.find( '.choose-icon' ).click( function() {
+
+				var element = jQuery( this );
+
+				if( !element.hasClass( 'disabled' ) ) {
+
+					picker.find( '.icon-sets' ).slideToggle( 'slow' );
+				}
+			});
+
+			picker.find( '.icon-sets .wrap-icon' ).click( function() {
+
+				var element 	= jQuery( this );
+				var iconSets	= picker.find( '.icon-sets' );
+				var sIcon		= element.find( '.picker-icon' );
+				var iconClass	= 'picker-icon ' + sIcon.attr( 'icon' );
+				var tIcon		= picker.find( '.choose-icon' );
+				tIcon			= tIcon.find( '.picker-icon' );
+
+				tIcon.attr( 'class', iconClass );
+
+				picker.find( '.icon-field' ).val( sIcon.attr( 'icon' ) );
+
+				iconSets.slideToggle( 'slow' );
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtIconPicker.defaults = {
+		// default config
+	};
+
+})( jQuery );
+
+/**
  * LatLongPicker allows us to set marker based on given longitude, latidude.
  * It also find the latitude/longitude for given address and set marker accordingly.
  */
@@ -1498,6 +1604,97 @@ cmt.utils.ui = {
 			zoomControlOptions: true,
 			disableDoubleClickZoom: true
 		}
+	};
+
+})( jQuery );
+
+/**
+ * Login & Register can be used to toggle between login, register and forgot-password forms.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtLoginRegister = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtLoginRegister.defaults, options );
+		var boxes			= this;
+
+		// Iterate and initialise all the pickers
+		boxes.each( function() {
+
+			var box = cmtjq( this );
+
+			init( box );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( box ) {
+
+			var loginBox	= box.find( '.box-login' );
+			var signupBox	= box.find( '.box-signup' );
+			var forgotBox	= box.find( '.box-forgot-password' );
+
+			box.find( '.btn-login' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( loginBox.is( ":visible" ) ) {
+
+					loginBox.slideUp( 'fast' );
+				}
+				else {
+					signupBox.slideUp( 'fast' );
+					forgotBox.slideUp( 'fast' );
+
+					loginBox.slideDown( 'slow' );
+				}
+			});
+
+			box.find( '.btn-forgot-password' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( forgotBox.is( ":visible" ) ) {
+
+					forgotBox.slideUp( 'fast' );
+				}
+				else {
+
+					signupBox.slideUp( 'fast' );
+					loginBox.slideUp( 'fast' );
+
+					forgotBox.slideDown( 'slow' );
+				}
+			});
+
+			box.find( '.btn-signup' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( signupBox.is( ":visible" ) ) {
+
+					signupBox.slideUp( 'fast' );
+				}
+				else {
+					loginBox.slideUp( 'fast' );
+					forgotBox.slideUp( 'fast' );
+
+					signupBox.slideDown( 'slow' );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtLoginRegister.defaults = {
+		// default config
 	};
 
 })( jQuery );
@@ -1805,6 +2002,153 @@ function hideMessagePopup() {
 
 	closePopup( "#popup-message" );
 }
+
+/**
+ * Rate is jQuery plugin to provide ratings.
+ */
+
+( function( cmtjq ) {
+
+	// TODO Generate html if not provided
+
+	cmtjq.fn.cmtRate = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtRate.defaults, options );
+		var ratings			= this;
+
+		// Iterate and initialise all the ratings
+		ratings.each( function() {
+
+			var rating = cmtjq( this );
+
+			init( rating );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( rating ) {
+
+			var total 		= rating.find( '.star' ).length;
+			var stars		= [];
+			var icons		= [];
+			var selected 	= ( rating.find( '.selected' ).length == 1 ) ? parseInt( rating.find( '.selected' ).attr( 'star' ) ) : 0;
+			var disabled	= rating.hasClass( 'disabled' );
+
+			// Init Icons
+			rating.find( '.star' ).each( function() {
+
+				var star 	= cmtjq( this );
+				var index 	= parseInt( star.attr( 'star' ) );
+
+				if( selected > 0 && selected <= index ) {
+
+					star.html( '<i class="' + settings.base + ' ' + settings.filled + '"></i>' );
+					star.css( 'color', settings.filledColor );
+				}
+				else {
+
+					star.html( '<i class="' + settings.base + ' ' + settings.empty + '"></i>' );
+					star.css( 'color', settings.emptyColor );
+				}
+
+				if( disabled ) {
+
+					star.css( 'color', settings.disabledColor );
+				}
+				else {
+
+					stars.push( star );
+					icons.push( star.children( 'i' ) );
+				}
+			});
+
+			if( !disabled ) {
+
+				// Hover effect
+				rating.find( '.star' ).mouseover( function() {
+
+					var index 	= parseInt( cmtjq( this ).attr( 'star' ) );
+
+					refresh( rating, total, index, stars, icons, 0 );
+				});
+
+				rating.find( '.star' ).mouseout( function() {
+
+					refresh( rating, total, selected, stars, icons, 1 );
+				});
+
+				// Rate
+				rating.find( '.star' ).click( function() {
+
+					var index 	= parseInt( cmtjq( this ).attr( 'star' ) );
+					selected	= index;
+
+					rating.find( 'input' ).val( jQuery( this ).attr( 'star' ) );
+					rating.find( '.star' ).removeClass( 'selected' );
+					cmtjq( this ).addClass( 'selected' );
+
+					refresh( rating, total, index, stars, icons, 2 );
+				});
+			}
+		}
+
+		function refresh( rating, total, index, stars, icons, choice ) {
+
+			for( var i = 1; i <= total; i++ ) {
+
+				var star = stars[ i - 1 ];
+				var icon = icons[ i - 1 ];
+
+				if( i <= index ) {
+
+					switch( choice ) {
+
+						case 0: {
+
+							star.css( 'color', settings.hoverColor );
+
+							break;
+						}
+						case 1:
+						case 2: {
+
+							star.css( 'color', settings.filledColor );
+
+							break;
+						}
+					}
+
+					icon.removeClass( settings.empty );
+					icon.addClass( settings.filled );
+				}
+				else {
+
+					star.css( 'color', settings.emptyColor );
+					icon.removeClass( settings.filled );
+					icon.addClass( settings.empty );
+				}
+			}
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtRate.defaults = {
+		base: 'fa',
+		empty: 'fa-star-o',
+		filled: 'fa-star',
+		emptyColor: 'black',
+		filledColor: '#A5D75A',
+		hoverColor: '#EF9300',
+		disabledColor: '#7F7F7F'
+	};
+
+})( jQuery );
 
 /**
  * It's a custom select plugin used to wrap original select using overlapping html elements and hiding the select element.
@@ -2355,20 +2699,28 @@ function hideMessagePopup() {
 
 			element.on( 'click', function ( e ) {
 
-			    e.preventDefault();
+				var targetId	= this.hash;
 
-			    var targetId 	= this.hash;
-			    var target 		= cmtjq( targetId );
-		
-			    jQuery('html, body').stop().animate(
-			    	{ 'scrollTop': ( target.offset().top ) }, 
-			    	900, 
-			    	'swing', 
-			    	function () {
-		
-				        window.location.hash = targetId;				        
-			    	}
-			    );
+				// Process only if hash is set
+				if ( null != targetId && targetId.length > 0 ) {
+
+					// Prevent default anchor behavior
+			    	e.preventDefault();
+
+					// Find target element
+			    	var target 	= cmtjq( targetId );
+
+			    	cmtjq( 'html, body' ).stop().animate(
+			    		{ 'scrollTop': ( target.offset().top ) },
+			    		900,
+			    		'swing',
+			    		function () {
+
+							// Add hash to url
+				        	window.location.hash = targetId;
+			    		}
+			    	);
+				}
 			});
 		}
 	};
@@ -2759,10 +3111,10 @@ cmt.api.Application.prototype.preProcessRequest = function( requestElement, cont
 	var preAction	= actionName + 'ActionPre';
 
 	// Hide message element
-	requestElement.find( this.config.messageClass ).hide();
+	requestElement.find( this.config.messageClass ).css( 'display', 'none' );
 
 	// Hide all errors
-	requestElement.find( this.config.errorClass ).hide();
+	requestElement.find( this.config.errorClass ).css( 'display', 'none' );
 
 	// Pre Process Request
 	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
@@ -2771,7 +3123,7 @@ cmt.api.Application.prototype.preProcessRequest = function( requestElement, cont
 	}
 
 	// Show Spinner
-	requestElement.find( this.config.spinnerClass ).show();
+	requestElement.find( this.config.spinnerClass ).css( 'display', 'inline-block' );
 
 	return true;
 };
@@ -2847,7 +3199,7 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
 		}
 
 		// Hide all errors
-		requestElement.find( this.config.errorClass ).hide();
+		requestElement.find( this.config.errorClass ).css( 'display', 'none' );
 	}
 	else if( result == 0 ) {
 
@@ -2859,7 +3211,7 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
         	var errorField		= requestElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
 
         	errorField.html( errorMessage );
-        	errorField.show();
+        	errorField.css( 'display', 'inline-block' );
     	}
 	}
 
@@ -2868,13 +3220,23 @@ cmt.api.Application.prototype.processResponse = function( requestElement, contro
 
 cmt.api.Application.prototype.postProcessResponse = function( requestElement, controller, actionName, response ) {
 
-	var message		= requestElement.find( this.config.messageClass );
+	var result 		= response[ 'result' ];
+	var message		= null;
 	var messageStr 	= response[ 'message' ];
 	var postAction	= actionName + 'ActionPost';
 
+	if( result == 1 ) {
+
+		message	= requestElement.find( this.config.messageClass + ".success" );
+	}
+	else if( result == 0 ) {
+
+		message	= requestElement.find( this.config.messageClass + ".error" );
+	}
+
 	// Show message
 	message.html( messageStr );
-	message.show();
+	message.css( 'display', 'inline-block' );
 
 	// Hide Spinner
 	requestElement.find( this.config.spinnerClass ).hide();
@@ -2941,6 +3303,25 @@ cmt.api.controllers.BaseController.prototype.init = function() {
 	// Init method to initialise controller
 };
 
+cmt.api.controllers.BaseController.prototype.defaultActionPre = function( requestElement ) {
+
+	console.log( "Pre processing default action." );
+
+	return true;
+};
+
+cmt.api.controllers.BaseController.prototype.defaultActionPost = function( result, requestElement, response ) {
+
+	if( result ) {
+
+		console.log( "Processing success for default action." );
+	}
+	else {
+
+		console.log( "Processing failure for default action." );
+	}
+};
+
 /**
  * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers.
  * It provides a default action as a fallback in case action is not specified by the Request Element.
@@ -2956,24 +3337,6 @@ cmt.api.controllers.DefaultController.prototype.init = function() {
 	console.log( "Initialised default controller." );
 };
 
-cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( requestElement ) {
-
-	console.log( "Pre processing default action." );
-
-	return true;
-};
-
-cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( result, requestElement, response ) {
-
-	if( result ) {
-
-		console.log( "Processing success for default action." );
-	}
-	else {
-
-		console.log( "Processing failure for default action." );
-	}
-};
 
 /** 
  * The GridController and classes extending it can be used to manage data grids providing searching, sorting and crud operations. 
