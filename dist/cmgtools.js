@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-02-22
+ * CMGTools JS - v1.0.0-alpha1 - 2017-03-04
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1525,6 +1525,17 @@ cmt.utils.ui = {
 				});
 			}
 
+			mapPicker.find( '.search-ll' ).change( function() {
+
+				var latLon		= cmtjq( this ).val();
+				latLon			= latLon.split( ',' );
+				var lat			= parseFloat( latLon[ 0 ] );
+				var lon			= parseFloat( latLon[ 1 ] );
+				var position 	= {lat: lat, lng: lon};
+
+				updateCenter( mapPicker, gMap, position, marker );
+			});
+
 			return gMap;
 		}
 
@@ -1911,38 +1922,41 @@ cmt.utils.ui = {
 		// Initialise Element
 		function init( popup ) {
 
-			var popupData = popup.children( ".popup-data" );
+			var popupData = popup.children( '.popup-data' );
 
 			// Close Listener
-			popupData.children( ".popup-close" ).click( function() {
+			popupData.children( '.popup-close' ).click( function() {
 
-				popup.fadeOut( "slow" );
+				popup.fadeOut( 'slow' );
 			});
 
 			// Modal Window
 			if( settings.modal ) {
 
+				// Move modal popups to body element
+				popup.appendTo( 'body' );
+
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-				
+
 				// Background
-				var bkg			= popup.find( ".popup-bkg" );
-				
+				var bkg			= popup.find( '.popup-screen' );
+
 				if( bkg.length > 0 ) {
-					
+
 					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
 				}
 
 				// Filler Layer to listen for close
-				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+				var bkgFiller	= popup.find( '.popup-screen-listener' );
 
 				if( bkgFiller.length > 0 ) {
 
 					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-					
+
 					bkgFiller.click( function() {
-						
-						popup.fadeOut( "fast" );
+
+						popup.fadeOut( 'fast' );
 					});
 				}
 
@@ -1966,6 +1980,7 @@ cmt.utils.ui = {
 
 })( jQuery );
 
+// Pre-defined methods to show/hide popups
 
 function showPopup( popupSelector ) {
 
