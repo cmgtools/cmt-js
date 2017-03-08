@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-03-04
+ * CMGTools JS - v1.0.0-alpha1 - 2017-03-07
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -18,6 +18,29 @@ var cmt = cmt || {};
 
 // Global Namespace for CMGTools utilities
 cmt.utils = cmt.utils || {};
+
+cmt.utils.ajax = {
+
+	triggerPost: function( url, data, csrf ) {
+
+		// Generate form data for submission
+		var dataUrl	= null;
+
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+
+		// Append CSRF token if available
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
+
+			var csrfParam 	= jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
+			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
+
+			data     	   += "&" + csrfParam + "=" + csrfToken;
+		}
+
+		// Trigger request
+		jQuery.post( url, data );
+	}
+};
 
 /**
  * Browser utility provides commonly used browser feature detection methods.
@@ -575,20 +598,20 @@ cmt.utils.ui = {
 
 ( function( cmtjq ) {
 
-	cmtjq.fn.cmtAutoSuggest = function( options ) {
+	cmtjq.fn.cmtAutoFill = function( options ) {
 
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtAutoSuggest.defaults, options );
-		var fields			= this;
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtAutoFill.defaults, options );
+		var fillers			= this;
 
-		// Iterate and initialise all the fields
-		fields.each( function() {
+		// Iterate and initialise all the fillers
+		fillers.each( function() {
 
-			var field = cmtjq( this );
+			var filler = cmtjq( this );
 
-			init( field );
+			init( filler );
 		});
 
 		// return control
@@ -596,14 +619,25 @@ cmt.utils.ui = {
 
 		// == Private Functions == //
 
-		function init( field ) {
+		function init( filler ) {
 
 			// TODO: add logic to handle single and multi selects
+
+			// Auto Fill
+			filler.find( '.auto-fill-text' ).blur( function() {
+
+				var wrapFill	= jQuery( this ).closest( '.wrap-fill' );
+
+				wrapFill.find( '.wrap-auto-list' ).slideUp();
+
+				// Clear fields
+				wrapFill.find( '.fill-clear' ).val( '' );
+			});
 		}
 	};
 
 	// Default Settings
-	cmtjq.fn.cmtAutoSuggest.defaults = {
+	cmtjq.fn.cmtAutoFill.defaults = {
 		// default config
 	};
 
@@ -1711,7 +1745,7 @@ cmt.utils.ui = {
 })( jQuery );
 
 /**
- * Sidebar plugin used to manage collapsible parent with our without children.
+ * Collapsible Menu plugin used to manage collapsible parent with our without children.
  */
 
 ( function( cmtjq ) {
@@ -1721,15 +1755,15 @@ cmt.utils.ui = {
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
-		var sidebars		= this;
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
+		var menus		= this;
 
-		// Iterate and initialise all the fox sliders
-		sidebars.each( function() {
+		// Iterate and initialise all the menus
+		menus.each( function() {
 
-			var sidebar = cmtjq( this );
+			var menu = cmtjq( this );
 
-			init( sidebar );
+			init( menu );
 		});
 
 		// return control
@@ -1737,28 +1771,27 @@ cmt.utils.ui = {
 
 		// == Private Functions == //
 
-		function init( sidebar ) {
+		function init( menu ) {
 
-			// Initialise Sidebar Accordion
-			sidebar.find( '.collapsible-tab.has-children' ).click( function() {
+			menu.find( '.collapsible-tab.has-children' ).click( function() {
 
-				var child = jQuery( this ).children( '.collapsible-tab-content' );
+				var tab		= jQuery( this );
+				var content = tab.children( '.tab-content' );
 
-				if( !jQuery( this ).hasClass( 'active' ) ) {
+				// Expand only disabled tabs and keep active expanded
+				if( !tab.hasClass( 'active' ) ) {
 
-					if( !child.hasClass( 'expanded' ) ) {
+					if( !tab.hasClass( 'expanded' ) ) {
 
 						// Slide Down Slowly
-						jQuery( this ).addClass( 'pactive' );
-						child.addClass( 'expanded' );
-						child.slideDown( 'slow' );
+						tab.addClass( 'expanded' );
+						content.slideDown( 'slow' );
 					}
 					else {
 
 						// Slide Up Slowly
-						jQuery( this ).removeClass( 'pactive' );
-						child.removeClass( 'expanded' );
-						child.slideUp( 'slow' );
+						tab.removeClass( 'expanded' );
+						content.slideUp( 'slow' );
 					}
 				}
 			});

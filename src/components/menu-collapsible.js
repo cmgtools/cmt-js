@@ -1,5 +1,5 @@
 /**
- * Sidebar plugin used to manage collapsible parent with our without children.
+ * Collapsible Menu plugin used to manage collapsible parent with our without children.
  */
 
 ( function( cmtjq ) {
@@ -9,15 +9,15 @@
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
-		var sidebars		= this;
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
+		var menus		= this;
 
-		// Iterate and initialise all the fox sliders
-		sidebars.each( function() {
+		// Iterate and initialise all the menus
+		menus.each( function() {
 
-			var sidebar = cmtjq( this );
+			var menu = cmtjq( this );
 
-			init( sidebar );
+			init( menu );
 		});
 
 		// return control
@@ -25,28 +25,27 @@
 
 		// == Private Functions == //
 
-		function init( sidebar ) {
+		function init( menu ) {
 
-			// Initialise Sidebar Accordion
-			sidebar.find( '.collapsible-tab.has-children' ).click( function() {
+			menu.find( '.collapsible-tab.has-children' ).click( function() {
 
-				var child = jQuery( this ).children( '.collapsible-tab-content' );
+				var tab		= jQuery( this );
+				var content = tab.children( '.tab-content' );
 
-				if( !jQuery( this ).hasClass( 'active' ) ) {
+				// Expand only disabled tabs and keep active expanded
+				if( !tab.hasClass( 'active' ) ) {
 
-					if( !child.hasClass( 'expanded' ) ) {
+					if( !tab.hasClass( 'expanded' ) ) {
 
 						// Slide Down Slowly
-						jQuery( this ).addClass( 'pactive' );
-						child.addClass( 'expanded' );
-						child.slideDown( 'slow' );
+						tab.addClass( 'expanded' );
+						content.slideDown( 'slow' );
 					}
 					else {
 
 						// Slide Up Slowly
-						jQuery( this ).removeClass( 'pactive' );
-						child.removeClass( 'expanded' );
-						child.slideUp( 'slow' );
+						tab.removeClass( 'expanded' );
+						content.slideUp( 'slow' );
 					}
 				}
 			});
