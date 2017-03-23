@@ -306,5 +306,18 @@ cmt.utils.data = {
 		}
 
 	    return baseUrl;
+	},
+
+	/**
+	 * Refresh current grid.
+	 */
+	refreshGrid: function() {
+
+		var pageUrl	= window.location.href;
+
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'page' );
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'per-page' );
+
+		window.location	= pageUrl;
 	}
 };

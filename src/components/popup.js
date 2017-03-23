@@ -93,12 +93,12 @@
 
 function showPopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeIn( "slow" );
+	jQuery( popupSelector ).fadeIn( 'slow' );
 }
 
 function closePopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeOut( "slow" );
+	jQuery( popupSelector ).fadeOut( 'fast' );
 }
 
 /* Show default error popup */

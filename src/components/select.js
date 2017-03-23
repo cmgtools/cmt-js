@@ -26,7 +26,7 @@
 		return;
 
 		// == Private Functions == //
-		
+
 		/**
 		 * 1. Find the selected option if there is any.
 		 * 2. Wrap the select in a div and access the wrapper div.
@@ -86,7 +86,7 @@
 
 				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
 			}
-			
+
 			if( null != settings.iconHtml ) {
 
 				iconHtml	+= settings.iconHtml + "</span>";
@@ -99,10 +99,31 @@
 			// Generate Custom Select Html
 			var customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
 
+			if( settings.copyOptionClass ) {
+
+				var selected	= dropDown.find( ':selected' );
+
+				if( selected.length == 1 ) {
+
+					var classes = selected.attr( 'class' );
+
+					customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text " + classes + "'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
+				}
+			}
+
 			// Iterate select options
 		    dropDown.find( 'option' ).each( function( index ) {
 
-				customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				if( settings.copyOptionClass ) {
+
+					var classes = jQuery( this ).attr( 'class' );
+
+					customHtml += '<li class="' + classes + '" data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
+				else {
+
+					customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
 		    });
 
 			customHtml += '</ul></div>';
@@ -113,15 +134,15 @@
 			var customSelect	= wrapper.children( '.cmt-select' );
 			var customSelected	= wrapper.children( '.cmt-select' ).children( '.cmt-selected' );
 			var customList		= wrapper.children( '.cmt-select' ).children( '.cmt-select-list' );
-			
+
 			// Hide List by default
 			customList.hide();
-			
+
 			// Detect whether disabled
 			var disabled = dropDown.attr( 'disabled' );
-			
+
 			if( disabled == 'disabled' || disabled ) {
-				
+
 				customSelected.addClass( 'disabled' );
 			}
 			else {
@@ -188,6 +209,7 @@
 	cmtjq.fn.cmtSelect.defaults = {
 		multi: false,
 		copyId: false,
+		copyOptionClass: false,
 		wrapperClass: null,
 		iconClass: null,
 		iconHtml: null
