@@ -114,8 +114,13 @@
 		function initControls( slider ) {
 
 			var slidesWrapper	= slider.find( '.slides-wrap' );
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
+
+				leftControl.hide();
+				rightControl.hide();
 
 				return;
 			}
@@ -126,20 +131,36 @@
 			var rControlContent	= settings.rControlContent;
 
 			// Init Listeners
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
-
 			leftControl.html( lControlContent );
 			rightControl.html( rControlContent );
 
+			if( !settings.circular ) {
+
+				leftControl.hide();
+			}
+
 			leftControl.click( function() {
 
-				showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				}
+				else {
+
+					moveToRight( slider );
+				}
 			});
 
 			rightControl.click( function() {
 
-				showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				}
+				else {
+
+					moveToLeft( slider );
+				}
 			});
 		}
 
@@ -266,6 +287,107 @@
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
+
+		// Move to left on clicking next button
+		function moveToLeft( slider ) {
+
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
+
+			var slidesSelector	= slider.find( '.slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.slides-wrap' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft - moveBy;
+			var remaining		= filmWidth + leftPosition;
+
+			if( remaining > ( sliderWidth - moveBy ) ) {
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmWidth		= filmstrip.outerWidth();
+							var filmLeft		= filmstrip.position().left;
+
+							var leftPosition	= filmLeft - moveBy;
+							var remaining		= filmWidth + leftPosition;
+
+							if( remaining < ( sliderWidth - moveBy ) ) {
+
+								rightControl.hide();
+							}
+
+							if( leftControl.is( ':hidden' ) ) {
+
+								leftControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+		}
+
+		// Move to right on clicking prev button
+		function moveToRight( slider ) {
+
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
+
+			var slidesSelector	= slider.find( '.slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.slides-wrap' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft;
+
+			if( leftPosition < -( slideWidth/2 ) ) {
+
+				leftPosition = filmLeft + moveBy;
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmLeft	= filmstrip.position().left;
+
+							if( filmLeft > -( slideWidth/2 ) ) {
+
+								leftControl.hide();
+								filmstrip.position( { at: "left top" } );
+							}
+
+							if( rightControl.is( ':hidden' ) ) {
+
+								rightControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+			else {
+
+				leftControl.hide();
+				filmstrip.position( { at: "left top" } );
+			}
+		}
 	};
 
 	// Default Settings
@@ -280,7 +402,8 @@
 		// Listener Callback for pre processing
 		preSlideChange: null,
 		// Listener Callback for post processing
-		postSlideChange: null
+		postSlideChange: null,
+		circular: true
 	};
 
 })( jQuery );

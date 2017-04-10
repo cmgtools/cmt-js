@@ -238,10 +238,10 @@
 
 				var trigger = jQuery( this );
 
-				if( trigger.hasClass( 'table' ) ) {
+				if( trigger.hasClass( 'grid-view-table' ) ) {
 
-					trigger.removeClass( 'table ' + settings.cardIcon );
-					trigger.addClass( 'card ' + settings.listIcon );
+					trigger.removeClass( 'grid-view-table ' + settings.cardIcon );
+					trigger.addClass( 'grid-view-card ' + settings.listIcon );
 
 					grid.find( '.grid-rows' ).fadeOut( 'fast' );
 					grid.find( '.grid-cards' ).fadeIn( 'fast' );
@@ -251,10 +251,10 @@
 						updateUserMeta( 'grid-layout', 'card' );
 					}
 				}
-				else if( trigger.hasClass( 'card' ) ) {
+				else if( trigger.hasClass( 'grid-view-card' ) ) {
 
-					trigger.removeClass( 'card ' + settings.listIcon );
-					trigger.addClass( 'table ' + settings.cardIcon );
+					trigger.removeClass( 'grid-view-card ' + settings.listIcon );
+					trigger.addClass( 'grid-view-table ' + settings.cardIcon );
 
 					grid.find( '.grid-cards' ).fadeOut( 'fast' );
 					grid.find( '.grid-rows' ).fadeIn( 'fast' );
@@ -264,6 +264,14 @@
 						updateUserMeta( 'grid-layout', 'table' );
 					}
 				}
+			});
+
+			// Popup Add
+			grid.find( '.grid-title .action-add' ).click( function() {
+
+				var popup	= jQuery( this ).attr( 'popup' );
+
+				showPopup( '#' + popup );
 			});
 
 			// Popup Action
