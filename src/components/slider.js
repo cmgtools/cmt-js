@@ -9,7 +9,7 @@
 		// == Init =================================================================== //
 
 		// Configure Sliders
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider.defaults, options );
 		var sliders			= this;
 
 		// Iterate and initialise all the fox sliders

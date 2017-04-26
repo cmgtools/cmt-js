@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-03-23
+ * CMGTools JS - v1.0.0-alpha1 - 2017-04-26
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -299,6 +299,23 @@ cmt.utils.data = {
 		});
 
 		return json;
+	},
+
+	/**
+	 * It appends CSRF param at the end of request data
+	 */
+	appendCsrf: function( requestData ) {
+
+		// Append csrf token
+		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+
+			var csrfParam   = jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
+			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
+
+			requestData 	= requestData + '&' + csrfParam + '=' + csrfToken;
+		}
+
+		return requestData;
 	},
 
 	/**
@@ -1554,10 +1571,10 @@ cmt.utils.ui = {
 
 				var trigger = jQuery( this );
 
-				if( trigger.hasClass( 'table' ) ) {
+				if( trigger.hasClass( 'grid-view-table' ) ) {
 
-					trigger.removeClass( 'table ' + settings.cardIcon );
-					trigger.addClass( 'card ' + settings.listIcon );
+					trigger.removeClass( 'grid-view-table ' + settings.cardIcon );
+					trigger.addClass( 'grid-view-card ' + settings.listIcon );
 
 					grid.find( '.grid-rows' ).fadeOut( 'fast' );
 					grid.find( '.grid-cards' ).fadeIn( 'fast' );
@@ -1567,10 +1584,10 @@ cmt.utils.ui = {
 						updateUserMeta( 'grid-layout', 'card' );
 					}
 				}
-				else if( trigger.hasClass( 'card' ) ) {
+				else if( trigger.hasClass( 'grid-view-card' ) ) {
 
-					trigger.removeClass( 'card ' + settings.listIcon );
-					trigger.addClass( 'table ' + settings.cardIcon );
+					trigger.removeClass( 'grid-view-card ' + settings.listIcon );
+					trigger.addClass( 'grid-view-table ' + settings.cardIcon );
 
 					grid.find( '.grid-cards' ).fadeOut( 'fast' );
 					grid.find( '.grid-rows' ).fadeIn( 'fast' );
@@ -1580,6 +1597,14 @@ cmt.utils.ui = {
 						updateUserMeta( 'grid-layout', 'table' );
 					}
 				}
+			});
+
+			// Popup Add
+			grid.find( '.grid-title .action-add' ).click( function() {
+
+				var popup	= jQuery( this ).attr( 'popup' );
+
+				showPopup( '#' + popup );
 			});
 
 			// Popup Action
@@ -2774,7 +2799,7 @@ function hideMessagePopup() {
 		// == Init =================================================================== //
 
 		// Configure Sliders
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider.defaults, options );
 		var sliders			= this;
 
 		// Iterate and initialise all the fox sliders
@@ -2879,8 +2904,13 @@ function hideMessagePopup() {
 		function initControls( slider ) {
 
 			var slidesWrapper	= slider.find( '.slides-wrap' );
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
+
+				leftControl.hide();
+				rightControl.hide();
 
 				return;
 			}
@@ -2891,20 +2921,36 @@ function hideMessagePopup() {
 			var rControlContent	= settings.rControlContent;
 
 			// Init Listeners
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
-
 			leftControl.html( lControlContent );
 			rightControl.html( rControlContent );
 
+			if( !settings.circular ) {
+
+				leftControl.hide();
+			}
+
 			leftControl.click( function() {
 
-				showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				}
+				else {
+
+					moveToRight( slider );
+				}
 			});
 
 			rightControl.click( function() {
 
-				showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				}
+				else {
+
+					moveToLeft( slider );
+				}
 			});
 		}
 
@@ -3031,6 +3077,107 @@ function hideMessagePopup() {
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
 		}
+
+		// Move to left on clicking next button
+		function moveToLeft( slider ) {
+
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
+
+			var slidesSelector	= slider.find( '.slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.slides-wrap' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft - moveBy;
+			var remaining		= filmWidth + leftPosition;
+
+			if( remaining > ( sliderWidth - moveBy ) ) {
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmWidth		= filmstrip.outerWidth();
+							var filmLeft		= filmstrip.position().left;
+
+							var leftPosition	= filmLeft - moveBy;
+							var remaining		= filmWidth + leftPosition;
+
+							if( remaining < ( sliderWidth - moveBy ) ) {
+
+								rightControl.hide();
+							}
+
+							if( leftControl.is( ':hidden' ) ) {
+
+								leftControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+		}
+
+		// Move to right on clicking prev button
+		function moveToRight( slider ) {
+
+			var leftControl		= slider.find( '.control-left' );
+			var rightControl	= slider.find( '.control-right' );
+
+			var slidesSelector	= slider.find( '.slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.slides-wrap' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft;
+
+			if( leftPosition < -( slideWidth/2 ) ) {
+
+				leftPosition = filmLeft + moveBy;
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmLeft	= filmstrip.position().left;
+
+							if( filmLeft > -( slideWidth/2 ) ) {
+
+								leftControl.hide();
+								filmstrip.position( { at: "left top" } );
+							}
+
+							if( rightControl.is( ':hidden' ) ) {
+
+								rightControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+			else {
+
+				leftControl.hide();
+				filmstrip.position( { at: "left top" } );
+			}
+		}
 	};
 
 	// Default Settings
@@ -3045,7 +3192,8 @@ function hideMessagePopup() {
 		// Listener Callback for pre processing
 		preSlideChange: null,
 		// Listener Callback for post processing
-		postSlideChange: null
+		postSlideChange: null,
+		circular: true
 	};
 
 })( jQuery );
@@ -3474,7 +3622,13 @@ cmt.api.Application.prototype.handleJsonForm = function( requestElement, control
 		var formData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.appendCsrf( formData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 
@@ -3502,7 +3656,13 @@ cmt.api.Application.prototype.handleDataForm = function( requestElement, control
 		var formData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.appendCsrf( formData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 
@@ -3530,7 +3690,13 @@ cmt.api.Application.prototype.handleRequest = function( requestElement, controll
 		var requestData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			requestData	= cmt.utils.data.appendCsrf( requestData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 

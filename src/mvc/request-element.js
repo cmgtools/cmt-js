@@ -131,7 +131,13 @@ cmt.api.Application.prototype.handleJsonForm = function( requestElement, control
 		var formData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.appendCsrf( formData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 
@@ -159,7 +165,13 @@ cmt.api.Application.prototype.handleDataForm = function( requestElement, control
 		var formData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			formData	= cmt.utils.data.appendCsrf( formData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 
@@ -187,7 +199,13 @@ cmt.api.Application.prototype.handleRequest = function( requestElement, controll
 		var requestData	= controller.requestData;
 		var method		= requestElement.attr( 'method' );
 
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+		// Custom Request
+		if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+			requestData	= cmt.utils.data.appendCsrf( requestData );
+		}
+		// Regular Request
+		else {
 
 			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
 
