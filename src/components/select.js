@@ -248,4 +248,17 @@
 		});
 	};
 
+	// Utility method to set value
+	cmtjq.fn.cmtSelect.setValue = function( selectWrap, value ) {
+
+		var dropDown	= selectWrap.find( 'select' );
+
+		dropDown.val( value );
+
+		var selected	= dropDown.children( 'option:selected' );
+	 	var sText		= selectWrap.find( '.cmt-selected' ).children( '.s-text' );
+
+		sText.html( selected.html() );
+	};
+
 })( jQuery );
