@@ -295,7 +295,8 @@
 					break;
 				}
 				case "document":
-				case "compressed": {
+				case "compressed": 
+				case "shared": {
 
 					fileUploader.find( ".postview .wrap-file" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
