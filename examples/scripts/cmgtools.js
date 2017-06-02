@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-05-30
+ * CMGTools JS - v1.0.0-alpha1 - 2017-06-02
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -3521,7 +3521,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 		// Form Submits
 		if( requestElement.is( 'form' ) ) {
 
-			requestElement.unbind( 'submit' );
+			// requestElement.unbind( 'submit' );
 
 			requestElement.submit( function( event ) {
 
@@ -3536,7 +3536,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 		if( clickTrigger.length > 0 ) {
 
-			clickTrigger.unbind( 'click' );
+			// clickTrigger.unbind( 'click' );
 
 			clickTrigger.click( function( event ) {
 
@@ -3551,7 +3551,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 		if( selectTrigger.length > 0 ) {
 
-			selectTrigger.unbind( 'change' );
+			// selectTrigger.unbind( 'change' );
 
 			selectTrigger.change( function() {
 
@@ -3564,7 +3564,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 		if( keyupTrigger.length > 0 ) {
 
-			keyupTrigger.unbind( 'keyup' );
+			// keyupTrigger.unbind( 'keyup' );
 
 			keyupTrigger.keyup( function() {
 
@@ -3577,7 +3577,7 @@ cmt.api.Application.prototype.registerElements = function( requestElements ) {
 
 		if( blurTrigger.length > 0 ) {
 
-			blurTrigger.unbind( 'blur' );
+			// blurTrigger.unbind( 'blur' );
 
 			blurTrigger.blur( function() {
 
