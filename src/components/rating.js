@@ -32,6 +32,7 @@
 			var total 		= rating.find( '.star' ).length;
 			var stars		= [];
 			var icons		= [];
+			var messages	= [];
 			var selected 	= ( rating.find( '.selected' ).length == 1 ) ? parseInt( rating.find( '.selected' ).attr( 'star' ) ) : 0;
 			var disabled	= rating.hasClass( 'disabled' );
 
@@ -46,20 +47,31 @@
 					star.html( '<i class="' + settings.base + ' ' + settings.filled + '"></i>' );
 					star.css( 'color', settings.filledColor );
 				}
+				else if( selected == index && settings.message ) {
+
+					message.addClass( 'selected' );
+				}
 				else {
 
 					star.html( '<i class="' + settings.base + ' ' + settings.empty + '"></i>' );
 					star.css( 'color', settings.emptyColor );
 				}
 
+				// Disabled - Change color
 				if( disabled ) {
 
 					star.css( 'color', settings.disabledColor );
 				}
+				// Enabled - Prepare cache
 				else {
 
 					stars.push( star );
 					icons.push( star.children( 'i' ) );
+
+					if( settings.message ) {
+
+						messages.push( rating.find( 'span[star-message=' + index + ']' ) );
+					}
 				}
 			});
 
@@ -70,12 +82,12 @@
 
 					var index 	= parseInt( cmtjq( this ).attr( 'star' ) );
 
-					refresh( rating, total, index, stars, icons, 0 );
+					refresh( rating, total, index, stars, icons, messages, 0 );
 				});
 
 				rating.find( '.star' ).mouseout( function() {
 
-					refresh( rating, total, selected, stars, icons, 1 );
+					refresh( rating, total, selected, stars, icons, messages, 1 );
 				});
 
 				// Rate
@@ -88,17 +100,23 @@
 					rating.find( '.star' ).removeClass( 'selected' );
 					cmtjq( this ).addClass( 'selected' );
 
-					refresh( rating, total, index, stars, icons, 2 );
+					refresh( rating, total, index, stars, icons, messages, 2 );
 				});
 			}
 		}
 
-		function refresh( rating, total, index, stars, icons, choice ) {
+		function refresh( rating, total, index, stars, icons, messages, choice ) {
+
+			if( settings.message ) {
+
+				rating.find( '.star-message' ).removeClass( 'selected' );
+			}
 
 			for( var i = 1; i <= total; i++ ) {
 
-				var star = stars[ i - 1 ];
-				var icon = icons[ i - 1 ];
+				var star 	= stars[ i - 1 ];
+				var icon 	= icons[ i - 1 ];
+				var message = messages[ i - 1 ];
 
 				if( i <= index ) {
 
@@ -121,10 +139,16 @@
 
 					icon.removeClass( settings.empty );
 					icon.addClass( settings.filled );
+
+					if( i == index && settings.message ) {
+
+						message.addClass( 'selected' );
+					}
 				}
 				else {
 
 					star.css( 'color', settings.emptyColor );
+
 					icon.removeClass( settings.filled );
 					icon.addClass( settings.empty );
 				}
@@ -140,7 +164,8 @@
 		emptyColor: 'black',
 		filledColor: '#A5D75A',
 		hoverColor: '#EF9300',
-		disabledColor: '#7F7F7F'
+		disabledColor: '#7F7F7F',
+		message: true
 	};
 
 })( jQuery );
