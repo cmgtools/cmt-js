@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-06-13
+ * CMGTools JS - v1.0.0-alpha1 - 2017-06-15
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -589,6 +589,14 @@ cmt.utils.object = {
 		}
 
 		return obj;
+	},
+
+	// Check whether the given object has property
+	hasProperty: function( object, property ) {
+
+		var prototype = object.__proto__ || object.constructor.prototype;
+
+		return ( property in object ) && ( !( property in prototype ) || prototype[ property ] !== object[ property ] );
 	}
 };
 
@@ -2390,10 +2398,6 @@ function hideMessagePopup() {
 	closePopup( "#popup-message" );
 }
 
-/**
- * Rate is jQuery plugin to provide ratings.
- */
-
 ( function( cmtjq ) {
 
 	// TODO Generate html if not provided
@@ -2427,6 +2431,7 @@ function hideMessagePopup() {
 			var messages	= [];
 			var selected 	= ( rating.find( '.selected' ).length == 1 ) ? parseInt( rating.find( '.selected' ).attr( 'star' ) ) : 0;
 			var disabled	= rating.hasClass( 'disabled' );
+			var readOnly	= rating.hasClass( 'read-only' );
 
 			// Init Icons
 			rating.find( '.star' ).each( function() {
@@ -2454,6 +2459,9 @@ function hideMessagePopup() {
 
 					star.css( 'color', settings.disabledColor );
 				}
+				else if( readOnly ) {
+					star.css( 'color', settings.readonlyColor );
+				}
 				// Enabled - Prepare cache
 				else {
 
@@ -2467,7 +2475,7 @@ function hideMessagePopup() {
 				}
 			});
 
-			if( !disabled ) {
+			if( !disabled && !readOnly ) {
 
 				// Hover effect
 				rating.find( '.star' ).mouseover( function() {
@@ -2557,6 +2565,7 @@ function hideMessagePopup() {
 		filledColor: '#A5D75A',
 		hoverColor: '#EF9300',
 		disabledColor: '#7F7F7F',
+		readonlyColor: '#A5D75A',
 		message: true
 	};
 
@@ -2889,12 +2898,12 @@ function hideMessagePopup() {
 
 				var slide = cmtjq( this );
 
-				slide.addClass( 'slide' );
+				slide.addClass( 'slider-slide' );
 			});
 
 			// wrap the slides
-			var sliderHtml		= '<div class="slides-wrap">' + slider.html() + '</div>';
-			sliderHtml		   += '<div class="control control-left"></div><div class="control control-right"></div>';
+			var sliderHtml		= '<div class="slides-wrapper"><div class="slides-wrap">' + slider.html() + '</div></div>';
+			sliderHtml		   += '<div class="slider-control slider-control-left"></div><div class="slider-control slider-control-right"></div>';
 
 			slider.html( sliderHtml );
 		}
@@ -2903,10 +2912,10 @@ function hideMessagePopup() {
 		function normaliseSlides( slider ) {
 
 			// Calculate and set Slider Width
-			var sliderWidth		= slider.width();
-			var sliderHeight	= slider.height();
+			//var sliderWidth		= slider.width();
+			//var sliderHeight	= slider.height();
 			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 
 			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
@@ -2932,7 +2941,7 @@ function hideMessagePopup() {
 
 			if( slidesWrapper.width() < slider.width() ) {
 
-				if( null != settings.smallerContent ) {
+				if( null !== settings.smallerContent ) {
 
 					settings.smallerContent( slider, slidesWrapper );
 				}
@@ -2943,8 +2952,8 @@ function hideMessagePopup() {
 		function initControls( slider ) {
 
 			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
+			var leftControl		= slider.find( '.slider-control-left' );
+			var rightControl	= slider.find( '.slider-control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
 
@@ -2955,7 +2964,6 @@ function hideMessagePopup() {
 			}
 
 			// Show Controls
-			var controls 		= slider.find( '.controls' );
 			var lControlContent	= settings.lControlContent;
 			var rControlContent	= settings.rControlContent;
 
@@ -2966,13 +2974,14 @@ function hideMessagePopup() {
 			if( !settings.circular ) {
 
 				leftControl.hide();
+				rightControl.show();
 			}
 
 			leftControl.click( function() {
 
 				if( settings.circular ) {
 
-					showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+					showPrevSlide( slider );
 				}
 				else {
 
@@ -2984,7 +2993,7 @@ function hideMessagePopup() {
 
 				if( settings.circular ) {
 
-					showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+					showNextSlide( slider );
 				}
 				else {
 
@@ -2995,7 +3004,7 @@ function hideMessagePopup() {
 
 		function resetSlide( slider, slide ) {
 
-			if( null != settings.onSlideClick ) {
+			if( null !== settings.onSlideClick ) {
 
 				// remove existing click event
 				slide.unbind( 'click' );
@@ -3013,7 +3022,7 @@ function hideMessagePopup() {
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 			var slideWidth		= slidesSelector.width();
 			var currentPosition	= 0;
 			var filmstrip		= slider.find( '.slides-wrap' );
@@ -3024,7 +3033,6 @@ function hideMessagePopup() {
 			slidesSelector.each( function() {
 
 				cmtjq( this ).css( { 'left': currentPosition + 'px', 'right' : '' } );
-				cmtjq( this ).removeClass( 'active' );
 
 				currentPosition += slideWidth;
 			});
@@ -3033,13 +3041,13 @@ function hideMessagePopup() {
 		// Show Previous Slide on clicking next button
 		function showNextSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -3051,16 +3059,13 @@ function hideMessagePopup() {
 					duration: 500,
 					complete: function() {
 
-						var slider = cmtjq( this ).parent();
-
 						// Remove first and append to last
-						var slidesSelector	= slider.find( '.slide' );
+						var slidesSelector	= slider.find( '.slider-slide' );
 						var firstSlide		= slidesSelector.first();
 						firstSlide.insertAfter( slidesSelector.eq( slidesSelector.length - 1 ) );
 						firstSlide.css( 'right', -slideWidth );
 
 						resetSlides( slider );
-						//resetSlide( slider, firstSlide );
 					}
 				}
 			);
@@ -3068,7 +3073,7 @@ function hideMessagePopup() {
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -3077,13 +3082,13 @@ function hideMessagePopup() {
 		// Show Next Slide on clicking previous button
 		function showPrevSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
 			var filmstrip		= slider.find( '.slides-wrap' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -3092,7 +3097,7 @@ function hideMessagePopup() {
 			var lastSlide		= slidesSelector.last();
 			lastSlide.insertBefore( slidesSelector.eq(0) );
 			lastSlide.css( 'left', -slideWidth );
-			var activeSlide		= lastSlide.attr( 'slide' );
+			//var activeSlide		= lastSlide.attr( 'slide' );
 
 			// do animation - animate slider
 			filmstrip.animate(
@@ -3111,7 +3116,7 @@ function hideMessagePopup() {
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -3120,10 +3125,10 @@ function hideMessagePopup() {
 		// Move to left on clicking next button
 		function moveToLeft( slider ) {
 
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
+			var leftControl		= slider.find( '.slider-control-left' );
+			var rightControl	= slider.find( '.slider-control-right' );
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.outerWidth();
 			var filmstrip		= slider.find( '.slides-wrap' );
@@ -3169,16 +3174,16 @@ function hideMessagePopup() {
 		// Move to right on clicking prev button
 		function moveToRight( slider ) {
 
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
+			var leftControl		= slider.find( '.slider-control-left' );
+			var rightControl	= slider.find( '.slider-control-right' );
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.outerWidth();
 			var filmstrip		= slider.find( '.slides-wrap' );
 
-			var sliderWidth		= slider.outerWidth();
-			var filmWidth		= filmstrip.outerWidth();
+			//var sliderWidth		= slider.outerWidth();
+			//var filmWidth		= filmstrip.outerWidth();
 			var filmLeft		= filmstrip.position().left;
 
 			var moveBy			= slideWidth;
@@ -3236,6 +3241,7 @@ function hideMessagePopup() {
 	};
 
 })( jQuery );
+
 
 /**
  * Smooth Scroll plugin can be used to listen for hash tags to scroll smoothly to pre-defined page sections.

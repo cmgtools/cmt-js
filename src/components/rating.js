@@ -1,7 +1,3 @@
-/**
- * Rate is jQuery plugin to provide ratings.
- */
-
 ( function( cmtjq ) {
 
 	// TODO Generate html if not provided
@@ -35,6 +31,7 @@
 			var messages	= [];
 			var selected 	= ( rating.find( '.selected' ).length == 1 ) ? parseInt( rating.find( '.selected' ).attr( 'star' ) ) : 0;
 			var disabled	= rating.hasClass( 'disabled' );
+			var readOnly	= rating.hasClass( 'read-only' );
 
 			// Init Icons
 			rating.find( '.star' ).each( function() {
@@ -62,6 +59,9 @@
 
 					star.css( 'color', settings.disabledColor );
 				}
+				else if( readOnly ) {
+					star.css( 'color', settings.readonlyColor );
+				}
 				// Enabled - Prepare cache
 				else {
 
@@ -75,7 +75,7 @@
 				}
 			});
 
-			if( !disabled ) {
+			if( !disabled && !readOnly ) {
 
 				// Hover effect
 				rating.find( '.star' ).mouseover( function() {
@@ -165,6 +165,7 @@
 		filledColor: '#A5D75A',
 		hoverColor: '#EF9300',
 		disabledColor: '#7F7F7F',
+		readonlyColor: '#A5D75A',
 		message: true
 	};
 

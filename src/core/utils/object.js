@@ -25,5 +25,13 @@ cmt.utils.object = {
 		}
 
 		return obj;
+	},
+
+	// Check whether the given object has property
+	hasProperty: function( object, property ) {
+
+		var prototype = object.__proto__ || object.constructor.prototype;
+
+		return ( property in object ) && ( !( property in prototype ) || prototype[ property ] !== object[ property ] );
 	}
 };
