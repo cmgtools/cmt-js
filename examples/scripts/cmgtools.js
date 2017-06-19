@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-06-15
+ * CMGTools JS - v1.0.0-alpha1 - 2017-06-19
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -3801,7 +3801,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 		actionUrl	= app.config.basePath + actionUrl;
 	}
 
-	if( null != controller.currentRequest ) {
+	if( this.singleRequest && null != controller.currentRequest ) {
 
 		controller.currentRequest = controller.currentRequest.abort();
 		controller.currentRequest = null;
@@ -3809,7 +3809,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 
 	if( this.config.json ) {
 
-		controller.currentRequest = jQuery.ajax({
+		var request = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
@@ -3821,10 +3821,15 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 				app.processResponse( requestElement, controller, actionName, response );
 			}
 		});
+
+		if( this.singleRequest ) {
+
+			controller.currentRequest = request;
+		}
 	}
 	else {
 
-		controller.currentRequest = jQuery.ajax({
+		var request = controller.currentRequest = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
@@ -3835,6 +3840,11 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 				app.processResponse( requestElement, controller, actionName, response );
 			}
 		});
+
+		if( this.singleRequest ) {
+
+			controller.currentRequest = request;
+		}
 	}
 };
 
@@ -3952,6 +3962,7 @@ cmt.api.controllers.BaseController = function() {
 	this.requestTrigger	= null;	// Trigger Element
 	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
 	this.currentRequest	= null;	// Request in execution
+	this.singleRequest	= false; // Process one request at a time and abort previous requests
 };
 
 cmt.api.controllers.BaseController.prototype.init = function() {
