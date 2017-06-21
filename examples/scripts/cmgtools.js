@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-06-19
+ * CMGTools JS - v1.0.0-alpha1 - 2017-06-21
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -934,6 +934,7 @@ cmt.utils.ui = {
 			if( input.val() == 1 ) {
 
 				field.prop( 'checked', true );
+				field.val( 1 );
 			}
 
 			field.change( function() {
@@ -941,10 +942,12 @@ cmt.utils.ui = {
 				if( field.is( ':checked' ) ) {
 
  					input.val( 1 );
+					field.val( 1 );
  				}
  				else {
 
  					input.val( 0 );
+					field.val( 0 );
  				}
 			});
 		}
