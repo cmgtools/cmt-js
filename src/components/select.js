@@ -262,3 +262,122 @@
 	};
 
 })( jQuery );
+
+
+/**
+ * It's a custom select plugin used for multiselect options.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtMultiSelect = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSelect.defaults, options );
+		var dropDowns		= this;
+
+		// Iterate and initialise all the fox sliders
+		dropDowns.each( function() {
+
+			var dropDown = cmtjq( this );
+
+			init( dropDown );
+		});
+
+		// return control
+		return;
+
+		function init( dropDown ) {
+
+			// Generate Icon Html
+			var iconHtml	= '<span class="s-icon">';
+
+			if( null != settings.iconClass ) {
+
+				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
+			}
+
+			if( null != settings.iconHtml ) {
+
+				iconHtml	+= settings.iconHtml + "</span>";
+			}
+			else {
+
+				iconHtml	+= "</span>";
+			}
+
+			// Generate Select Html
+			var customHtml	= '<div class="cmt-selected"><span class="s-text">' + dropDown.attr( 'title' ) + '</span>' + iconHtml + '</div>';
+
+			// Prepend
+			dropDown.prepend( customHtml );
+
+			var selectList	= dropDown.find( '.cmt-select-list' );
+
+			// Hide List by default
+			selectList.hide();
+
+			// Detect whether disabled
+			var disabled = dropDown.attr( 'disabled' );
+
+			if( disabled == 'disabled' || disabled ) {
+
+				dropDown.addClass( 'disabled' );
+			}
+			else {
+
+				// Add listener to selected val
+				dropDown.find( '.cmt-selected' ).click( function( e ) {
+
+					if( !selectList.is( ':visible' ) ) {
+
+						selectList.slideDown( 'slow' );
+
+						jQuery( document ).on( 'keyup', function( e ) {
+
+							var character = String.fromCharCode( e.keyCode );
+
+							selectList.children( 'li' ).each( function() {
+
+								var item = jQuery( this );
+
+								if( item.html().substr( 0, 1 ).toUpperCase() == character ) {
+
+									selectList.animate( { scrollTop: item.offset().top - selectList.offset().top + selectList.scrollTop() } );
+
+									return false;
+							    }
+							});
+						});
+					}
+					else {
+
+						 selectList.slideUp();
+					}
+
+					e.stopPropagation();
+				});
+
+				cmtjq( document ).on( 'click', function( e ) {
+
+			        if ( cmtjq( e.target ).closest( selectList ).length === 0 ) {
+
+			            selectList.slideUp();
+
+			            jQuery( document ).unbind( 'keyup' );
+			        }
+				});
+			}
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtSelect.defaults = {
+		wrapperClass: null,
+		iconClass: null,
+		iconHtml: null
+	};
+
+})( jQuery );
