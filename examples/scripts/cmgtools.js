@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-06-22
+ * CMGTools JS - v1.0.0-alpha1 - 2017-06-28
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -3020,12 +3020,12 @@ function hideMessagePopup() {
 
 				var slide = cmtjq( this );
 
-				slide.addClass( 'slider-slide' );
+				slide.addClass( 'cmt-slider-slide' );
 			});
 
 			// wrap the slides
-			var sliderHtml		= '<div class="slides-wrapper"><div class="slides-wrap">' + slider.html() + '</div></div>';
-			sliderHtml		   += '<div class="slider-control slider-control-left"></div><div class="slider-control slider-control-right"></div>';
+			var sliderHtml		= '<div class="cmt-slider-slides-wrap"><div class="cmt-slider-slides">' + slider.html() + '</div></div>';
+			sliderHtml		   += '<div class="cmt-slider-control cmt-slider-control-left"></div><div class="cmt-slider-control cmt-slider-control-right"></div>';
 
 			slider.html( sliderHtml );
 		}
@@ -3036,8 +3036,8 @@ function hideMessagePopup() {
 			// Calculate and set Slider Width
 			//var sliderWidth		= slider.width();
 			//var sliderHeight	= slider.height();
-			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 
 			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
@@ -3073,9 +3073,9 @@ function hideMessagePopup() {
 		// Initialise the Slider controls
 		function initControls( slider ) {
 
-			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var leftControl		= slider.find( '.slider-control-left' );
-			var rightControl	= slider.find( '.slider-control-right' );
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
 
@@ -3144,10 +3144,10 @@ function hideMessagePopup() {
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var slideWidth		= slidesSelector.width();
 			var currentPosition	= 0;
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// reset filmstrip
 			filmstrip.css( { left: 0 + 'px', 'right' : '' } );
@@ -3163,10 +3163,10 @@ function hideMessagePopup() {
 		// Show Previous Slide on clicking next button
 		function showNextSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
 			if( null !== settings.preSlideChange ) {
@@ -3182,7 +3182,7 @@ function hideMessagePopup() {
 					complete: function() {
 
 						// Remove first and append to last
-						var slidesSelector	= slider.find( '.slider-slide' );
+						var slidesSelector	= slider.find( '.cmt-slider-slide' );
 						var firstSlide		= slidesSelector.first();
 						firstSlide.insertAfter( slidesSelector.eq( slidesSelector.length - 1 ) );
 						firstSlide.css( 'right', -slideWidth );
@@ -3204,10 +3204,10 @@ function hideMessagePopup() {
 		// Show Next Slide on clicking previous button
 		function showPrevSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
 			if( null !== settings.preSlideChange ) {
@@ -3247,13 +3247,13 @@ function hideMessagePopup() {
 		// Move to left on clicking next button
 		function moveToLeft( slider ) {
 
-			var leftControl		= slider.find( '.slider-control-left' );
-			var rightControl	= slider.find( '.slider-control-right' );
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
 
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.outerWidth();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			var sliderWidth		= slider.outerWidth();
 			var filmWidth		= filmstrip.outerWidth();
@@ -3296,13 +3296,13 @@ function hideMessagePopup() {
 		// Move to right on clicking prev button
 		function moveToRight( slider ) {
 
-			var leftControl		= slider.find( '.slider-control-left' );
-			var rightControl	= slider.find( '.slider-control-right' );
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
 
-			var slidesSelector	= slider.find( '.slider-slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.outerWidth();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			//var sliderWidth		= slider.outerWidth();
 			//var filmWidth		= filmstrip.outerWidth();
