@@ -27,21 +27,21 @@
 
 		function init( form ) {
 
-			form.find( ".btn-edit" ).click( function() {
+			form.find( '.box-form-trigger' ).click( function() {
 
-				var parent	= jQuery( this ).closest( ".box-form" );
-				var info 	= parent.find( ".wrap-info" );
-				var form 	= parent.find( ".wrap-form" );
+				var parent	= jQuery( this ).closest( '.box-form' );
+				var info 	= parent.find( '.box-form-info-wrap' );
+				var content = parent.find( '.box-form-content-wrap' );
 
-				if( info.is( ":visible" ) ) {
+				if( info.is( ':visible' ) ) {
 
 					info.hide();
-					form.fadeIn( "slow" );
+					content.fadeIn( 'slow' );
 				}
 				else {
 
-					info.fadeIn( "fast" );
-					form.hide();
+					info.fadeIn( 'fast' );
+					content.hide();
 				}
 			});
 		}

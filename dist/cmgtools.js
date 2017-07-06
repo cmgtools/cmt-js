@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-06-28
+ * CMGTools JS - v1.0.0-alpha1 - 2017-07-06
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -722,21 +722,21 @@ cmt.utils.ui = {
 		function init( block ) {
 
 			// -- Apply Block Specific Settings
-			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
+			if( cmtjq.inArray( block.attr( 'id' ), blocksKeys ) >= 0 ) {
 
-				var blockConfig				= blocksConfig[ block.attr( "id" ) ];
-				var height					= blockConfig[ "height" ];
-				var fullHeight				= blockConfig[ "fullHeight" ];
-				var halfHeight				= blockConfig[ "halfHeight" ];
-				var heightAuto				= blockConfig[ "heightAuto" ];
-				var heightAutoMobile		= blockConfig[ "heightAutoMobile" ];
-				var heightAutoMobileWidth	= blockConfig[ "heightAutoMobileWidth" ];
-				var css 					= blockConfig[ "css" ];
+				var blockConfig				= blocksConfig[ block.attr( 'id' ) ];
+				var height					= blockConfig[ 'height' ];
+				var fullHeight				= blockConfig[ 'fullHeight' ];
+				var halfHeight				= blockConfig[ 'halfHeight' ];
+				var heightAuto				= blockConfig[ 'heightAuto' ];
+				var heightAutoMobile		= blockConfig[ 'heightAutoMobile' ];
+				var heightAutoMobileWidth	= blockConfig[ 'heightAutoMobileWidth' ];
+				var css 					= blockConfig[ 'css' ];
 
 				// Check whether pre-defined height is required
 				if( null != height && height ) {
 
-					block.css( { 'height': height + "px" } );
+					block.css( { 'height': height + 'px' } );
 				}
 
 				// Apply auto height
@@ -744,18 +744,18 @@ cmt.utils.ui = {
 
 					if( null != height && height ) {
 
-						block.css( { 'height': 'auto', 'min-height': height + "px" } );
+						block.css( { 'height': 'auto', 'min-height': height + 'px' } );
 					}
 					else if( null != fullHeight && fullHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else if( null != halfHeight && halfHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
-						
+
 						block.css( { 'height': 'auto' } );
 					}
 				}
@@ -763,13 +763,13 @@ cmt.utils.ui = {
 				// Apply Full Height
 				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
-					block.css( { 'height': screenHeight + "px" } );
+					block.css( { 'height': screenHeight + 'px' } );
 				}
 
 				// Apply Half Height
 				if( null == height && null == heightAuto && ( null != halfHeight && halfHeight ) ) {
 
-					block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+					block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 				}
 
 				// Check whether min height and height auto is required for mobile to handle overlapped content
@@ -777,20 +777,20 @@ cmt.utils.ui = {
 
 					if( window.innerWidth <= heightAutoMobileWidth ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 
-						var contentWrap = block.children( ".block-wrap-content" );
+						var contentWrap = block.children( '.block-content-wrap' );
 
-						if( contentWrap.hasClass( "valign-center" ) ) {
+						if( contentWrap.hasClass( 'valign-center' ) ) {
 
-							contentWrap.removeClass( "valign-center" );
+							contentWrap.removeClass( 'valign-center' );
 						}
 					}
 				}
 
 				// adjust content wrap and block height in case content height exceeds
-				var contentWrap	= block.find( ".block-wrap-content" );
-				var content		= block.find( ".block-content" );
+				var contentWrap	= block.find( '.block-content-wrap' );
+				var content		= block.find( '.block-content' );
 
 				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
 
@@ -818,11 +818,11 @@ cmt.utils.ui = {
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': screenHeight + "px" } );
+						block.css( { 'height': screenHeight + 'px' } );
 					}
 				}
 
@@ -831,11 +831,11 @@ cmt.utils.ui = {
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 					}
 				}
 			}
@@ -848,14 +848,14 @@ cmt.utils.ui = {
 		    var winTop 		= cmtjq( window ).scrollTop();
 		    var winBottom 	= winTop + winHeight;
 		    var winCurrent 	= winTop + winHeight / 2;
-		    
+
 		    blocks.each( function( i ) {
 
 		        var block 			= cmtjq( this );
 		        var blockHeight 	= block.height();
 		        var blockTop 		= block.offset().top;
 		        var blockBottom 	= blockTop + blockHeight;
-		        var background		= block.children( ".block-bkg-parallax" );
+		        var background		= block.children( '.block-bkg-parallax' );
 
 		        if( null != background && background.length > 0 && winBottom > blockTop && winTop < blockBottom ) {
 
@@ -868,7 +868,7 @@ cmt.utils.ui = {
 		            blockBottom 		= blockBottom + heightOverflow;
 		            var value 			= min + (max - min) * ( winCurrent - blockTop ) / ( blockBottom - blockTop );
 
-		            background.css( "background-position", "50% " + value + "px" );
+		            background.css( 'background-position', '50% ' + value + 'px' );
 		        }
 		    });
 		}
@@ -1316,21 +1316,21 @@ cmt.utils.ui = {
 
 		function init( form ) {
 
-			form.find( ".btn-edit" ).click( function() {
+			form.find( '.box-form-trigger' ).click( function() {
 
-				var parent	= jQuery( this ).closest( ".box-form" );
-				var info 	= parent.find( ".wrap-info" );
-				var form 	= parent.find( ".wrap-form" );
+				var parent	= jQuery( this ).closest( '.box-form' );
+				var info 	= parent.find( '.box-form-info-wrap' );
+				var content = parent.find( '.box-form-content-wrap' );
 
-				if( info.is( ":visible" ) ) {
+				if( info.is( ':visible' ) ) {
 
 					info.hide();
-					form.fadeIn( "slow" );
+					content.fadeIn( 'slow' );
 				}
 				else {
 
-					info.fadeIn( "fast" );
-					form.hide();
+					info.fadeIn( 'fast' );
+					content.hide();
 				}
 			});
 		}
@@ -1342,6 +1342,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * Grid
@@ -2378,28 +2379,29 @@ function closePopup( popupSelector ) {
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#popup-error .popup-content" ).html( errors );
+	jQuery( '#popup-error .popup-content' ).html( errors );
 
-	showPopup( "#popup-error" );
+	showPopup( '#popup-error' );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#popup-error" );
+	closePopup( '#popup-error' );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#popup-message .popup-content" ).html( message );
+	jQuery( '#popup-message .popup-content' ).html( message );
 
-	showPopup( "#popup-message" );
+	showPopup( '#popup-message' );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#popup-message" );
+	closePopup( '#popup-message' );
 }
+
 
 ( function( cmtjq ) {
 

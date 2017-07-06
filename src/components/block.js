@@ -39,21 +39,21 @@
 		function init( block ) {
 
 			// -- Apply Block Specific Settings
-			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
+			if( cmtjq.inArray( block.attr( 'id' ), blocksKeys ) >= 0 ) {
 
-				var blockConfig				= blocksConfig[ block.attr( "id" ) ];
-				var height					= blockConfig[ "height" ];
-				var fullHeight				= blockConfig[ "fullHeight" ];
-				var halfHeight				= blockConfig[ "halfHeight" ];
-				var heightAuto				= blockConfig[ "heightAuto" ];
-				var heightAutoMobile		= blockConfig[ "heightAutoMobile" ];
-				var heightAutoMobileWidth	= blockConfig[ "heightAutoMobileWidth" ];
-				var css 					= blockConfig[ "css" ];
+				var blockConfig				= blocksConfig[ block.attr( 'id' ) ];
+				var height					= blockConfig[ 'height' ];
+				var fullHeight				= blockConfig[ 'fullHeight' ];
+				var halfHeight				= blockConfig[ 'halfHeight' ];
+				var heightAuto				= blockConfig[ 'heightAuto' ];
+				var heightAutoMobile		= blockConfig[ 'heightAutoMobile' ];
+				var heightAutoMobileWidth	= blockConfig[ 'heightAutoMobileWidth' ];
+				var css 					= blockConfig[ 'css' ];
 
 				// Check whether pre-defined height is required
 				if( null != height && height ) {
 
-					block.css( { 'height': height + "px" } );
+					block.css( { 'height': height + 'px' } );
 				}
 
 				// Apply auto height
@@ -61,18 +61,18 @@
 
 					if( null != height && height ) {
 
-						block.css( { 'height': 'auto', 'min-height': height + "px" } );
+						block.css( { 'height': 'auto', 'min-height': height + 'px' } );
 					}
 					else if( null != fullHeight && fullHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else if( null != halfHeight && halfHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
-						
+
 						block.css( { 'height': 'auto' } );
 					}
 				}
@@ -80,13 +80,13 @@
 				// Apply Full Height
 				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
-					block.css( { 'height': screenHeight + "px" } );
+					block.css( { 'height': screenHeight + 'px' } );
 				}
 
 				// Apply Half Height
 				if( null == height && null == heightAuto && ( null != halfHeight && halfHeight ) ) {
 
-					block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+					block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 				}
 
 				// Check whether min height and height auto is required for mobile to handle overlapped content
@@ -94,20 +94,20 @@
 
 					if( window.innerWidth <= heightAutoMobileWidth ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 
-						var contentWrap = block.children( ".block-wrap-content" );
+						var contentWrap = block.children( '.block-content-wrap' );
 
-						if( contentWrap.hasClass( "valign-center" ) ) {
+						if( contentWrap.hasClass( 'valign-center' ) ) {
 
-							contentWrap.removeClass( "valign-center" );
+							contentWrap.removeClass( 'valign-center' );
 						}
 					}
 				}
 
 				// adjust content wrap and block height in case content height exceeds
-				var contentWrap	= block.find( ".block-wrap-content" );
-				var content		= block.find( ".block-content" );
+				var contentWrap	= block.find( '.block-content-wrap' );
+				var content		= block.find( '.block-content' );
 
 				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
 
@@ -135,11 +135,11 @@
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': screenHeight + "px" } );
+						block.css( { 'height': screenHeight + 'px' } );
 					}
 				}
 
@@ -148,11 +148,11 @@
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 					}
 				}
 			}
@@ -165,14 +165,14 @@
 		    var winTop 		= cmtjq( window ).scrollTop();
 		    var winBottom 	= winTop + winHeight;
 		    var winCurrent 	= winTop + winHeight / 2;
-		    
+
 		    blocks.each( function( i ) {
 
 		        var block 			= cmtjq( this );
 		        var blockHeight 	= block.height();
 		        var blockTop 		= block.offset().top;
 		        var blockBottom 	= blockTop + blockHeight;
-		        var background		= block.children( ".block-bkg-parallax" );
+		        var background		= block.children( '.block-bkg-parallax' );
 
 		        if( null != background && background.length > 0 && winBottom > blockTop && winTop < blockBottom ) {
 
@@ -185,7 +185,7 @@
 		            blockBottom 		= blockBottom + heightOverflow;
 		            var value 			= min + (max - min) * ( winCurrent - blockTop ) / ( blockBottom - blockTop );
 
-		            background.css( "background-position", "50% " + value + "px" );
+		            background.css( 'background-position', '50% ' + value + 'px' );
 		        }
 		    });
 		}

@@ -104,25 +104,25 @@ function closePopup( popupSelector ) {
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#popup-error .popup-content" ).html( errors );
+	jQuery( '#popup-error .popup-content' ).html( errors );
 
-	showPopup( "#popup-error" );
+	showPopup( '#popup-error' );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#popup-error" );
+	closePopup( '#popup-error' );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#popup-message .popup-content" ).html( message );
+	jQuery( '#popup-message .popup-content' ).html( message );
 
-	showPopup( "#popup-message" );
+	showPopup( '#popup-message' );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#popup-message" );
+	closePopup( '#popup-message' );
 }
