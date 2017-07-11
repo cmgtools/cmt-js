@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-07-06
+ * CMGTools JS - v1.0.0-alpha1 - 2017-07-11
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -2035,13 +2035,13 @@ cmt.utils.ui = {
 
 			var loginBox	= box.find( '.box-login' );
 			var signupBox	= box.find( '.box-signup' );
-			var forgotBox	= box.find( '.box-forgot-password' );
+			var forgotBox	= box.find( '.box-forgot' );
 
 			box.find( '.btn-login' ).click( function( event ) {
 
 				event.preventDefault();
 
-				if( loginBox.is( ":visible" ) ) {
+				if( loginBox.is( ':visible' ) ) {
 
 					loginBox.slideUp( 'fast' );
 				}
@@ -2053,11 +2053,11 @@ cmt.utils.ui = {
 				}
 			});
 
-			box.find( '.btn-forgot-password' ).click( function( event ) {
+			box.find( '.btn-forgot' ).click( function( event ) {
 
 				event.preventDefault();
 
-				if( forgotBox.is( ":visible" ) ) {
+				if( forgotBox.is( ':visible' ) ) {
 
 					forgotBox.slideUp( 'fast' );
 				}
@@ -2074,7 +2074,7 @@ cmt.utils.ui = {
 
 				event.preventDefault();
 
-				if( signupBox.is( ":visible" ) ) {
+				if( signupBox.is( ':visible' ) ) {
 
 					signupBox.slideUp( 'fast' );
 				}
@@ -2094,6 +2094,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * Collapsible Menu plugin used to manage collapsible parent with our without children.

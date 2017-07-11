@@ -29,13 +29,13 @@
 
 			var loginBox	= box.find( '.box-login' );
 			var signupBox	= box.find( '.box-signup' );
-			var forgotBox	= box.find( '.box-forgot-password' );
+			var forgotBox	= box.find( '.box-forgot' );
 
 			box.find( '.btn-login' ).click( function( event ) {
 
 				event.preventDefault();
 
-				if( loginBox.is( ":visible" ) ) {
+				if( loginBox.is( ':visible' ) ) {
 
 					loginBox.slideUp( 'fast' );
 				}
@@ -47,11 +47,11 @@
 				}
 			});
 
-			box.find( '.btn-forgot-password' ).click( function( event ) {
+			box.find( '.btn-forgot' ).click( function( event ) {
 
 				event.preventDefault();
 
-				if( forgotBox.is( ":visible" ) ) {
+				if( forgotBox.is( ':visible' ) ) {
 
 					forgotBox.slideUp( 'fast' );
 				}
@@ -68,7 +68,7 @@
 
 				event.preventDefault();
 
-				if( signupBox.is( ":visible" ) ) {
+				if( signupBox.is( ':visible' ) ) {
 
 					signupBox.slideUp( 'fast' );
 				}
