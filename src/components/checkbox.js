@@ -29,6 +29,11 @@
 
 		function init( checkbox ) {
 
+			if( checkbox.is( '[disabled]' ) ) {
+
+				return;
+			}
+
 			var field 	= checkbox.find( "input[type='checkbox']" );
 			var input 	= checkbox.find( "input[type='hidden']" );
 

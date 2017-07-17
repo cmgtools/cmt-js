@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-07-11
+ * CMGTools JS - v1.0.0-alpha1 - 2017-07-17
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -928,6 +928,11 @@ cmt.utils.ui = {
 
 		function init( checkbox ) {
 
+			if( checkbox.is( '[disabled]' ) ) {
+
+				return;
+			}
+
 			var field 	= checkbox.find( "input[type='checkbox']" );
 			var input 	= checkbox.find( "input[type='hidden']" );
 
@@ -1374,7 +1379,7 @@ cmt.utils.ui = {
 		function init( grid ) {
 
 			// Sorting
-			grid.find( '.wrap-sort select' ).change( function() {
+			grid.find( '.grid-sort select' ).change( function() {
 
 				var pageUrl		= window.location.href;
 				var selected 	= jQuery( this ).val();
@@ -1395,13 +1400,13 @@ cmt.utils.ui = {
 			});
 
 			// Filters
-			grid.find( '.wrap-filters select' ).change( function() {
+			grid.find( '.grid-filters select' ).change( function() {
 
 				var pageUrl		= window.location.href;
 				var selected 	= jQuery( this ).val();
 				var option		= jQuery( this ).find( ':selected' );
 				var column		= option.attr( 'data-col' );
-				var cols		= jQuery( '.wrap-filters' ).attr( 'data-cols' );
+				var cols		= jQuery( this ).closest( '.grid-filters' ).attr( 'data-cols' );
 				cols			= cols.split( ',' );
 
 				// Clear Filter
@@ -1422,7 +1427,7 @@ cmt.utils.ui = {
 			// Reporting
 			grid.find( '.trigger-report-toggle' ).click( function() {
 
-				grid.find( '.grid-report' ).fadeToggle( 'slow' );
+				grid.find( '.grid-report-wrap' ).fadeToggle( 'slow' );
 
 				jQuery( this ).toggleClass( 'active' );
 			});
@@ -1499,19 +1504,19 @@ cmt.utils.ui = {
 
 				if( jQuery( this ).is( ':checked' ) ) {
 
- 					grid.find( '.grid-bulk' ).prop( 'checked', true );
+ 					grid.find( '.grid-bulk-single' ).prop( 'checked', true );
  				}
  				else {
 
- 					grid.find( '.grid-bulk' ).prop( 'checked', false );
+ 					grid.find( '.grid-bulk-single' ).prop( 'checked', false );
  				}
 			});
 
-			grid.find( '.grid-bulk' ).change( function() {
+			grid.find( '.grid-bulk-single' ).change( function() {
 
 				var element 	= jQuery( this );
 				var id 			= element.attr( 'data-id' );
-				var selector	= '.grid-bulk[data-id=' + id + ']';
+				var selector	= '.grid-bulk-single[data-id=' + id + ']';
 
 				if( jQuery( this ).is( ':checked' ) ) {
 
@@ -1524,19 +1529,19 @@ cmt.utils.ui = {
  				}
 			});
 
-			grid.find( '.wrap-bulk select' ).change( function() {
+			grid.find( '.grid-bulk select' ).change( function() {
 
 				var option		= jQuery( this ).find( ':selected' );
 				var column		= option.attr( 'data-col' );
 				var popup		= jQuery( this ).attr( 'popup' );
 				var ids			= [];
-				var selected	= grid.find( '.grid-bulk:checked' );
+				var selected	= grid.find( '.grid-bulk-single:checked' );
 
 				if( selected.length > 0 ) {
 
-					jQuery( '#' + popup ).find( '.action' ).html( jQuery( this ).find(":selected").text() );
+					jQuery( '#' + popup ).find( '.action' ).html( jQuery( this ).find( ':selected' ).text() );
 
-					grid.find( '.grid-bulk:checked' ).each( function( index, element ) {
+					grid.find( '.grid-bulk-single:checked' ).each( function( index, element ) {
 
 						var id = jQuery( this ).attr( 'data-id' );
 
@@ -1566,15 +1571,14 @@ cmt.utils.ui = {
 
 				if( value === 'select' ) {
 
-					pageUrl = cmt.utils.data.removeParam( pageUrl, 'limit' );
+					pageUrl = cmt.utils.data.removeParam( pageUrl, settings.pageParam );
+					pageUrl = cmt.utils.data.removeParam( pageUrl, settings.pageLimitParam );
 				}
 				else {
 
-					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'limit', value );
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, settings.pageParam, 1 );
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, settings.pageLimitParam, value );
 				}
-
-				pageUrl = cmt.utils.data.removeParam( pageUrl, 'page' );
-				pageUrl = cmt.utils.data.removeParam( pageUrl, 'per-page' );
 
 				window.location	= pageUrl;
 			});
@@ -1584,30 +1588,30 @@ cmt.utils.ui = {
 
 				var trigger = jQuery( this );
 
-				if( trigger.hasClass( 'grid-view-table' ) ) {
+				if( trigger.hasClass( 'grid-view-data' ) ) {
 
-					trigger.removeClass( 'grid-view-table ' + settings.cardIcon );
+					trigger.removeClass( 'grid-view-data ' + settings.cardIcon );
 					trigger.addClass( 'grid-view-card ' + settings.listIcon );
 
-					grid.find( '.grid-rows' ).fadeOut( 'fast' );
-					grid.find( '.grid-cards' ).fadeIn( 'fast' );
+					grid.find( '.grid-rows-wrap' ).fadeOut( 'fast' );
+					grid.find( '.grid-cards-wrap' ).fadeIn( 'fast' );
 
 					if( updateUserMeta ) {
 
-						updateUserMeta( 'grid-layout', 'card' );
+						updateUserMeta( 'gridLayout', 'card' );
 					}
 				}
 				else if( trigger.hasClass( 'grid-view-card' ) ) {
 
 					trigger.removeClass( 'grid-view-card ' + settings.listIcon );
-					trigger.addClass( 'grid-view-table ' + settings.cardIcon );
+					trigger.addClass( 'grid-view-data ' + settings.cardIcon );
 
-					grid.find( '.grid-cards' ).fadeOut( 'fast' );
-					grid.find( '.grid-rows' ).fadeIn( 'fast' );
+					grid.find( '.grid-cards-wrap' ).fadeOut( 'fast' );
+					grid.find( '.grid-rows-wrap' ).fadeIn( 'fast' );
 
 					if( updateUserMeta ) {
 
-						updateUserMeta( 'grid-layout', 'table' );
+						updateUserMeta( 'gridLayout', 'data' );
 					}
 				}
 			});
@@ -1647,10 +1651,13 @@ cmt.utils.ui = {
 	cmtjq.fn.cmtGrid.defaults = {
 		// default config
 		cardIcon: 'cmti cmti-grid',
-		listIcon: 'cmti cmti-list'
+		listIcon: 'cmti cmti-list',
+		pageParam: 'page',
+		pageLimitParam: 'per-page'
 	};
 
 })( jQuery );
+
 
 /**
  * Perspective Header plugin can be used to change header styling by adding header-small class on scolling a pre-defined amount.
