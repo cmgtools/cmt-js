@@ -1000,36 +1000,38 @@ cmt.utils.ui = {
 		function init( fileUploader ) {
 
 			// Show/Hide file chooser - either of the option must exist to choose file
-			var btnShowChooser	= fileUploader.find( ".btn-show-chooser, .btn-direct-chooser" );
+			var btnChooser	= fileUploader.find( '.btn-chooser' );
 
-			if( btnShowChooser.length > 0 ) {
+			if( btnChooser.length > 0 ) {
 
-				btnShowChooser.click( function() {
+				btnChooser.click( function() {
 
-					// Show Chooser
-					fileUploader.find( ".wrap-chooser" ).toggle( "slow" );
+					// Swap Chooser and Dragger
+					fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
+					fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
 
 					// Hide Postaction
-					fileUploader.find( ".post-action" ).hide();
+					fileUploader.find( '.post-action' ).hide();
 
 					// Clear Old Values
-					if( cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
+					if( cmt.utils.browser.isCanvas() && fileUploader.attr( 'type' ) == 'image' ) {
 
-						fileUploader.find( ".preview canvas" ).hide();
+						fileUploader.find( '.file-dragger canvas' ).hide();
 					}
 
-					fileUploader.find( ".chooser .input, .direct-chooser .input" ).val("");
+					// Reset Chooser
+					fileUploader.find( '.file-chooser .input' ).val( "" );
 
-					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
-	
+					var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
+
 					// Modern Uploader
 					if ( cmt.utils.browser.isFileApi() ) {
-	
+
 						progressContainer.css( "width", "0%" );
 					}
 					// Form Data Uploader
 					else if( cmt.utils.browser.isFormData() ) {
-	
+
 						progressContainer.html( "" );
 					}
 				});
@@ -1039,7 +1041,7 @@ cmt.utils.ui = {
 			if ( cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
-				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
+				var inputField = fileUploader.find( '.file-chooser .input' );
 
 				inputField.change( function( event ) {
 
@@ -1047,18 +1049,18 @@ cmt.utils.ui = {
 				});
 
 				// Modern way using Drag n Drop
-				var dragElement = fileUploader.find( ".preview .wrap-drag" );
+				var dragElement = fileUploader.find( '.file-dragger .drag-wrap' );
 
-				dragElement.bind( 'dragover', function( event ) { 
+				dragElement.bind( 'dragover', function( event ) {
 
 					handleDragging( event );
 				});
-		
-				dragElement.bind( 'dragleave', function( event ) { 
-		
+
+				dragElement.bind( 'dragleave', function( event ) {
+
 					handleDragging( event );
 				});
-		
+
 				dragElement.bind( 'drop', function( event ) {
 
 					handleFile( event, fileUploader );
@@ -1067,13 +1069,13 @@ cmt.utils.ui = {
 			// Form Data Uploader
 			else if( cmt.utils.browser.isFormData() ) {
 
-				var directory	= fileUploader.attr( "directory" );
-				var type		= fileUploader.attr( "type" );
-				var inputField 	= fileUploader.find( ".chooser .input, .direct-chooser .input" );
+				var directory	= fileUploader.attr( 'directory' );
+				var type		= fileUploader.attr( 'type' );
+				var inputField 	= fileUploader.find( '.file-chooser .input' );
 
 				inputField.change( function( event ) {
 
-					uploadTraditionalFile( fileUploader, directory, type ); 
+					uploadTraditionalFile( fileUploader, directory, type );
 				} );
 			}
 		}
@@ -1089,8 +1091,8 @@ cmt.utils.ui = {
 
 		function handleFile( event, fileUploader ) {
 
-			var directory	= fileUploader.attr( "directory" );
-			var type		= fileUploader.attr( "type" );
+			var directory	= fileUploader.attr( 'directory' );
+			var type		= fileUploader.attr( 'type' );
 
 			// cancel event and add hover styling
 			handleDragging( event );
@@ -1099,9 +1101,9 @@ cmt.utils.ui = {
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && cmt.utils.browser.isCanvas() && type == "image" ) {
+			if( settings.preview && cmt.utils.browser.isCanvas() && type == 'image' ) {
 
-				var canvas		= fileUploader.find( ".preview canvas" );
+				var canvas	= fileUploader.find( '.file-dragger canvas' );
 
 				canvas.show();
 
@@ -1117,7 +1119,7 @@ cmt.utils.ui = {
 			var xhr 				= new XMLHttpRequest();
 			var fileType			= file.type.toLowerCase();
 			var isValidFile			= jQuery.inArray( fileType, settings.fileFormats );
-			var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
 			var formData 			= new FormData();
 
 			// append form data
@@ -1155,7 +1157,7 @@ cmt.utils.ui = {
 
 								if( settings.uploadListener ) {
 
-									settings.uploadListener( fileUploader.attr( "id" ), directory, type, responseData );
+									settings.uploadListener( fileUploader, directory, type, responseData );
 								}
 								else {
 
@@ -1163,7 +1165,7 @@ cmt.utils.ui = {
 								}
 							}
 							else {
-								
+
 								var responseData	= jsonResponse[ 'errors' ];
 
 								alert( responseData.error );
@@ -1187,14 +1189,14 @@ cmt.utils.ui = {
 		// TODO; Test it well
 		function uploadTraditionalFile( fileUploader, directory, type ) {
 
-			var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
-			var fileList			= fileUploader.find( ".chooser .input, .direct-chooser .input" );
-			var file 				= fileList.files[0];
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
+			var fileList			= fileUploader.find( '.file-chooser .input' );
+			var file 				= fileList.files[ 0 ];
 			var formData 			= new FormData();
 			fileName 				= file.name;
 
 			// Show progress
-			progressContainer.html( "Uploading file" );
+			progressContainer.html( 'Uploading file' );
 
 			formData.append( 'file', file );
 
@@ -1210,22 +1212,24 @@ cmt.utils.ui = {
 			  dataType:		'json',
 			}).done( function( response ) {
 
-				progress.html( "File uploaded" );
+				progress.html( 'File uploaded' );
 
 				if( response['result'] == 1 ) {
 
 					if( settings.uploadListener ) {
 
-						settings.uploadListener( fileUploader.attr( "id" ), directory, type, response['data'] );
+						settings.uploadListener( fileUploader, directory, type, response[ 'data' ] );
 					}
 					else {
 
-						fileUploaded( fileUploader, directory, type, response['data'] );
+						fileUploaded( fileUploader, directory, type, response[ 'data' ] );
 					}
 				}
 				else {
 
-					alert( "File upload failed." );
+					var errors	= response[ 'errors' ];
+
+					alert( errors.error );
 				}
 			});
 		}
@@ -1236,50 +1240,50 @@ cmt.utils.ui = {
 			var fileName	= result[ 'name' ] + "." + result[ 'extension' ];
 
 			switch( type ) {
-				
+
 				case "image": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
-	
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
+
+					var fileFields	= fileUploader.find( '.file-info' );
+
+					fileFields.children( '.name' ).val( result[ 'name' ] );
+					fileFields.children( '.extension' ).val( result[ 'extension' ] );
+					fileFields.children( '.change' ).val( 1 );
 
 					break;
 				}
 				case "video": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
-					
+					var fileFields	= fileUploader.find( '.file-info' );
+
+					fileFields.children( '.name' ).val( result[ 'name' ] );
+					fileFields.children( '.extension' ).val( result[ 'extension' ] );
+					fileFields.children( '.change' ).val( 1 );
+
 					break;
 				}
 				case "document":
-				case "compressed": 
+				case "compressed":
 				case "shared": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
-					
+					var fileFields	= fileUploader.find( '.file-info' );
+
+					fileFields.children( '.name' ).val( result[ 'name' ] );
+					fileFields.children( '.extension' ).val( result[ 'extension' ] );
+					fileFields.children( '.change' ).val( 1 );
+
 					break;
 				}
 			}
 
-			// Show Hide
-			fileUploader.find( ".wrap-chooser" ).hide();
-			fileUploader.find( ".post-action" ).show();
+			// Swap Chooser and Dragger
+			fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
+			fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
 		}
 	};
 
@@ -1291,6 +1295,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * Form Info is a small plugin to flip form information and form fields. The form information can be formed only by labels whereas fields can be formed using labels and form elements.
