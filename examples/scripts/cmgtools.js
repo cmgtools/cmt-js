@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-07-17
+ * CMGTools JS - v1.0.0-alpha1 - 2017-07-23
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1767,14 +1767,14 @@ cmt.utils.ui = {
 
 				if( !element.hasClass( 'disabled' ) ) {
 
-					picker.find( '.icon-sets' ).slideToggle( 'slow' );
+					picker.find( '.picker-icon-sets' ).slideToggle( 'slow' );
 				}
 			});
 
-			picker.find( '.icon-sets .wrap-icon' ).click( function() {
+			picker.find( '.picker-icon-sets .picker-icon-wrap' ).click( function() {
 
 				var element 	= jQuery( this );
-				var iconSets	= picker.find( '.icon-sets' );
+				var iconSets	= picker.find( '.picker-icon-sets' );
 				var sIcon		= element.find( '.picker-icon' );
 				var iconClass	= 'picker-icon ' + sIcon.attr( 'icon' );
 				var tIcon		= picker.find( '.choose-icon' );
@@ -1795,6 +1795,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * LatLongPicker allows us to set marker based on given longitude, latidude.
@@ -2280,6 +2281,87 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
+/**
+ * The Popout Group plugin can be used to show popouts using popout trigger.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtPopoutGroup = function( options ) {
+
+		// == Init == //
+
+		// Configure Popups
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtPopoutGroup.defaults, options );
+		var elements		= this;
+
+		// Iterate and initialise all the popups
+		elements.each( function() {
+
+			var element	= cmtjq( this );
+
+			init( element );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		// Initialise Element
+		function init( popoutGroup ) {
+
+			var trigger	= popoutGroup.find( '.popout-trigger' );
+
+			trigger.click( function() {
+
+				trigger.removeClass( 'active' );
+
+				jQuery( this ).addClass( 'active' );
+
+				var popoutId		= "#" + jQuery( this ).attr( 'popout' );
+				var targetPopout 	= jQuery( popoutId );
+
+				if( targetPopout.is( ':visible' ) ) {
+
+					jQuery( this ).removeClass( 'active' );
+
+					switch( settings.animation ) {
+
+						case "down": {
+
+							targetPopout.slideUp();
+
+							break;
+						}
+					}
+				}
+				else {
+
+					popoutGroup.find( '.popout' ).hide();
+
+					switch( settings.animation ) {
+
+						case "down": {
+
+							targetPopout.slideDown();
+
+							break;
+						}
+					}
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtPopoutGroup.defaults = {
+		animation: "down"
+	};
+
+})( jQuery );
+
 
 /**
  * The Pop-up plugin can be used to show pop-ups. Most common usage is modal dialogs.
@@ -3933,7 +4015,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 		actionUrl	= app.config.basePath + actionUrl;
 	}
 
-	if( this.singleRequest && null != controller.currentRequest ) {
+	if( controller.singleRequest && null != controller.currentRequest ) {
 
 		controller.currentRequest = controller.currentRequest.abort();
 		controller.currentRequest = null;
@@ -3954,14 +4036,14 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 			}
 		});
 
-		if( this.singleRequest ) {
+		if( controller.singleRequest ) {
 
 			controller.currentRequest = request;
 		}
 	}
 	else {
 
-		var request = controller.currentRequest = jQuery.ajax({
+		var request = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
@@ -3973,7 +4055,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 			}
 		});
 
-		if( this.singleRequest ) {
+		if( controller.singleRequest ) {
 
 			controller.currentRequest = request;
 		}

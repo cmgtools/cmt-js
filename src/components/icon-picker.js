@@ -34,14 +34,14 @@
 
 				if( !element.hasClass( 'disabled' ) ) {
 
-					picker.find( '.icon-sets' ).slideToggle( 'slow' );
+					picker.find( '.picker-icon-sets' ).slideToggle( 'slow' );
 				}
 			});
 
-			picker.find( '.icon-sets .wrap-icon' ).click( function() {
+			picker.find( '.picker-icon-sets .picker-icon-wrap' ).click( function() {
 
 				var element 	= jQuery( this );
-				var iconSets	= picker.find( '.icon-sets' );
+				var iconSets	= picker.find( '.picker-icon-sets' );
 				var sIcon		= element.find( '.picker-icon' );
 				var iconClass	= 'picker-icon ' + sIcon.attr( 'icon' );
 				var tIcon		= picker.find( '.choose-icon' );

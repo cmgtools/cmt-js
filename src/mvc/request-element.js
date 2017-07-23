@@ -265,7 +265,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 		actionUrl	= app.config.basePath + actionUrl;
 	}
 
-	if( this.singleRequest && null != controller.currentRequest ) {
+	if( controller.singleRequest && null != controller.currentRequest ) {
 
 		controller.currentRequest = controller.currentRequest.abort();
 		controller.currentRequest = null;
@@ -286,14 +286,14 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 			}
 		});
 
-		if( this.singleRequest ) {
+		if( controller.singleRequest ) {
 
 			controller.currentRequest = request;
 		}
 	}
 	else {
 
-		var request = controller.currentRequest = jQuery.ajax({
+		var request = jQuery.ajax({
 			type: httpMethod,
 			url: actionUrl,
 			data: requestData,
@@ -305,7 +305,7 @@ cmt.api.Application.prototype.processRequest = function( requestElement, control
 			}
 		});
 
-		if( this.singleRequest ) {
+		if( controller.singleRequest ) {
 
 			controller.currentRequest = request;
 		}
