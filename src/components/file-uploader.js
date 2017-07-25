@@ -37,6 +37,16 @@
 
 			if( btnChooser.length > 0 ) {
 
+				if( settings.direct || fileUploader.hasClass( 'file-uploader-direct' ) ) {
+
+					fileUploader.addClass( 'file-uploader-direct' );
+
+					btnChooser.hide();
+
+					fileUploader.find( '.chooser-wrap' ).show();
+					fileUploader.find( '.file-wrap' ).hide();
+				}
+
 				btnChooser.click( function() {
 
 					// Swap Chooser and Dragger
@@ -46,27 +56,11 @@
 					// Hide Postaction
 					fileUploader.find( '.post-action' ).hide();
 
-					// Clear Old Values
-					if( cmt.utils.browser.isCanvas() && fileUploader.attr( 'type' ) == 'image' ) {
-
-						fileUploader.find( '.file-dragger canvas' ).hide();
-					}
-
 					// Reset Chooser
 					fileUploader.find( '.file-chooser .input' ).val( "" );
 
-					var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
-
-					// Modern Uploader
-					if ( cmt.utils.browser.isFileApi() ) {
-
-						progressContainer.css( "width", "0%" );
-					}
-					// Form Data Uploader
-					else if( cmt.utils.browser.isFormData() ) {
-
-						progressContainer.html( "" );
-					}
+					// Reset Canvas and Progress
+					resetUploader( fileUploader );
 				});
 			}
 
@@ -110,6 +104,31 @@
 
 					uploadTraditionalFile( fileUploader, directory, type );
 				} );
+			}
+		}
+
+		function resetUploader( fileUploader ) {
+
+			// Clear Old Values
+			if( cmt.utils.browser.isCanvas() && fileUploader.attr( 'type' ) == 'image' ) {
+
+				var canvas	= fileUploader.find( '.file-dragger canvas' )[ 0 ];
+				var context = canvas.getContext( '2d' );
+
+				context.clearRect( 0, 0, canvas.width, canvas.height );
+			}
+
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
+
+			// Modern Uploader
+			if ( cmt.utils.browser.isFileApi() ) {
+
+				progressContainer.css( "width", "0%" );
+			}
+			// Form Data Uploader
+			else if( cmt.utils.browser.isFormData() ) {
+
+				progressContainer.html( "" );
 			}
 		}
 
@@ -203,6 +222,9 @@
 
 								alert( responseData.error );
 							}
+
+							// Reset Canvas and Progress
+							resetUploader( fileUploader );
 						}
 					}
 				};
@@ -264,6 +286,9 @@
 
 					alert( errors.error );
 				}
+
+				// Reset Canvas and Progress
+				resetUploader( fileUploader );
 			});
 		}
 
@@ -278,11 +303,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
 
-					var fileFields	= fileUploader.find( '.file-info' );
-
-					fileFields.children( '.name' ).val( result[ 'name' ] );
-					fileFields.children( '.extension' ).val( result[ 'extension' ] );
-					fileFields.children( '.change' ).val( 1 );
+					updateFileData( fileUploader, result );
 
 					break;
 				}
@@ -290,11 +311,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
-					var fileFields	= fileUploader.find( '.file-info' );
-
-					fileFields.children( '.name' ).val( result[ 'name' ] );
-					fileFields.children( '.extension' ).val( result[ 'extension' ] );
-					fileFields.children( '.change' ).val( 1 );
+					updateFileData( fileUploader, result );
 
 					break;
 				}
@@ -304,11 +321,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
-					var fileFields	= fileUploader.find( '.file-info' );
-
-					fileFields.children( '.name' ).val( result[ 'name' ] );
-					fileFields.children( '.extension' ).val( result[ 'extension' ] );
-					fileFields.children( '.change' ).val( 1 );
+					updateFileData( fileUploader, result );
 
 					break;
 				}
@@ -317,12 +330,28 @@
 			// Swap Chooser and Dragger
 			fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
 			fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
+
+			// Show Postaction
+			fileUploader.find( '.post-action' ).fadeIn();
+		}
+
+		function updateFileData( fileUploader, result ) {
+
+			var fileInfo	= fileUploader.find( '.file-info' );
+			var fileFields	= fileUploader.find( '.file-fields' );
+
+			fileInfo.find( '.name' ).val( result[ 'name' ] );
+			fileInfo.find( '.extension' ).val( result[ 'extension' ] );
+			fileInfo.find( '.change' ).val( 1 );
+
+			fileFields.find( '.title' ).val( result[ 'title' ] );
 		}
 	};
 
 	// Default Settings
 	cmtjq.fn.cmtFileUploader.defaults = {
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
+		direct: false,
 		uploadListener: null,
 		preview: true
 	};
