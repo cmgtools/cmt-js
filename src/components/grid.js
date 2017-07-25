@@ -265,7 +265,35 @@
 				}
 			});
 
-			// Popup Add
+			// Popup - Generic Action
+			grid.find( '.actions .action-generic' ).click( function() {
+
+				var target		= parseInt( jQuery( this ).attr( 'target' ) );
+				var popup		= jQuery( this ).attr( 'popup' );
+
+				if( target > 0 ) {
+
+					var pop		= jQuery( '#' + popup );
+					var form	= pop.find( 'form' );
+					var gen		= jQuery( this ).is( '[generic]' );
+					var act		= jQuery( this ).attr( 'action' );
+					var req		= act.replace( /\s+/g, '-' ).toLowerCase();
+					var action 	= gen ? form.attr( 'action' ) + target : form.attr( 'action' ) + '/' + req + '?id=' + target;
+
+					form.attr( 'action', action );
+					form.find( '.action-generic' ).html( act );
+					form.find( '.element-generic' ).val( act );
+					form.find( '.element-action' ).val( req );
+
+					showPopup( '#' + popup );
+				}
+				else {
+
+					alert( 'Please select valid row.' );
+				}
+			});
+
+			// Popup - Specific Add Action
 			grid.find( '.grid-title .action-add' ).click( function() {
 
 				var popup	= jQuery( this ).attr( 'popup' );
@@ -273,7 +301,7 @@
 				showPopup( '#' + popup );
 			});
 
-			// Popup Action
+			// Popup - Specific Action
 			grid.find( '.actions .action-pop' ).click( function() {
 
 				var target		= parseInt( jQuery( this ).attr( 'target' ) );
