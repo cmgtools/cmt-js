@@ -22,7 +22,7 @@ cmt.utils.ui = {
 			var top 	= (parentHeight - childHeight) / 2;
 			var left 	= (parentWidth - childWidth) / 2;
 
-			child.css( { "position": "absolute", "top": top, "left": left } );	
+			child.css( { "position": "absolute", "top": top, "left": left } );
 		}
 	}
 };

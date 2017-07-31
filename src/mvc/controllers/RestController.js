@@ -1,12 +1,13 @@
-/** 
- * The RestController and classes extending it can be used to manage classical rest requests providing searching, sorting and crud operations. 
+/**
+ * The RestController and classes extending it can be used to manage classical rest requests providing searching, sorting and crud operations.
  * It provides default actions to perform rest actions including get, post, put and delete.
  */
-cmt.api.controllers.RestController = function() {
+cmt.api.controllers.RestController = function( options ) {
 
-	// Request and Collection
 	this.endpoint	= null;	// Endpoint where all the requests need to be sent
+
 	this.model		= null;	// The model name appended at last of endpoint and before action name. We do not need action name in case of get, post, put and delete.
+
 	this.collection	= null; // The collection returned by server and cached locally.
 
 	// Pagination
@@ -15,14 +16,16 @@ cmt.api.controllers.RestController = function() {
 	this.lastPage	= 0;	// The last page loaded when user scroll to bottom
 };
 
+// Initialise --------------------
+
 cmt.api.controllers.RestController.inherits( cmt.api.controllers.BaseController );
 
-cmt.api.controllers.RestController.prototype.init = function() {
+cmt.api.controllers.RestController.prototype.init = function( options ) {
 
 	console.log( "Initialised rest controller." );
 };
 
-// Get ---------------------------
+// Get - Single or All -----------
 
 cmt.api.controllers.RestController.prototype.getActionPre = function() {
 
@@ -31,16 +34,14 @@ cmt.api.controllers.RestController.prototype.getActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.getActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.getActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for get action." );
+};
 
-		console.log( "Processing success for get action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.getActionFailure = function( response ) {
 
-		console.log( "Processing failure for get action." );
-	}
+	console.log( "Processing failure for get action." );
 };
 
 // Post --------------------------
@@ -52,16 +53,14 @@ cmt.api.controllers.RestController.prototype.postActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.postActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.postActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for post action." );
+};
 
-		console.log( "Processing success for post action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.postActionFailure = function( response ) {
 
-		console.log( "Processing failure for post action." );
-	}
+	console.log( "Processing failure for post action." );
 };
 
 // Put ---------------------------
@@ -73,16 +72,14 @@ cmt.api.controllers.RestController.prototype.putActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.putActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.putActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for put action." );
+};
 
-		console.log( "Processing success for put action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.putActionFailure = function( response ) {
 
-		console.log( "Processing failure for put action." );
-	}
+	console.log( "Processing failure for put action." );
 };
 
 // Delete ------------------------
@@ -94,14 +91,12 @@ cmt.api.controllers.RestController.prototype.deleteActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.deleteActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.deleteActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for delete action." );
+};
 
-		console.log( "Processing success for delete action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.deleteActionFailure = function( response ) {
 
-		console.log( "Processing failure for delete action." );
-	}
+	console.log( "Processing failure for delete action." );
 };

@@ -1,46 +1,44 @@
-/** 
- * The RequestController and classes extending it can be used to post arbitrary requests to server by calling execute method where actual request data will be formed.
- * It's required where Request Element and Request Trigger is not needed and request can be triggered by calling execute method.
- * 
- * Ex:
- * myApp.findController( 'user' ).defaultAction();
+/**
+ * The RequestController and classes extending it can be used to post arbitrary requests to server using the request element and it's trigger.
+ * It provides a default action as a fallback in case action is not specified by the Request Element.
  */
-cmt.api.controllers.RequestController = function() {
+cmt.api.controllers.RequestController = function( options ) {
 
-	this.requestData	= null;	// Request data for post requests
+	this.requestTrigger	= null;	// Request trigger which triggered the request. It will always be present within request element.
+
+	this.requestForm	= null; // The element having form elements to be submitted with request. In most of the cases, it will be request element.
+
+	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor to handle custom requests.
+
+	this.currentRequest	= null;	// Request in execution.
+
+	this.singleRequest	= false; // Process one request at a time and abort previous requests.
 };
+
+// Initialise --------------------
 
 cmt.api.controllers.RequestController.inherits( cmt.api.controllers.BaseController );
 
-cmt.api.controllers.RequestController.prototype.init = function() {
+cmt.api.controllers.RequestController.prototype.init = function( options ) {
 
 	console.log( "Initialised default controller." );
 };
 
-cmt.api.controllers.RequestController.prototype.defaultAction = function() {
+// Default Action ----------------
 
-	console.log( "Pre processing default action." );
-
-	// 1. Prepare request data
-
-	// 2. Call method to process the request
-};
-
-cmt.api.controllers.RequestController.prototype.defaultActionPre = function() {
+cmt.api.controllers.RequestController.prototype.defaultActionPre = function( requestElement ) {
 
 	console.log( "Pre processing default action." );
 
 	return true;
 };
 
-cmt.api.controllers.RequestController.prototype.defaultActionPost = function( result, response ) {
+cmt.api.controllers.RequestController.prototype.defaultActionSuccess = function( requestElement, response ) {
 
-	if( result ) {
+	console.log( "Processing success for default action." );
+};
 
-		console.log( "Processing success for default action." );
-	}
-	else {
+cmt.api.controllers.RequestController.prototype.defaultActionFailure = function( requestElement, response ) {
 
-		console.log( "Processing failure for default action." );
-	}
+	console.log( "Processing failure for default action." );
 };
