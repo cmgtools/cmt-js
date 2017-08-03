@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-07-31
+ * CMGTools JS - v1.0.0-alpha1 - 2017-08-03
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -4387,8 +4387,21 @@ cmt.api.utils.request = {
 					// Stop default click action
 					event.preventDefault();
 
-					// Trigger the request
-					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					var trigger = jQuery( this );
+
+					if( trigger.is( '[target-app]' ) ) {
+
+						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
+						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
+					}
+					else {
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					}
 				});
 			}
 
@@ -4402,8 +4415,21 @@ cmt.api.utils.request = {
 				// Trigger request on select
 				selectTrigger.change( function() {
 
-					// Trigger the request
-					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					var trigger = jQuery( this );
+
+					if( trigger.is( '[target-app]' ) ) {
+
+						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
+						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
+					}
+					else {
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					}
 				});
 			}
 
@@ -4416,8 +4442,21 @@ cmt.api.utils.request = {
 
 				keyupTrigger.keyup( function() {
 
-					// Trigger the request
-					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					var trigger = jQuery( this );
+
+					if( trigger.is( '[target-app]' ) ) {
+
+						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
+						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
+					}
+					else {
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					}
 				});
 			}
 
@@ -4430,8 +4469,21 @@ cmt.api.utils.request = {
 
 				blurTrigger.blur( function() {
 
-					// Trigger the request
-					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					var trigger = jQuery( this );
+
+					if( trigger.is( '[target-app]' ) ) {
+
+						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
+						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
+					}
+					else {
+
+						// Trigger the request
+						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+					}
 				});
 			}
 		});
