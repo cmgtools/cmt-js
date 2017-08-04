@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-08-03
+ * CMGTools JS - v1.0.0-alpha1 - 2017-08-04
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1545,6 +1545,29 @@ cmt.utils.ui = {
 				window.location	= pageUrl;
 			});
 
+			grid.find( '.search-field .trigger-search-single' ).bind( 'blur keyup',function( e ) {
+
+				if( e.type == 'blur' || e.keyCode == '13' ) {
+
+					var pageUrl		= window.location.href;
+					var keywords	= jQuery( this ).val();
+					var column		= jQuery( this ).attr( 'column' );
+
+					if( keywords.length == 0 ) {
+
+						pageUrl = cmt.utils.data.removeParam( pageUrl, 'keywords' );
+						pageUrl = cmt.utils.data.removeParam( pageUrl, 'search' );
+					}
+					else {
+
+						pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'search', column );
+						pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'keywords', keywords );
+					}
+
+					window.location	= pageUrl;
+				}
+			});
+
 			// Bulk Actions
 			grid.find( '.grid-bulk-all' ).change( function() {
 
@@ -1583,29 +1606,32 @@ cmt.utils.ui = {
 				var ids			= [];
 				var selected	= grid.find( '.grid-bulk-single:checked' );
 
-				if( selected.length > 0 ) {
+				if( jQuery( this ).val() !== 'select' ) {
 
-					jQuery( '#' + popup ).find( '.action' ).html( jQuery( this ).find( ':selected' ).text() );
+					if( selected.length > 0 ) {
 
-					grid.find( '.grid-bulk-single:checked' ).each( function( index, element ) {
+						jQuery( '#' + popup ).find( '.action' ).html( jQuery( this ).find( ':selected' ).text() );
 
-						var id = jQuery( this ).attr( 'data-id' );
+						grid.find( '.grid-bulk-single:checked' ).each( function( index, element ) {
 
-						if( jQuery.inArray( id, ids ) < 0 ) {
+							var id = jQuery( this ).attr( 'data-id' );
 
-							ids.push(  id );
-						}
-					});
+							if( jQuery.inArray( id, ids ) < 0 ) {
 
-					jQuery( '#' + popup ).find( 'input[name=action]' ).val( jQuery( this ).val() );
-					jQuery( '#' + popup ).find( 'input[name=column]' ).val( column );
-					jQuery( '#' + popup ).find( 'input[name=target]' ).val( ids.join( ',' ) );
+								ids.push(  id );
+							}
+						});
 
-					showPopup( '#' + popup );
-				}
-				else {
+						jQuery( '#' + popup ).find( 'input[name=action]' ).val( jQuery( this ).val() );
+						jQuery( '#' + popup ).find( 'input[name=column]' ).val( column );
+						jQuery( '#' + popup ).find( 'input[name=target]' ).val( ids.join( ',' ) );
 
-					alert( 'Please select at least one row to apply this action.' );
+						showPopup( '#' + popup );
+					}
+					else {
+
+						alert( 'Please select at least one row to apply this action.' );
+					}
 				}
 			});
 
