@@ -112,10 +112,15 @@
 			// Clear Old Values
 			if( cmt.utils.browser.isCanvas() && fileUploader.attr( 'type' ) == 'image' ) {
 
-				var canvas	= fileUploader.find( '.file-dragger canvas' )[ 0 ];
-				var context = canvas.getContext( '2d' );
+				var canvasArr	= fileUploader.find( '.file-dragger canvas' );
 
-				context.clearRect( 0, 0, canvas.width, canvas.height );
+				if( canvasArr.length > 0 ) {
+
+					var canvas	= canvasArr[ 0 ];
+					var context = canvas.getContext( '2d' );
+
+					context.clearRect( 0, 0, canvas.width, canvas.height );
+				}
 			}
 
 			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );

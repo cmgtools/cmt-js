@@ -39,12 +39,12 @@
 				var star 	= cmtjq( this );
 				var index 	= parseInt( star.attr( 'star' ) );
 
-				if( selected > 0 && selected <= index ) {
+				if( selected > 0 && selected >= index ) {
 
 					star.html( '<i class="' + settings.base + ' ' + settings.filled + '"></i>' );
 					star.css( 'color', settings.filledColor );
 				}
-				else if( selected == index && settings.message ) {
+				else if( selected === index && settings.message ) {
 
 					message.addClass( 'selected' );
 				}
