@@ -1,8 +1,5 @@
 /**
  * Register the request elements
- *
- * @param {cmt.api.Application} application - Application
- * @param requestElements - Elements passed by using JQuery selector.
  */
 cmt.api.utils.request = {
 
@@ -18,8 +15,6 @@ cmt.api.utils.request = {
 			// Form Submits
 			if( requestElement.is( 'form' ) ) {
 
-				// requestElement.unbind( 'submit' );
-
 				// Trigger request on form submit
 				requestElement.submit( function( event ) {
 
@@ -32,11 +27,9 @@ cmt.api.utils.request = {
 			}
 
 			// Button Clicks
-			var clickTrigger = requestElement.find( cmt.api.Application.STATIC_CLICK );
+			var clickTrigger = requestElement.find( cmt.api.Application.STATIC_CLICK ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_CLICK ) );
 
 			if( clickTrigger.length > 0 ) {
-
-				// clickTrigger.unbind( 'click' );
 
 				// Trigger request on click action
 				clickTrigger.click( function( event ) {
@@ -44,103 +37,45 @@ cmt.api.utils.request = {
 					// Stop default click action
 					event.preventDefault();
 
-					var trigger = jQuery( this );
-
-					if( trigger.is( '[target-app]' ) ) {
-
-						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
-						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
-					}
-					else {
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
-					}
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
 				});
 			}
 
 			// Select Change
-			var selectTrigger = requestElement.find( cmt.api.Application.STATIC_CHANGE );
+			var selectTrigger = requestElement.find( cmt.api.Application.STATIC_CHANGE ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_CHANGE ) );
 
 			if( selectTrigger.length > 0 ) {
-
-				// selectTrigger.unbind( 'change' );
 
 				// Trigger request on select
 				selectTrigger.change( function() {
 
-					var trigger = jQuery( this );
-
-					if( trigger.is( '[target-app]' ) ) {
-
-						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
-						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
-					}
-					else {
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
-					}
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
 				});
 			}
 
 			// Key Up
-			var keyupTrigger = requestElement.find( cmt.api.Application.STATIC_KEY_UP );
+			var keyupTrigger = requestElement.find( cmt.api.Application.STATIC_KEY_UP ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_KEY_UP ) );
 
 			if( keyupTrigger.length > 0 ) {
 
-				// keyupTrigger.unbind( 'keyup' );
-
 				keyupTrigger.keyup( function() {
 
-					var trigger = jQuery( this );
-
-					if( trigger.is( '[target-app]' ) ) {
-
-						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
-						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
-					}
-					else {
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
-					}
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
 				});
 			}
 
 			// Blur
-			var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR );
+			var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_BLUR ) );
 
 			if( blurTrigger.length > 0 ) {
 
-				// blurTrigger.unbind( 'blur' );
-
 				blurTrigger.blur( function() {
 
-					var trigger = jQuery( this );
-
-					if( trigger.is( '[target-app]' ) ) {
-
-						var app		= cmt.api.root.getApplication( trigger.attr( 'target-app' ) );
-						var request	= trigger.closest( '[cmt-app=' + trigger.attr( 'target-app' ) + ']' );
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( app, request, false, jQuery( this ) );
-					}
-					else {
-
-						// Trigger the request
-						cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
-					}
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
 				});
 			}
 		});
