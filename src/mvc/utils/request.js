@@ -81,6 +81,12 @@ cmt.api.utils.request = {
 		});
 	},
 
+	// Locate app and register the target request triggers
+	registerTargetApp: function( appName, target ) {
+
+		cmt.api.utils.request.register( cmt.api.root.getApplication( appName ), target.find( '[cmt-app=' + appName + ']' ) );
+	},
+
 	trigger: function( application, requestElement, isForm, requestTrigger ) {
 
 		var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
