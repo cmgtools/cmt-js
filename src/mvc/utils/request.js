@@ -393,5 +393,137 @@ cmt.api.utils.request = {
 
 			controller[ failureAction ]( requestElement, response );
 		}
-	}
+	},
+
+	triggerDirect: function( application, controllerName, actionName, actionUrl, httpMethod ) {
+
+		// Use default controller
+		if( null == controllerName ) {
+
+			controllerName = cmt.api.Application.CONTROLLER_DEFAULT;
+		}
+
+		// Use default action
+		if( null == actionName ) {
+
+			actionName = cmt.api.Application.ACTION_DEFAULT;
+		}
+
+		// Use post method
+		if( null == httpMethod ) {
+			
+			httpMethod = 'post';
+		}
+
+		// Search Controller
+		var controller	= application.findController( controllerName );
+
+		cmt.api.utils.request.handleDirectRequest( application, controller, actionName, actionUrl, httpMethod );
+	},
+	
+	handleDirectRequest: function( application, controller, actionName, actionUrl, httpMethod ) {
+
+		// Pre process
+		if(  cmt.api.utils.request.preProcessDirectRequest( controller, actionName ) ) {
+
+			// Generate request data for submission
+			var requestData	= controller.requestData;
+
+			// Post Request
+			if( httpMethod === 'post' ) {
+
+				requestData	= cmt.utils.data.appendCsrf( requestData );
+			}
+
+			// Process request
+			cmt.api.utils.request.processDirectRequest( application, controller, actionName, actionUrl, httpMethod, requestData );
+		}
+
+		return false;
+	},
+
+	preProcessDirectRequest: function( controller, actionName ) {
+
+		var preAction	= actionName + 'ActionPre';
+
+		// Pre Process Request
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]() ) ) {
+
+			return false;
+		}
+
+		return true;
+	},
+
+	processDirectRequest: function( application, controller, actionName, actionUrl, httpMethod, requestData ) {
+
+		if( null != application.config.basePath ) {
+
+			actionUrl	= application.config.basePath + actionUrl;
+		}
+
+		if( controller.singleRequest && null != controller.currentRequest ) {
+
+			controller.currentRequest = controller.currentRequest.abort();
+			controller.currentRequest = null;
+		}
+
+		if( application.config.json ) {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				contentType: 'application/json;charset=UTF-8',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.processDirectResponse( application, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+		else {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.postProcessDirectResponse( application, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+	},
+
+	postProcessDirectResponse: function( application, controller, actionName, response ) {
+
+		var result 	= response[ 'result' ];
+
+		var successAction	= actionName + 'ActionSuccess';
+		var failureAction	= actionName + 'ActionFailure';
+
+		// Pass the data for post processing
+		if( result == 1 && typeof controller[ successAction ] !== 'undefined' ) {
+
+			controller[ successAction ]( response );
+		}
+		else if( result == 0 && typeof controller[ failureAction ] !== 'undefined' ) {
+
+			controller[ failureAction ]( response );
+		}
+	},
 }
