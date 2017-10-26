@@ -42,17 +42,23 @@
 					fileUploader.addClass( 'file-uploader-direct' );
 
 					btnChooser.hide();
-
-					fileUploader.find( '.chooser-wrap' ).show();
-					fileUploader.find( '.file-wrap' ).hide();
+					
+					if( settings.toggle ) {
+						
+						fileUploader.find( '.chooser-wrap' ).show();
+						fileUploader.find( '.file-wrap' ).hide();
+					}
 				}
 
 				btnChooser.click( function() {
 
-					// Swap Chooser and Dragger
-					fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
-					fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
-
+					if( settings.toggle ) {
+						
+						// Swap Chooser and Dragger
+						fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
+						fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
+					}
+					
 					// Hide Postaction
 					fileUploader.find( '.post-action' ).hide();
 
@@ -332,10 +338,12 @@
 				}
 			}
 
-			// Swap Chooser and Dragger
-			fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
-			fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
-
+			if( settings.toggle ) {
+				
+				// Swap Chooser and Dragger
+				fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
+				fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
+			}
 			// Show Postaction
 			fileUploader.find( '.post-action' ).fadeIn();
 		}
@@ -358,7 +366,9 @@
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
 		direct: false,
 		uploadListener: null,
-		preview: true
+		preview: true,
+		toggle: true
 	};
 
 })( jQuery );
+

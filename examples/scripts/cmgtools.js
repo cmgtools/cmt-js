@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-10-10
+ * CMGTools JS - v1.0.0-alpha1 - 2017-10-26
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -1021,17 +1021,23 @@ cmt.utils.ui = {
 					fileUploader.addClass( 'file-uploader-direct' );
 
 					btnChooser.hide();
-
-					fileUploader.find( '.chooser-wrap' ).show();
-					fileUploader.find( '.file-wrap' ).hide();
+					
+					if( settings.toggle ) {
+						
+						fileUploader.find( '.chooser-wrap' ).show();
+						fileUploader.find( '.file-wrap' ).hide();
+					}
 				}
 
 				btnChooser.click( function() {
 
-					// Swap Chooser and Dragger
-					fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
-					fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
-
+					if( settings.toggle ) {
+						
+						// Swap Chooser and Dragger
+						fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
+						fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
+					}
+					
 					// Hide Postaction
 					fileUploader.find( '.post-action' ).hide();
 
@@ -1311,10 +1317,12 @@ cmt.utils.ui = {
 				}
 			}
 
-			// Swap Chooser and Dragger
-			fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
-			fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
-
+			if( settings.toggle ) {
+				
+				// Swap Chooser and Dragger
+				fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
+				fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
+			}
 			// Show Postaction
 			fileUploader.find( '.post-action' ).fadeIn();
 		}
@@ -1337,10 +1345,12 @@ cmt.utils.ui = {
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
 		direct: false,
 		uploadListener: null,
-		preview: true
+		preview: true,
+		toggle: true
 	};
 
 })( jQuery );
+
 
 
 /**
