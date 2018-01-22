@@ -19,7 +19,7 @@ cmt.utils.browser = {
 	 */
 	isFileApi: function() {
 
-		return window.File && window.FileList && window.FileReader;	
+		return window.File && window.FileList && window.FileReader;
 	},
 
 	/**
@@ -47,11 +47,11 @@ cmt.utils.browser = {
 	isCanvasDataUrl: function() {
 
 		// Used image/png for testing purpose
-	
+
 		var cvsTest 			= document.createElement( "canvas" );
 		var data				= cvsTest.toDataURL( "image/png" );
 		var toDataUrlSupported	= data.indexOf( "data:image/png" ) == 0;
-	
+
 		return toDataUrlSupported;
 	}
 };

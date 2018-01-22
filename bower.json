@@ -24,6 +24,6 @@
   ],
   "main": "dist/cmgtools.js",
   "dependencies": {
-    "jquery": "~2.1.4"
+    "jquery": "~2.2.*"
   }
 }

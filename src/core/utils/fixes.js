@@ -18,13 +18,13 @@ Function.prototype.inherits = function( parent ) {
 	              v		= v.constructor.prototype;
 	              t 	-= 1;
 			}
-	
+
 			f = v[ name ];
 		}
 		else {
 
 			f	= p[ name ];
-	
+
 			if( f == this[ name ] ) {
 
 				f = v[ name ];

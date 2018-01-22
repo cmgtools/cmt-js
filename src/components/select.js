@@ -26,7 +26,7 @@
 		return;
 
 		// == Private Functions == //
-		
+
 		/**
 		 * 1. Find the selected option if there is any.
 		 * 2. Wrap the select in a div and access the wrapper div.
@@ -86,7 +86,7 @@
 
 				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
 			}
-			
+
 			if( null != settings.iconHtml ) {
 
 				iconHtml	+= settings.iconHtml + "</span>";
@@ -99,10 +99,31 @@
 			// Generate Custom Select Html
 			var customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
 
+			if( settings.copyOptionClass ) {
+
+				var selected	= dropDown.find( ':selected' );
+
+				if( selected.length == 1 ) {
+
+					var classes = selected.attr( 'class' );
+
+					customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text " + classes + "'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
+				}
+			}
+
 			// Iterate select options
 		    dropDown.find( 'option' ).each( function( index ) {
 
-				customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				if( settings.copyOptionClass ) {
+
+					var classes = jQuery( this ).attr( 'class' );
+
+					customHtml += '<li class="' + classes + '" data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
+				else {
+
+					customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
 		    });
 
 			customHtml += '</ul></div>';
@@ -113,15 +134,15 @@
 			var customSelect	= wrapper.children( '.cmt-select' );
 			var customSelected	= wrapper.children( '.cmt-select' ).children( '.cmt-selected' );
 			var customList		= wrapper.children( '.cmt-select' ).children( '.cmt-select-list' );
-			
+
 			// Hide List by default
 			customList.hide();
-			
+
 			// Detect whether disabled
 			var disabled = dropDown.attr( 'disabled' );
-			
+
 			if( disabled == 'disabled' || disabled ) {
-				
+
 				customSelected.addClass( 'disabled' );
 			}
 			else {
@@ -188,6 +209,7 @@
 	cmtjq.fn.cmtSelect.defaults = {
 		multi: false,
 		copyId: false,
+		copyOptionClass: false,
 		wrapperClass: null,
 		iconClass: null,
 		iconHtml: null
@@ -224,6 +246,138 @@
 			list.hide();
 			jQuery( document ).unbind( 'keyup' );
 		});
+	};
+
+	// Utility method to set value
+	cmtjq.fn.cmtSelect.setValue = function( selectWrap, value ) {
+
+		var dropDown	= selectWrap.find( 'select' );
+
+		dropDown.val( value );
+
+		var selected	= dropDown.children( 'option:selected' );
+	 	var sText		= selectWrap.find( '.cmt-selected' ).children( '.s-text' );
+
+		sText.html( selected.html() );
+	};
+
+})( jQuery );
+
+
+/**
+ * It's a custom select plugin used for multiselect options.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtMultiSelect = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSelect.defaults, options );
+		var dropDowns		= this;
+
+		// Iterate and initialise all the fox sliders
+		dropDowns.each( function() {
+
+			var dropDown = cmtjq( this );
+
+			init( dropDown );
+		});
+
+		// return control
+		return;
+
+		function init( dropDown ) {
+
+			// Generate Icon Html
+			var iconHtml	= '<span class="s-icon">';
+
+			if( null != settings.iconClass ) {
+
+				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
+			}
+
+			if( null != settings.iconHtml ) {
+
+				iconHtml	+= settings.iconHtml + "</span>";
+			}
+			else {
+
+				iconHtml	+= "</span>";
+			}
+
+			// Generate Select Html
+			var customHtml	= '<div class="cmt-selected"><span class="s-text">' + dropDown.attr( 'title' ) + '</span>' + iconHtml + '</div>';
+
+			// Prepend
+			dropDown.prepend( customHtml );
+
+			var selectList	= dropDown.find( '.cmt-select-list' );
+
+			// Hide List by default
+			selectList.hide();
+
+			// Detect whether disabled
+			var disabled = dropDown.attr( 'disabled' );
+
+			if( disabled == 'disabled' || disabled ) {
+
+				dropDown.addClass( 'disabled' );
+			}
+			else {
+
+				// Add listener to selected val
+				dropDown.find( '.cmt-selected' ).click( function( e ) {
+
+					if( !selectList.is( ':visible' ) ) {
+
+						selectList.slideDown( 'slow' );
+
+						jQuery( document ).on( 'keyup', function( e ) {
+
+							var character = String.fromCharCode( e.keyCode );
+
+							selectList.children( 'li' ).each( function() {
+
+								var item = jQuery( this );
+
+								if( item.html().substr( 0, 1 ).toUpperCase() == character ) {
+
+									selectList.animate( { scrollTop: item.offset().top - selectList.offset().top + selectList.scrollTop() } );
+
+									return false;
+							    }
+							});
+						});
+					}
+					else {
+
+						 selectList.slideUp();
+					}
+
+					e.stopPropagation();
+				});
+
+				cmtjq( document ).on( 'click', function( e ) {
+
+			        if ( cmtjq( e.target ).closest( selectList ).length === 0 ) {
+
+			            selectList.slideUp();
+
+			            jQuery( document ).unbind( 'keyup' );
+			        }
+				});
+			}
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtSelect.defaults = {
+		wrapperClass: null,
+		iconClass: null,
+		iconHtml: null
 	};
 
 })( jQuery );

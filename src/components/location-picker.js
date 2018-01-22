@@ -119,6 +119,17 @@
 				});
 			}
 
+			mapPicker.find( '.search-ll' ).change( function() {
+
+				var latLon		= cmtjq( this ).val();
+				latLon			= latLon.split( ',' );
+				var lat			= parseFloat( latLon[ 0 ] );
+				var lon			= parseFloat( latLon[ 1 ] );
+				var position 	= {lat: lat, lng: lon};
+
+				updateCenter( mapPicker, gMap, position, marker );
+			});
+
 			return gMap;
 		}
 

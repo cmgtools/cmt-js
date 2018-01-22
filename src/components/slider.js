@@ -9,7 +9,7 @@
 		// == Init =================================================================== //
 
 		// Configure Sliders
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider.defaults, options );
 		var sliders			= this;
 
 		// Iterate and initialise all the fox sliders
@@ -60,12 +60,12 @@
 
 				var slide = cmtjq( this );
 
-				slide.addClass( 'slide' );
+				slide.addClass( 'cmt-slider-slide' );
 			});
 
 			// wrap the slides
-			var sliderHtml		= '<div class="slides-wrap">' + slider.html() + '</div>';
-			sliderHtml		   += '<div class="control control-left"></div><div class="control control-right"></div>';
+			var sliderHtml		= '<div class="cmt-slider-slides-wrap"><div class="cmt-slider-slides">' + slider.html() + '</div></div>';
+			sliderHtml		   += '<div class="cmt-slider-control cmt-slider-control-left"></div><div class="cmt-slider-control cmt-slider-control-right"></div>';
 
 			slider.html( sliderHtml );
 		}
@@ -74,10 +74,10 @@
 		function normaliseSlides( slider ) {
 
 			// Calculate and set Slider Width
-			var sliderWidth		= slider.width();
-			var sliderHeight	= slider.height();
-			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var slidesSelector	= slider.find( '.slide' );
+			//var sliderWidth		= slider.width();
+			//var sliderHeight	= slider.height();
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 
 			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
@@ -103,7 +103,7 @@
 
 			if( slidesWrapper.width() < slider.width() ) {
 
-				if( null != settings.smallerContent ) {
+				if( null !== settings.smallerContent ) {
 
 					settings.smallerContent( slider, slidesWrapper );
 				}
@@ -113,39 +113,60 @@
 		// Initialise the Slider controls
 		function initControls( slider ) {
 
-			var slidesWrapper	= slider.find( '.slides-wrap' );
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
+
+				leftControl.hide();
+				rightControl.hide();
 
 				return;
 			}
 
 			// Show Controls
-			var controls 		= slider.find( '.controls' );
 			var lControlContent	= settings.lControlContent;
 			var rControlContent	= settings.rControlContent;
 
 			// Init Listeners
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
-
 			leftControl.html( lControlContent );
 			rightControl.html( rControlContent );
 
+			if( !settings.circular ) {
+
+				leftControl.hide();
+				rightControl.show();
+			}
+
 			leftControl.click( function() {
 
-				showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showPrevSlide( slider );
+				}
+				else {
+
+					moveToRight( slider );
+				}
 			});
 
 			rightControl.click( function() {
 
-				showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showNextSlide( slider );
+				}
+				else {
+
+					moveToLeft( slider );
+				}
 			});
 		}
 
 		function resetSlide( slider, slide ) {
 
-			if( null != settings.onSlideClick ) {
+			if( null !== settings.onSlideClick ) {
 
 				// remove existing click event
 				slide.unbind( 'click' );
@@ -163,10 +184,10 @@
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var slideWidth		= slidesSelector.width();
 			var currentPosition	= 0;
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// reset filmstrip
 			filmstrip.css( { left: 0 + 'px', 'right' : '' } );
@@ -174,7 +195,6 @@
 			slidesSelector.each( function() {
 
 				cmtjq( this ).css( { 'left': currentPosition + 'px', 'right' : '' } );
-				cmtjq( this ).removeClass( 'active' );
 
 				currentPosition += slideWidth;
 			});
@@ -183,13 +203,13 @@
 		// Show Previous Slide on clicking next button
 		function showNextSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -201,16 +221,13 @@
 					duration: 500,
 					complete: function() {
 
-						var slider = cmtjq( this ).parent();
-
 						// Remove first and append to last
-						var slidesSelector	= slider.find( '.slide' );
+						var slidesSelector	= slider.find( '.cmt-slider-slide' );
 						var firstSlide		= slidesSelector.first();
 						firstSlide.insertAfter( slidesSelector.eq( slidesSelector.length - 1 ) );
 						firstSlide.css( 'right', -slideWidth );
 
 						resetSlides( slider );
-						//resetSlide( slider, firstSlide );
 					}
 				}
 			);
@@ -218,7 +235,7 @@
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -227,13 +244,13 @@
 		// Show Next Slide on clicking previous button
 		function showPrevSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -242,7 +259,7 @@
 			var lastSlide		= slidesSelector.last();
 			lastSlide.insertBefore( slidesSelector.eq(0) );
 			lastSlide.css( 'left', -slideWidth );
-			var activeSlide		= lastSlide.attr( 'slide' );
+			//var activeSlide		= lastSlide.attr( 'slide' );
 
 			// do animation - animate slider
 			filmstrip.animate(
@@ -261,9 +278,110 @@
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
+			}
+		}
+
+		// Move to left on clicking next button
+		function moveToLeft( slider ) {
+
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
+
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft - moveBy;
+			var remaining		= filmWidth + leftPosition;
+
+			if( remaining > ( sliderWidth - moveBy ) ) {
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmWidth		= filmstrip.outerWidth();
+							var filmLeft		= filmstrip.position().left;
+
+							var leftPosition	= filmLeft - moveBy;
+							var remaining		= filmWidth + leftPosition;
+
+							if( remaining < ( sliderWidth - moveBy ) ) {
+
+								rightControl.hide();
+							}
+
+							if( leftControl.is( ':hidden' ) ) {
+
+								leftControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+		}
+
+		// Move to right on clicking prev button
+		function moveToRight( slider ) {
+
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
+
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
+
+			//var sliderWidth		= slider.outerWidth();
+			//var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft;
+
+			if( leftPosition < -( slideWidth/2 ) ) {
+
+				leftPosition = filmLeft + moveBy;
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmLeft	= filmstrip.position().left;
+
+							if( filmLeft > -( slideWidth/2 ) ) {
+
+								leftControl.hide();
+								filmstrip.position( { at: "left top" } );
+							}
+
+							if( rightControl.is( ':hidden' ) ) {
+
+								rightControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+			else {
+
+				leftControl.hide();
+				filmstrip.position( { at: "left top" } );
 			}
 		}
 	};
@@ -280,7 +398,8 @@
 		// Listener Callback for pre processing
 		preSlideChange: null,
 		// Listener Callback for post processing
-		postSlideChange: null
+		postSlideChange: null,
+		circular: true
 	};
 
 })( jQuery );

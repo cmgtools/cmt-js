@@ -31,38 +31,41 @@
 		// Initialise Element
 		function init( popup ) {
 
-			var popupData = popup.children( ".popup-data" );
+			var popupData = popup.children( '.popup-data' );
 
 			// Close Listener
-			popupData.children( ".popup-close" ).click( function() {
+			popupData.children( '.popup-close' ).click( function() {
 
-				popup.fadeOut( "slow" );
+				popup.fadeOut( 'slow' );
 			});
 
 			// Modal Window
 			if( settings.modal ) {
 
+				// Move modal popups to body element
+				popup.appendTo( 'body' );
+
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-				
+
 				// Background
-				var bkg			= popup.find( ".popup-bkg" );
-				
+				var bkg			= popup.find( '.popup-screen' );
+
 				if( bkg.length > 0 ) {
-					
+
 					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
 				}
 
 				// Filler Layer to listen for close
-				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+				var bkgFiller	= popup.find( '.popup-screen-listener' );
 
 				if( bkgFiller.length > 0 ) {
 
 					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-					
+
 					bkgFiller.click( function() {
-						
-						popup.fadeOut( "fast" );
+
+						popup.fadeOut( 'fast' );
 					});
 				}
 
@@ -86,39 +89,40 @@
 
 })( jQuery );
 
+// Pre-defined methods to show/hide popups
 
 function showPopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeIn( "slow" );
+	jQuery( popupSelector ).fadeIn( 'slow' );
 }
 
 function closePopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeOut( "slow" );
+	jQuery( popupSelector ).fadeOut( 'fast' );
 }
 
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#popup-error .popup-content" ).html( errors );
+	jQuery( '#popup-error .popup-content' ).html( errors );
 
-	showPopup( "#popup-error" );
+	showPopup( '#popup-error' );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#popup-error" );
+	closePopup( '#popup-error' );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#popup-message .popup-content" ).html( message );
+	jQuery( '#popup-message .popup-content' ).html( message );
 
-	showPopup( "#popup-message" );
+	showPopup( '#popup-message' );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#popup-message" );
+	closePopup( '#popup-message' );
 }

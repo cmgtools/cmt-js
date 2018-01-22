@@ -200,6 +200,23 @@ cmt.utils.data = {
 	},
 
 	/**
+	 * It appends CSRF param at the end of request data
+	 */
+	appendCsrf: function( requestData ) {
+
+		// Append csrf token
+		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+
+			var csrfParam   = jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
+			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
+
+			requestData 	= requestData + '&' + csrfParam + '=' + csrfToken;
+		}
+
+		return requestData;
+	},
+
+	/**
 	 * Return parameter value for given name and url.
 	 */
 	getParameterByName: function( param, url ) {
@@ -306,5 +323,18 @@ cmt.utils.data = {
 		}
 
 	    return baseUrl;
+	},
+
+	/**
+	 * Refresh current grid.
+	 */
+	refreshGrid: function() {
+
+		var pageUrl	= window.location.href;
+
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'page' );
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'per-page' );
+
+		window.location	= pageUrl;
 	}
 };

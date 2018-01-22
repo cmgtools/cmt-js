@@ -1,16 +1,17 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-01-25
+ * CMGTools JS - v1.0.0-alpha1 - 2017-10-26
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
  */
 
 /**
- * The library CMGTools JS require JQuery for most of it's usage. 
+ * The library CMGTools JS require JQuery for most of it's usage.
  */
 
 // Global Namespace for CMGTools
 var cmt = cmt || {};
+
 
 /**
  * CMGTools Utilities - Collection of commonly used utility functions available for CMGTools.
@@ -18,6 +19,31 @@ var cmt = cmt || {};
 
 // Global Namespace for CMGTools utilities
 cmt.utils = cmt.utils || {};
+
+
+cmt.utils.ajax = {
+
+	triggerPost: function( url, data, csrf ) {
+
+		// Generate form data for submission
+		var dataUrl	= null;
+
+		if( typeof( csrf ) === 'undefined' ) csrf = true;
+
+		// Append CSRF token if available
+		if( csrf && null != jQuery( 'meta[name=csrf-token]' ) ) {
+
+			var csrfParam 	= jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
+			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
+
+			data     	   += "&" + csrfParam + "=" + csrfToken;
+		}
+
+		// Trigger request
+		jQuery.post( url, data );
+	}
+};
+
 
 /**
  * Browser utility provides commonly used browser feature detection methods.
@@ -40,7 +66,7 @@ cmt.utils.browser = {
 	 */
 	isFileApi: function() {
 
-		return window.File && window.FileList && window.FileReader;	
+		return window.File && window.FileList && window.FileReader;
 	},
 
 	/**
@@ -68,14 +94,15 @@ cmt.utils.browser = {
 	isCanvasDataUrl: function() {
 
 		// Used image/png for testing purpose
-	
+
 		var cvsTest 			= document.createElement( "canvas" );
 		var data				= cvsTest.toDataURL( "image/png" );
 		var toDataUrlSupported	= data.indexOf( "data:image/png" ) == 0;
-	
+
 		return toDataUrlSupported;
 	}
 };
+
 
 /**
  * Data utility provides methods to convert form elements to json format and to manipulate url parameters. The json data can be used to send request to server side apis.
@@ -279,6 +306,23 @@ cmt.utils.data = {
 	},
 
 	/**
+	 * It appends CSRF param at the end of request data
+	 */
+	appendCsrf: function( requestData ) {
+
+		// Append csrf token
+		if( null != jQuery( 'meta[name=csrf-token]' ) ) {
+
+			var csrfParam   = jQuery( 'meta[name=csrf-param]' ).attr( 'content' );
+			var csrfToken 	= jQuery( 'meta[name=csrf-token]' ).attr( 'content' );
+
+			requestData 	= requestData + '&' + csrfParam + '=' + csrfToken;
+		}
+
+		return requestData;
+	},
+
+	/**
 	 * Return parameter value for given name and url.
 	 */
 	getParameterByName: function( param, url ) {
@@ -385,8 +429,22 @@ cmt.utils.data = {
 		}
 
 	    return baseUrl;
+	},
+
+	/**
+	 * Refresh current grid.
+	 */
+	refreshGrid: function() {
+
+		var pageUrl	= window.location.href;
+
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'page' );
+		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'per-page' );
+
+		window.location	= pageUrl;
 	}
 };
+
 
 // Inheritance - Crockford's approach to add inheritance. It works for all browsers. Object.create() is still not supported by all browsers.
 Function.prototype.inherits = function( parent ) {
@@ -408,13 +466,13 @@ Function.prototype.inherits = function( parent ) {
 	              v		= v.constructor.prototype;
 	              t 	-= 1;
 			}
-	
+
 			f = v[ name ];
 		}
 		else {
 
 			f	= p[ name ];
-	
+
 			if( f == this[ name ] ) {
 
 				f = v[ name ];
@@ -443,6 +501,7 @@ if( window.location.hash == '#_=_' ) {
         window.location.hash = '';
     }
 }
+
 
 /**
  * Image utility provides commonly used image processing methods.
@@ -509,6 +568,7 @@ cmt.utils.image = {
 	}
 };
 
+
 /**
  * Object utility provides methods to initialise or manipulate objects.
  */
@@ -536,8 +596,17 @@ cmt.utils.object = {
 		}
 
 		return obj;
+	},
+
+	// Check whether the given object has property
+	hasProperty: function( object, property ) {
+
+		var prototype = object.__proto__ || object.constructor.prototype;
+
+		return ( property in object ) && ( !( property in prototype ) || prototype[ property ] !== object[ property ] );
 	}
 };
+
 
 /**
  * UI utility provides methods to format or manage UI elements.
@@ -563,10 +632,64 @@ cmt.utils.ui = {
 			var top 	= (parentHeight - childHeight) / 2;
 			var left 	= (parentWidth - childWidth) / 2;
 
-			child.css( { "position": "absolute", "top": top, "left": left } );	
+			child.css( { "position": "absolute", "top": top, "left": left } );
 		}
 	}
 };
+
+
+/**
+ * Auto Suggest is jQuery plugin which change the default behaviour of input field. It shows
+ * auto suggestions as user type and provide options to select single or multiple values.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtAutoFill = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtAutoFill.defaults, options );
+		var fillers			= this;
+
+		// Iterate and initialise all the fillers
+		fillers.each( function() {
+
+			var filler = cmtjq( this );
+
+			init( filler );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( filler ) {
+
+			// TODO: add logic to handle single and multi selects
+
+			// Auto Fill
+			filler.find( '.auto-fill-text' ).blur( function() {
+
+				var wrapFill	= jQuery( this ).closest( '.wrap-fill' );
+
+				wrapFill.find( '.wrap-auto-list' ).slideUp();
+
+				// Clear fields
+				wrapFill.find( '.fill-clear' ).val( '' );
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtAutoFill.defaults = {
+		// default config
+	};
+
+})( jQuery );
+
 
 /**
  * Block component used to configure page blocks. It can be used to configure blocks height, css and parallax nature.
@@ -609,21 +732,21 @@ cmt.utils.ui = {
 		function init( block ) {
 
 			// -- Apply Block Specific Settings
-			if( cmtjq.inArray( block.attr( "id" ), blocksKeys ) >= 0 ) {
+			if( cmtjq.inArray( block.attr( 'id' ), blocksKeys ) >= 0 ) {
 
-				var blockConfig				= blocksConfig[ block.attr( "id" ) ];
-				var height					= blockConfig[ "height" ];
-				var fullHeight				= blockConfig[ "fullHeight" ];
-				var halfHeight				= blockConfig[ "halfHeight" ];
-				var heightAuto				= blockConfig[ "heightAuto" ];
-				var heightAutoMobile		= blockConfig[ "heightAutoMobile" ];
-				var heightAutoMobileWidth	= blockConfig[ "heightAutoMobileWidth" ];
-				var css 					= blockConfig[ "css" ];
+				var blockConfig				= blocksConfig[ block.attr( 'id' ) ];
+				var height					= blockConfig[ 'height' ];
+				var fullHeight				= blockConfig[ 'fullHeight' ];
+				var halfHeight				= blockConfig[ 'halfHeight' ];
+				var heightAuto				= blockConfig[ 'heightAuto' ];
+				var heightAutoMobile		= blockConfig[ 'heightAutoMobile' ];
+				var heightAutoMobileWidth	= blockConfig[ 'heightAutoMobileWidth' ];
+				var css 					= blockConfig[ 'css' ];
 
 				// Check whether pre-defined height is required
 				if( null != height && height ) {
 
-					block.css( { 'height': height + "px" } );
+					block.css( { 'height': height + 'px' } );
 				}
 
 				// Apply auto height
@@ -631,18 +754,18 @@ cmt.utils.ui = {
 
 					if( null != height && height ) {
 
-						block.css( { 'height': 'auto', 'min-height': height + "px" } );
+						block.css( { 'height': 'auto', 'min-height': height + 'px' } );
 					}
 					else if( null != fullHeight && fullHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else if( null != halfHeight && halfHeight ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
-						
+
 						block.css( { 'height': 'auto' } );
 					}
 				}
@@ -650,13 +773,13 @@ cmt.utils.ui = {
 				// Apply Full Height
 				if( null == height && null == heightAuto && ( null != fullHeight && fullHeight ) ) {
 
-					block.css( { 'height': screenHeight + "px" } );
+					block.css( { 'height': screenHeight + 'px' } );
 				}
 
 				// Apply Half Height
 				if( null == height && null == heightAuto && ( null != halfHeight && halfHeight ) ) {
 
-					block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+					block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 				}
 
 				// Check whether min height and height auto is required for mobile to handle overlapped content
@@ -664,20 +787,20 @@ cmt.utils.ui = {
 
 					if( window.innerWidth <= heightAutoMobileWidth ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 
-						var contentWrap = block.children( ".block-wrap-content" );
+						var contentWrap = block.children( '.block-content-wrap' );
 
-						if( contentWrap.hasClass( "valign-center" ) ) {
+						if( contentWrap.hasClass( 'valign-center' ) ) {
 
-							contentWrap.removeClass( "valign-center" );
+							contentWrap.removeClass( 'valign-center' );
 						}
 					}
 				}
 
 				// adjust content wrap and block height in case content height exceeds
-				var contentWrap	= block.find( ".block-wrap-content" );
-				var content		= block.find( ".block-content" );
+				var contentWrap	= block.find( '.block-content-wrap' );
+				var content		= block.find( '.block-content' );
 
 				if( content !== undefined && ( content.height() > contentWrap.height() ) ) {
 
@@ -705,11 +828,11 @@ cmt.utils.ui = {
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': screenHeight + "px" } );
+						block.css( { 'height': 'auto', 'min-height': screenHeight + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': screenHeight + "px" } );
+						block.css( { 'height': screenHeight + 'px' } );
 					}
 				}
 
@@ -718,11 +841,11 @@ cmt.utils.ui = {
 
 					if( settings.heightAuto ) {
 
-						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
 					}
 					else {
 
-						block.css( { 'height': ( screenHeight / 2 ) + "px" } );
+						block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 					}
 				}
 			}
@@ -735,14 +858,14 @@ cmt.utils.ui = {
 		    var winTop 		= cmtjq( window ).scrollTop();
 		    var winBottom 	= winTop + winHeight;
 		    var winCurrent 	= winTop + winHeight / 2;
-		    
+
 		    blocks.each( function( i ) {
 
 		        var block 			= cmtjq( this );
 		        var blockHeight 	= block.height();
 		        var blockTop 		= block.offset().top;
 		        var blockBottom 	= blockTop + blockHeight;
-		        var background		= block.children( ".block-bkg-parallax" );
+		        var background		= block.children( '.block-bkg-parallax' );
 
 		        if( null != background && background.length > 0 && winBottom > blockTop && winTop < blockBottom ) {
 
@@ -755,7 +878,7 @@ cmt.utils.ui = {
 		            blockBottom 		= blockBottom + heightOverflow;
 		            var value 			= min + (max - min) * ( winCurrent - blockTop ) / ( blockBottom - blockTop );
 
-		            background.css( "background-position", "50% " + value + "px" );
+		            background.css( 'background-position', '50% ' + value + 'px' );
 		        }
 		    });
 		}
@@ -783,6 +906,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * It's a custom checkbox plugin used to make origin checkbox submit value everytime.
@@ -815,12 +939,18 @@ cmt.utils.ui = {
 
 		function init( checkbox ) {
 
+			if( checkbox.is( '[disabled]' ) ) {
+
+				return;
+			}
+
 			var field 	= checkbox.find( "input[type='checkbox']" );
 			var input 	= checkbox.find( "input[type='hidden']" );
 
 			if( input.val() == 1 ) {
 
 				field.prop( 'checked', true );
+				field.val( 1 );
 			}
 
 			field.change( function() {
@@ -828,10 +958,12 @@ cmt.utils.ui = {
 				if( field.is( ':checked' ) ) {
 
  					input.val( 1 );
+					field.val( 1 );
  				}
  				else {
 
  					input.val( 0 );
+					field.val( 0 );
  				}
 			});
 		}
@@ -843,6 +975,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * File Uploader plugin can be used to upload files. The appropriate backend code should be able to handle the file sent by this plugin.
@@ -879,38 +1012,40 @@ cmt.utils.ui = {
 		function init( fileUploader ) {
 
 			// Show/Hide file chooser - either of the option must exist to choose file
-			var btnShowChooser	= fileUploader.find( ".btn-show-chooser, .btn-direct-chooser" );
+			var btnChooser	= fileUploader.find( '.btn-chooser' );
 
-			if( btnShowChooser.length > 0 ) {
+			if( btnChooser.length > 0 ) {
 
-				btnShowChooser.click( function() {
+				if( settings.direct || fileUploader.hasClass( 'file-uploader-direct' ) ) {
 
-					// Show Chooser
-					fileUploader.find( ".wrap-chooser" ).toggle( "slow" );
+					fileUploader.addClass( 'file-uploader-direct' );
 
+					btnChooser.hide();
+					
+					if( settings.toggle ) {
+						
+						fileUploader.find( '.chooser-wrap' ).show();
+						fileUploader.find( '.file-wrap' ).hide();
+					}
+				}
+
+				btnChooser.click( function() {
+
+					if( settings.toggle ) {
+						
+						// Swap Chooser and Dragger
+						fileUploader.find( '.chooser-wrap' ).fadeToggle( 'slow' );
+						fileUploader.find( '.file-wrap' ).fadeToggle( 'fast' );
+					}
+					
 					// Hide Postaction
-					fileUploader.find( ".post-action" ).hide();
+					fileUploader.find( '.post-action' ).hide();
 
-					// Clear Old Values
-					if( cmt.utils.browser.isCanvas() && fileUploader.attr( "type" ) == "image" ) {
+					// Reset Chooser
+					fileUploader.find( '.file-chooser .input' ).val( "" );
 
-						fileUploader.find( ".preview canvas" ).hide();
-					}
-
-					fileUploader.find( ".chooser .input, .direct-chooser .input" ).val("");
-
-					var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
-	
-					// Modern Uploader
-					if ( cmt.utils.browser.isFileApi() ) {
-	
-						progressContainer.css( "width", "0%" );
-					}
-					// Form Data Uploader
-					else if( cmt.utils.browser.isFormData() ) {
-	
-						progressContainer.html( "" );
-					}
+					// Reset Canvas and Progress
+					resetUploader( fileUploader );
 				});
 			}
 
@@ -918,7 +1053,7 @@ cmt.utils.ui = {
 			if ( cmt.utils.browser.isFileApi() ) {
 
 				// Traditional way using input
-				var inputField = fileUploader.find( ".chooser .input, .direct-chooser .input" );
+				var inputField = fileUploader.find( '.file-chooser .input' );
 
 				inputField.change( function( event ) {
 
@@ -926,18 +1061,18 @@ cmt.utils.ui = {
 				});
 
 				// Modern way using Drag n Drop
-				var dragElement = fileUploader.find( ".preview .wrap-drag" );
+				var dragElement = fileUploader.find( '.file-dragger .drag-wrap' );
 
-				dragElement.bind( 'dragover', function( event ) { 
+				dragElement.bind( 'dragover', function( event ) {
 
 					handleDragging( event );
 				});
-		
-				dragElement.bind( 'dragleave', function( event ) { 
-		
+
+				dragElement.bind( 'dragleave', function( event ) {
+
 					handleDragging( event );
 				});
-		
+
 				dragElement.bind( 'drop', function( event ) {
 
 					handleFile( event, fileUploader );
@@ -946,14 +1081,44 @@ cmt.utils.ui = {
 			// Form Data Uploader
 			else if( cmt.utils.browser.isFormData() ) {
 
-				var directory	= fileUploader.attr( "directory" );
-				var type		= fileUploader.attr( "type" );
-				var inputField 	= fileUploader.find( ".chooser .input, .direct-chooser .input" );
+				var directory	= fileUploader.attr( 'directory' );
+				var type		= fileUploader.attr( 'type' );
+				var inputField 	= fileUploader.find( '.file-chooser .input' );
 
 				inputField.change( function( event ) {
 
-					uploadTraditionalFile( fileUploader, directory, type ); 
+					uploadTraditionalFile( fileUploader, directory, type );
 				} );
+			}
+		}
+
+		function resetUploader( fileUploader ) {
+
+			// Clear Old Values
+			if( cmt.utils.browser.isCanvas() && fileUploader.attr( 'type' ) == 'image' ) {
+
+				var canvasArr	= fileUploader.find( '.file-dragger canvas' );
+
+				if( canvasArr.length > 0 ) {
+
+					var canvas	= canvasArr[ 0 ];
+					var context = canvas.getContext( '2d' );
+
+					context.clearRect( 0, 0, canvas.width, canvas.height );
+				}
+			}
+
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
+
+			// Modern Uploader
+			if ( cmt.utils.browser.isFileApi() ) {
+
+				progressContainer.css( "width", "0%" );
+			}
+			// Form Data Uploader
+			else if( cmt.utils.browser.isFormData() ) {
+
+				progressContainer.html( "" );
 			}
 		}
 
@@ -968,8 +1133,8 @@ cmt.utils.ui = {
 
 		function handleFile( event, fileUploader ) {
 
-			var directory	= fileUploader.attr( "directory" );
-			var type		= fileUploader.attr( "type" );
+			var directory	= fileUploader.attr( 'directory' );
+			var type		= fileUploader.attr( 'type' );
 
 			// cancel event and add hover styling
 			handleDragging( event );
@@ -978,9 +1143,9 @@ cmt.utils.ui = {
 			var files = event.target.files || event.originalEvent.dataTransfer.files;
 
 			// Draw if image
-			if( settings.preview && cmt.utils.browser.isCanvas() && type == "image" ) {
+			if( settings.preview && cmt.utils.browser.isCanvas() && type == 'image' ) {
 
-				var canvas		= fileUploader.find( ".preview canvas" );
+				var canvas	= fileUploader.find( '.file-dragger canvas' );
 
 				canvas.show();
 
@@ -996,7 +1161,7 @@ cmt.utils.ui = {
 			var xhr 				= new XMLHttpRequest();
 			var fileType			= file.type.toLowerCase();
 			var isValidFile			= jQuery.inArray( fileType, settings.fileFormats );
-			var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
 			var formData 			= new FormData();
 
 			// append form data
@@ -1034,7 +1199,7 @@ cmt.utils.ui = {
 
 								if( settings.uploadListener ) {
 
-									settings.uploadListener( fileUploader.attr( "id" ), directory, type, responseData );
+									settings.uploadListener( fileUploader, directory, type, responseData );
 								}
 								else {
 
@@ -1042,11 +1207,14 @@ cmt.utils.ui = {
 								}
 							}
 							else {
-								
+
 								var responseData	= jsonResponse[ 'errors' ];
 
 								alert( responseData.error );
 							}
+
+							// Reset Canvas and Progress
+							resetUploader( fileUploader );
 						}
 					}
 				};
@@ -1066,14 +1234,14 @@ cmt.utils.ui = {
 		// TODO; Test it well
 		function uploadTraditionalFile( fileUploader, directory, type ) {
 
-			var progressContainer	= fileUploader.find( ".preloader .preloader-bar" );
-			var fileList			= fileUploader.find( ".chooser .input, .direct-chooser .input" );
-			var file 				= fileList.files[0];
+			var progressContainer	= fileUploader.find( '.file-preloader .file-preloader-bar' );
+			var fileList			= fileUploader.find( '.file-chooser .input' );
+			var file 				= fileList.files[ 0 ];
 			var formData 			= new FormData();
 			fileName 				= file.name;
 
 			// Show progress
-			progressContainer.html( "Uploading file" );
+			progressContainer.html( 'Uploading file' );
 
 			formData.append( 'file', file );
 
@@ -1089,23 +1257,28 @@ cmt.utils.ui = {
 			  dataType:		'json',
 			}).done( function( response ) {
 
-				progress.html( "File uploaded" );
+				progress.html( 'File uploaded' );
 
 				if( response['result'] == 1 ) {
 
 					if( settings.uploadListener ) {
 
-						settings.uploadListener( fileUploader.attr( "id" ), directory, type, response['data'] );
+						settings.uploadListener( fileUploader, directory, type, response[ 'data' ] );
 					}
 					else {
 
-						fileUploaded( fileUploader, directory, type, response['data'] );
+						fileUploaded( fileUploader, directory, type, response[ 'data' ] );
 					}
 				}
 				else {
 
-					alert( "File upload failed." );
+					var errors	= response[ 'errors' ];
+
+					alert( errors.error );
 				}
+
+				// Reset Canvas and Progress
+				resetUploader( fileUploader );
 			});
 		}
 
@@ -1115,60 +1288,70 @@ cmt.utils.ui = {
 			var fileName	= result[ 'name' ] + "." + result[ 'extension' ];
 
 			switch( type ) {
-				
+
 				case "image": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
-	
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
+
+					updateFileData( fileUploader, result );
 
 					break;
 				}
 				case "video": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
-					
+					updateFileData( fileUploader, result );
+
 					break;
 				}
 				case "document":
-				case "compressed": {
+				case "compressed":
+				case "shared": {
 
-					fileUploader.find( ".postview .wrap-file" ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
+					fileUploader.find( '.file-wrap .file-data' ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
-					var fileFields	= fileUploader.find( ".fields" );
-	
-					fileFields.children( ".name" ).val( result[ 'name' ] );
-					fileFields.children( ".extension" ).val( result[ 'extension' ] );
-					fileFields.children( ".change" ).val( 1 );
-					
+					updateFileData( fileUploader, result );
+
 					break;
 				}
 			}
 
-			// Show Hide
-			fileUploader.find( ".wrap-chooser" ).hide();
-			fileUploader.find( ".post-action" ).show();
+			if( settings.toggle ) {
+				
+				// Swap Chooser and Dragger
+				fileUploader.find( '.chooser-wrap' ).fadeToggle( 'fast' );
+				fileUploader.find( '.file-wrap' ).fadeToggle( 'slow' );
+			}
+			// Show Postaction
+			fileUploader.find( '.post-action' ).fadeIn();
+		}
+
+		function updateFileData( fileUploader, result ) {
+
+			var fileInfo	= fileUploader.find( '.file-info' );
+			var fileFields	= fileUploader.find( '.file-fields' );
+
+			fileInfo.find( '.name' ).val( result[ 'name' ] );
+			fileInfo.find( '.extension' ).val( result[ 'extension' ] );
+			fileInfo.find( '.change' ).val( 1 );
+
+			fileFields.find( '.title' ).val( result[ 'title' ] );
 		}
 	};
 
 	// Default Settings
 	cmtjq.fn.cmtFileUploader.defaults = {
 		fileFormats: [ "jpg", "jpeg", "png", "gif", "pdf", "csv" ],
+		direct: false,
 		uploadListener: null,
-		preview: true
+		preview: true,
+		toggle: true
 	};
 
 })( jQuery );
+
+
 
 /**
  * Form Info is a small plugin to flip form information and form fields. The form information can be formed only by labels whereas fields can be formed using labels and form elements.
@@ -1199,21 +1382,21 @@ cmt.utils.ui = {
 
 		function init( form ) {
 
-			form.find( ".btn-edit" ).click( function() {
+			form.find( '.box-form-trigger' ).click( function() {
 
-				var parent	= jQuery( this ).closest( ".box-form" );
-				var info 	= parent.find( ".wrap-info" );
-				var form 	= parent.find( ".wrap-form" );
+				var parent	= jQuery( this ).closest( '.box-form' );
+				var info 	= parent.find( '.box-form-info-wrap' );
+				var content = parent.find( '.box-form-content-wrap' );
 
-				if( info.is( ":visible" ) ) {
+				if( info.is( ':visible' ) ) {
 
 					info.hide();
-					form.fadeIn( "slow" );
+					content.fadeIn( 'slow' );
 				}
 				else {
 
-					info.fadeIn( "fast" );
-					form.hide();
+					info.fadeIn( 'fast' );
+					content.hide();
 				}
 			});
 		}
@@ -1225,6 +1408,371 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
+
+/**
+ * Grid
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtGrid = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtGrid.defaults, options );
+		var grids		= this;
+
+		// Iterate and initialise all the grids
+		grids.each( function() {
+
+			var grid = cmtjq( this );
+
+			init( grid );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( grid ) {
+
+			// Sorting
+			grid.find( '.grid-sort select' ).change( function() {
+
+				var pageUrl		= window.location.href;
+				var selected 	= jQuery( this ).val();
+				var sortOrder	= jQuery( this ).find( ':selected' ).attr( 'data-sort' );
+
+				// Clear Sort
+				if( selected === 'select' ) {
+
+					pageUrl = cmt.utils.data.removeParam( pageUrl, 'sort' );
+				}
+				// Apply Sort
+				else {
+
+					pageUrl = cmt.utils.data.updateUrlParam( pageUrl, 'sort', sortOrder );
+				}
+
+				window.location	= pageUrl;
+			});
+
+			// Filters
+			grid.find( '.grid-filters select' ).change( function() {
+
+				var pageUrl		= window.location.href;
+				var selected 	= jQuery( this ).val();
+				var option		= jQuery( this ).find( ':selected' );
+				var column		= option.attr( 'data-col' );
+				var cols		= jQuery( this ).closest( '.grid-filters' ).attr( 'data-cols' );
+				cols			= cols.split( ',' );
+
+				// Clear Filter
+				for( i = 0; i < cols.length; i++ ) {
+
+					pageUrl = cmt.utils.data.removeParam( pageUrl, cols[ i ] );
+				}
+
+				// Apply Filter
+				if( selected !== 'select' ) {
+
+					pageUrl = cmt.utils.data.updateUrlParam( pageUrl, column, selected );
+				}
+
+				window.location	= pageUrl;
+			});
+
+			// Reporting
+			grid.find( '.trigger-report-toggle' ).click( function() {
+
+				grid.find( '.grid-report-wrap' ).fadeToggle( 'slow' );
+
+				jQuery( this ).toggleClass( 'active' );
+			});
+
+			grid.find( '.trigger-report-generate' ).click( function() {
+
+				var pageUrl	= window.location.href;
+				var grid	= jQuery( this ).closest( '.grid-data' );
+				var report	= grid.find( '.grid-report' );
+				var fields	= report.find( '.report-field' );
+
+				fields.each( function( index, element ) {
+
+					var field	= jQuery( this );
+
+					pageUrl 	= cmt.utils.data.removeParam( pageUrl, field.attr( 'name' ) );
+
+					if( field.val().length > 0 ) {
+
+						pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, field.attr( 'name' ), field.val() );
+					}
+				});
+
+				pageUrl = cmt.utils.data.updateUrlParam( pageUrl, 'report', 1 );
+
+				window.location	= pageUrl;
+			});
+
+			grid.find( '.trigger-report-clear' ).click( function() {
+
+				var pageUrl	= window.location.href;
+				var grid	= jQuery( this ).closest( '.grid-data' );
+				var report	= grid.find( '.grid-report' );
+				var fields	= report.find( '.report-field' );
+
+				fields.each( function( index, element ) {
+
+					var field	= jQuery( this );
+
+		    		field.val( '' );
+
+		    		pageUrl 	= cmt.utils.data.removeParam( pageUrl, field.attr( 'name' ) );
+				});
+
+				pageUrl = cmt.utils.data.removeParam( pageUrl, 'report' );
+
+				window.location	= pageUrl;
+			});
+
+			// Searching
+			grid.find( '.search-field .trigger-search' ).click( function() {
+
+				var pageUrl		= window.location.href;
+				var grid		= jQuery( this ).closest( '.grid-data' );
+				var keywords	= grid.find( '.search-field input[name=keywords]' ).val();
+				var column		= grid.find( '.search-field select' ).val();
+
+				if( keywords.length == 0 || column === 'select' ) {
+
+					pageUrl = cmt.utils.data.removeParam( pageUrl, 'keywords' );
+					pageUrl = cmt.utils.data.removeParam( pageUrl, 'search' );
+				}
+				else {
+
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'search', column );
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'keywords', keywords );
+				}
+
+				window.location	= pageUrl;
+			});
+
+			grid.find( '.search-field .trigger-search-single' ).bind( 'blur keyup',function( e ) {
+
+				if( e.type == 'blur' || e.keyCode == '13' ) {
+
+					var pageUrl		= window.location.href;
+					var keywords	= jQuery( this ).val();
+					var column		= jQuery( this ).attr( 'column' );
+
+					if( keywords.length == 0 ) {
+
+						pageUrl = cmt.utils.data.removeParam( pageUrl, 'keywords' );
+						pageUrl = cmt.utils.data.removeParam( pageUrl, 'search' );
+					}
+					else {
+
+						pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'search', column );
+						pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, 'keywords', keywords );
+					}
+
+					window.location	= pageUrl;
+				}
+			});
+
+			// Bulk Actions
+			grid.find( '.grid-bulk-all' ).change( function() {
+
+				if( jQuery( this ).is( ':checked' ) ) {
+
+ 					grid.find( '.grid-bulk-single' ).prop( 'checked', true );
+ 				}
+ 				else {
+
+ 					grid.find( '.grid-bulk-single' ).prop( 'checked', false );
+ 				}
+			});
+
+			grid.find( '.grid-bulk-single' ).change( function() {
+
+				var element 	= jQuery( this );
+				var id 			= element.attr( 'data-id' );
+				var selector	= '.grid-bulk-single[data-id=' + id + ']';
+
+				if( jQuery( this ).is( ':checked' ) ) {
+
+ 					grid.find( selector ).prop( 'checked', true );
+ 				}
+ 				else {
+
+					grid.find( selector ).prop( 'checked', false );
+ 					grid.find( '.grid-bulk-all' ).prop( 'checked', false );
+ 				}
+			});
+
+			grid.find( '.grid-bulk select' ).change( function() {
+
+				var option		= jQuery( this ).find( ':selected' );
+				var column		= option.attr( 'data-col' );
+				var popup		= jQuery( this ).attr( 'popup' );
+				var ids			= [];
+				var selected	= grid.find( '.grid-bulk-single:checked' );
+
+				if( jQuery( this ).val() !== 'select' ) {
+
+					if( selected.length > 0 ) {
+
+						jQuery( '#' + popup ).find( '.action' ).html( jQuery( this ).find( ':selected' ).text() );
+
+						grid.find( '.grid-bulk-single:checked' ).each( function( index, element ) {
+
+							var id = jQuery( this ).attr( 'data-id' );
+
+							if( jQuery.inArray( id, ids ) < 0 ) {
+
+								ids.push(  id );
+							}
+						});
+
+						jQuery( '#' + popup ).find( 'input[name=action]' ).val( jQuery( this ).val() );
+						jQuery( '#' + popup ).find( 'input[name=column]' ).val( column );
+						jQuery( '#' + popup ).find( 'input[name=target]' ).val( ids.join( ',' ) );
+
+						showPopup( '#' + popup );
+					}
+					else {
+
+						alert( 'Please select at least one row to apply this action.' );
+					}
+				}
+			});
+
+			// Limit
+			grid.find( '.wrap-limits select' ).change( function() {
+
+				var pageUrl		= window.location.href;
+				var value		= jQuery( this ).val();
+
+				if( value === 'select' ) {
+
+					pageUrl = cmt.utils.data.removeParam( pageUrl, settings.pageParam );
+					pageUrl = cmt.utils.data.removeParam( pageUrl, settings.pageLimitParam );
+				}
+				else {
+
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, settings.pageParam, 1 );
+					pageUrl	= cmt.utils.data.updateUrlParam( pageUrl, settings.pageLimitParam, value );
+				}
+
+				window.location	= pageUrl;
+			});
+
+			// Layout Switch
+			grid.find( '.trigger-layout-switch' ).click( function() {
+
+				var trigger = jQuery( this );
+
+				if( trigger.hasClass( 'grid-view-data' ) ) {
+
+					trigger.removeClass( 'grid-view-data ' + settings.cardIcon );
+					trigger.addClass( 'grid-view-card ' + settings.listIcon );
+
+					grid.find( '.grid-rows-wrap' ).fadeOut( 'fast' );
+					grid.find( '.grid-cards-wrap' ).fadeIn( 'fast' );
+
+					if( updateUserMeta ) {
+
+						updateUserMeta( 'gridLayout', 'card' );
+					}
+				}
+				else if( trigger.hasClass( 'grid-view-card' ) ) {
+
+					trigger.removeClass( 'grid-view-card ' + settings.listIcon );
+					trigger.addClass( 'grid-view-data ' + settings.cardIcon );
+
+					grid.find( '.grid-cards-wrap' ).fadeOut( 'fast' );
+					grid.find( '.grid-rows-wrap' ).fadeIn( 'fast' );
+
+					if( updateUserMeta ) {
+
+						updateUserMeta( 'gridLayout', 'data' );
+					}
+				}
+			});
+
+			// Popup - Generic Action
+			grid.find( '.actions .action-generic' ).click( function() {
+
+				var target		= parseInt( jQuery( this ).attr( 'target' ) );
+				var popup		= jQuery( this ).attr( 'popup' );
+
+				if( target > 0 ) {
+
+					var pop		= jQuery( '#' + popup );
+					var form	= pop.find( 'form' );
+					var gen		= jQuery( this ).is( '[generic]' );
+					var act		= jQuery( this ).attr( 'action' );
+					var req		= act.replace( /\s+/g, '-' ).toLowerCase();
+					var action 	= gen ? form.attr( 'action' ) + target : form.attr( 'action' ) + '/' + req + '?id=' + target;
+
+					form.attr( 'action', action );
+					form.find( '.action-generic' ).html( act );
+					form.find( '.element-generic' ).val( act );
+					form.find( '.element-action' ).val( req );
+
+					showPopup( '#' + popup );
+				}
+				else {
+
+					alert( 'Please select valid row.' );
+				}
+			});
+
+			// Popup - Specific Add Action
+			grid.find( '.grid-title .action-add' ).click( function() {
+
+				var popup	= jQuery( this ).attr( 'popup' );
+
+				showPopup( '#' + popup );
+			});
+
+			// Popup - Specific Action
+			grid.find( '.actions .action-pop' ).click( function() {
+
+				var target		= parseInt( jQuery( this ).attr( 'target' ) );
+				var popup		= jQuery( this ).attr( 'popup' );
+
+				if( target > 0 ) {
+
+					var pop		= jQuery( '#' + popup );
+					var action 	= pop.find( 'form' ).attr( 'action' ) + target;
+
+					pop.find( 'form' ).attr( 'action', action );
+
+					showPopup( '#' + popup );
+				}
+				else {
+
+					alert( 'Please select valid row.' );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtGrid.defaults = {
+		// default config
+		cardIcon: 'cmti cmti-grid',
+		listIcon: 'cmti cmti-list',
+		pageParam: 'page',
+		pageLimitParam: 'per-page'
+	};
+
+})( jQuery );
+
 
 /**
  * Perspective Header plugin can be used to change header styling by adding header-small class on scolling a pre-defined amount.
@@ -1297,6 +1845,73 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
+
+/**
+ * Icon Picker is jQuery plugin to pick an icon from various icon libraries. It works together with
+ * Icon Picker Plugin of CMSGears.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtIconPicker = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtIconPicker.defaults, options );
+		var pickers			= this;
+
+		// Iterate and initialise all the pickers
+		pickers.each( function() {
+
+			var picker = cmtjq( this );
+
+			init( picker );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( picker ) {
+
+			picker.find( '.choose-icon' ).click( function() {
+
+				var element = jQuery( this );
+
+				if( !element.hasClass( 'disabled' ) ) {
+
+					picker.find( '.picker-icon-sets' ).slideToggle( 'slow' );
+				}
+			});
+
+			picker.find( '.picker-icon-sets .picker-icon-wrap' ).click( function() {
+
+				var element 	= jQuery( this );
+				var iconSets	= picker.find( '.picker-icon-sets' );
+				var sIcon		= element.find( '.picker-icon' );
+				var iconClass	= 'picker-icon ' + sIcon.attr( 'icon' );
+				var tIcon		= picker.find( '.choose-icon' );
+				tIcon			= tIcon.find( '.picker-icon' );
+
+				tIcon.attr( 'class', iconClass );
+
+				picker.find( '.icon-field' ).val( sIcon.attr( 'icon' ) );
+
+				iconSets.slideToggle( 'slow' );
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtIconPicker.defaults = {
+		// default config
+	};
+
+})( jQuery );
+
 
 /**
  * LatLongPicker allows us to set marker based on given longitude, latidude.
@@ -1419,6 +2034,17 @@ cmt.utils.ui = {
 				});
 			}
 
+			mapPicker.find( '.search-ll' ).change( function() {
+
+				var latLon		= cmtjq( this ).val();
+				latLon			= latLon.split( ',' );
+				var lat			= parseFloat( latLon[ 0 ] );
+				var lon			= parseFloat( latLon[ 1 ] );
+				var position 	= {lat: lat, lng: lon};
+
+				updateCenter( mapPicker, gMap, position, marker );
+			});
+
 			return gMap;
 		}
 
@@ -1502,8 +2128,101 @@ cmt.utils.ui = {
 
 })( jQuery );
 
+
 /**
- * Sidebar plugin used to manage collapsible parent with our without children.
+ * Login & Register can be used to toggle between login, register and forgot-password forms.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtLoginRegister = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtLoginRegister.defaults, options );
+		var boxes			= this;
+
+		// Iterate and initialise all the pickers
+		boxes.each( function() {
+
+			var box = cmtjq( this );
+
+			init( box );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( box ) {
+
+			var loginBox	= box.find( '.box-login' );
+			var signupBox	= box.find( '.box-signup' );
+			var forgotBox	= box.find( '.box-forgot' );
+
+			box.find( '.btn-login' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( loginBox.is( ':visible' ) ) {
+
+					loginBox.slideUp( 'fast' );
+				}
+				else {
+					signupBox.slideUp( 'fast' );
+					forgotBox.slideUp( 'fast' );
+
+					loginBox.slideDown( 'slow' );
+				}
+			});
+
+			box.find( '.btn-forgot' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( forgotBox.is( ':visible' ) ) {
+
+					forgotBox.slideUp( 'fast' );
+				}
+				else {
+
+					signupBox.slideUp( 'fast' );
+					loginBox.slideUp( 'fast' );
+
+					forgotBox.slideDown( 'slow' );
+				}
+			});
+
+			box.find( '.btn-signup' ).click( function( event ) {
+
+				event.preventDefault();
+
+				if( signupBox.is( ':visible' ) ) {
+
+					signupBox.slideUp( 'fast' );
+				}
+				else {
+					loginBox.slideUp( 'fast' );
+					forgotBox.slideUp( 'fast' );
+
+					signupBox.slideDown( 'slow' );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtLoginRegister.defaults = {
+		// default config
+	};
+
+})( jQuery );
+
+
+/**
+ * Collapsible Menu plugin used to manage collapsible parent with our without children.
  */
 
 ( function( cmtjq ) {
@@ -1513,15 +2232,15 @@ cmt.utils.ui = {
 		// == Init == //
 
 		// Configure Plugin
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
-		var sidebars		= this;
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtCollapsibleMenu.defaults, options );
+		var menus		= this;
 
-		// Iterate and initialise all the fox sliders
-		sidebars.each( function() {
+		// Iterate and initialise all the menus
+		menus.each( function() {
 
-			var sidebar = cmtjq( this );
+			var menu = cmtjq( this );
 
-			init( sidebar );
+			init( menu );
 		});
 
 		// return control
@@ -1529,28 +2248,27 @@ cmt.utils.ui = {
 
 		// == Private Functions == //
 
-		function init( sidebar ) {
+		function init( menu ) {
 
-			// Initialise Sidebar Accordion
-			sidebar.find( '.collapsible-tab.has-children' ).click( function() {
+			menu.find( '.collapsible-tab.has-children' ).click( function() {
 
-				var child = jQuery( this ).children( '.collapsible-tab-content' );
+				var tab		= jQuery( this );
+				var content = tab.children( '.tab-content' );
 
-				if( !jQuery( this ).hasClass( 'active' ) ) {
+				// Expand only disabled tabs and keep active expanded
+				if( !tab.hasClass( 'active' ) ) {
 
-					if( !child.hasClass( 'expanded' ) ) {
+					if( !tab.hasClass( 'expanded' ) ) {
 
 						// Slide Down Slowly
-						jQuery( this ).addClass( 'pactive' );
-						child.addClass( 'expanded' );
-						child.slideDown( 'slow' );
+						tab.addClass( 'expanded' );
+						content.slideDown( 'slow' );
 					}
 					else {
 
 						// Slide Up Slowly
-						jQuery( this ).removeClass( 'pactive' );
-						child.removeClass( 'expanded' );
-						child.slideUp( 'slow' );
+						tab.removeClass( 'expanded' );
+						content.slideUp( 'slow' );
 					}
 				}
 			});
@@ -1563,6 +2281,7 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
 
 /**
  * Sliding Menu is a special pop-up displayed on clicking the element defined while initialising the plugin.
@@ -1592,7 +2311,7 @@ cmt.utils.ui = {
 		// == Private Functions == //
 
 		function init( menu ) {
-			
+
 			if( settings.mainMenu ) {
 
 				var documentHeight 	= cmtjq( document ).height();
@@ -1601,21 +2320,21 @@ cmt.utils.ui = {
 				// Parent to cover document
 				menu.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
 			}
-			
+
 			if( null != settings.showTrigger ) {
 
 				cmtjq( settings.showTrigger ).click( function() {
-	
+
 					menu.fadeIn();
-	
+
 					var slider	= menu.find( '.vnav-slider' );
-	
+
 					if( settings.position == 'left' ) {
-						
+
 						slider.animate( { left: 0 } );
 					}
 					else if( settings.position == 'right' ) {
-	
+
 						slider.animate( { right: 0 } );
 					}
 				});
@@ -1624,26 +2343,26 @@ cmt.utils.ui = {
 			if( null != settings.hideTrigger ) {
 
 				cmtjq( settings.hideTrigger ).click( function() {
-	
+
 					menu.fadeOut();
-					
+
 					var slider	= menu.find( '.vnav-slider' );
-	
+
 					if( settings.position == 'left' ) {
-	
+
 						slider.animate( { left: -( slider.width() ) } );
 					}
 					else if( settings.position == 'right' ) {
-						
+
 						slider.animate( { right: -( slider.width() ) } );
 					}
 				});
 			}
 
 			menu.find( '.btn-close' ).click( function() {
-				
+
 				menu.fadeOut();
-				
+
 				var slider	= menu.find( '.vnav-slider' );
 
 				if( settings.position == 'left' ) {
@@ -1651,7 +2370,7 @@ cmt.utils.ui = {
 					slider.animate( { left: -( slider.width() ) } );
 				}
 				else if( settings.position == 'right' ) {
-					
+
 					slider.animate( { right: -( slider.width() ) } );
 				}
 			});
@@ -1680,6 +2399,88 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
+
+
+/**
+ * The Popout Group plugin can be used to show popouts using popout trigger.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtPopoutGroup = function( options ) {
+
+		// == Init == //
+
+		// Configure Popups
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtPopoutGroup.defaults, options );
+		var elements		= this;
+
+		// Iterate and initialise all the popups
+		elements.each( function() {
+
+			var element	= cmtjq( this );
+
+			init( element );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		// Initialise Element
+		function init( popoutGroup ) {
+
+			var trigger	= popoutGroup.find( '.popout-trigger' );
+
+			trigger.click( function() {
+
+				trigger.removeClass( 'active' );
+
+				jQuery( this ).addClass( 'active' );
+
+				var popoutId		= "#" + jQuery( this ).attr( 'popout' );
+				var targetPopout 	= jQuery( popoutId );
+
+				if( targetPopout.is( ':visible' ) ) {
+
+					jQuery( this ).removeClass( 'active' );
+
+					switch( settings.animation ) {
+
+						case "down": {
+
+							targetPopout.slideUp();
+
+							break;
+						}
+					}
+				}
+				else {
+
+					popoutGroup.find( '.popout' ).hide();
+
+					switch( settings.animation ) {
+
+						case "down": {
+
+							targetPopout.slideDown();
+
+							break;
+						}
+					}
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtPopoutGroup.defaults = {
+		animation: "down"
+	};
+
+})( jQuery );
+
 
 /**
  * The Pop-up plugin can be used to show pop-ups. Most common usage is modal dialogs.
@@ -1714,38 +2515,41 @@ cmt.utils.ui = {
 		// Initialise Element
 		function init( popup ) {
 
-			var popupData = popup.children( ".popup-data" );
+			var popupData = popup.children( '.popup-data' );
 
 			// Close Listener
-			popupData.children( ".popup-close" ).click( function() {
+			popupData.children( '.popup-close' ).click( function() {
 
-				popup.fadeOut( "slow" );
+				popup.fadeOut( 'slow' );
 			});
 
 			// Modal Window
 			if( settings.modal ) {
 
+				// Move modal popups to body element
+				popup.appendTo( 'body' );
+
 				// Parent to cover document
 				popup.css( { 'top': '0px', 'left': '0px', 'height': documentHeight, 'width': screenWidth } );
-				
+
 				// Background
-				var bkg			= popup.find( ".popup-bkg" );
-				
+				var bkg			= popup.find( '.popup-screen' );
+
 				if( bkg.length > 0 ) {
-					
+
 					bkg.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
 				}
 
 				// Filler Layer to listen for close
-				var bkgFiller	= popup.find( ".popup-bkg-filler" );
+				var bkgFiller	= popup.find( '.popup-screen-listener' );
 
 				if( bkgFiller.length > 0 ) {
 
 					bkgFiller.css( { 'top': '0px', 'left': '0px', 'height': screenHeight, 'width': screenWidth } );
-					
+
 					bkgFiller.click( function() {
-						
-						popup.fadeOut( "fast" );
+
+						popup.fadeOut( 'fast' );
 					});
 				}
 
@@ -1769,42 +2573,218 @@ cmt.utils.ui = {
 
 })( jQuery );
 
+// Pre-defined methods to show/hide popups
 
 function showPopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeIn( "slow" );
+	jQuery( popupSelector ).fadeIn( 'slow' );
 }
 
 function closePopup( popupSelector ) {
 
-	jQuery( popupSelector ).fadeOut( "slow" );
+	jQuery( popupSelector ).fadeOut( 'fast' );
 }
 
 /* Show default error popup */
 function showErrorPopup( errors ) {
 
-	jQuery( "#popup-error .popup-content" ).html( errors );
+	jQuery( '#popup-error .popup-content' ).html( errors );
 
-	showPopup( "#popup-error" );
+	showPopup( '#popup-error' );
 }
 
 function hideErrorPopup() {
 
-	closePopup( "#popup-error" );
+	closePopup( '#popup-error' );
 }
 
 /* Show default message popup */
 function showMessagePopup( message ) {
 
-	jQuery( "#popup-message .popup-content" ).html( message );
+	jQuery( '#popup-message .popup-content' ).html( message );
 
-	showPopup( "#popup-message" );
+	showPopup( '#popup-message' );
 }
 
 function hideMessagePopup() {
 
-	closePopup( "#popup-message" );
+	closePopup( '#popup-message' );
 }
+
+
+( function( cmtjq ) {
+
+	// TODO Generate html if not provided
+
+	cmtjq.fn.cmtRate = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtRate.defaults, options );
+		var ratings			= this;
+
+		// Iterate and initialise all the ratings
+		ratings.each( function() {
+
+			var rating = cmtjq( this );
+
+			init( rating );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( rating ) {
+
+			var total 		= rating.find( '.star' ).length;
+			var stars		= [];
+			var icons		= [];
+			var messages	= [];
+			var selected 	= ( rating.find( '.selected' ).length == 1 ) ? parseInt( rating.find( '.selected' ).attr( 'star' ) ) : 0;
+			var disabled	= rating.hasClass( 'disabled' );
+			var readOnly	= rating.hasClass( 'read-only' );
+
+			// Init Icons
+			rating.find( '.star' ).each( function() {
+
+				var star 	= cmtjq( this );
+				var index 	= parseInt( star.attr( 'star' ) );
+
+				if( selected > 0 && selected >= index ) {
+
+					star.html( '<i class="' + settings.base + ' ' + settings.filled + '"></i>' );
+					star.css( 'color', settings.filledColor );
+				}
+				else if( selected === index && settings.message ) {
+
+					message.addClass( 'selected' );
+				}
+				else {
+
+					star.html( '<i class="' + settings.base + ' ' + settings.empty + '"></i>' );
+					star.css( 'color', settings.emptyColor );
+				}
+
+				// Disabled - Change color
+				if( disabled ) {
+
+					star.css( 'color', settings.disabledColor );
+				}
+				else if( readOnly ) {
+					star.css( 'color', settings.readonlyColor );
+				}
+				// Enabled - Prepare cache
+				else {
+
+					stars.push( star );
+					icons.push( star.children( 'i' ) );
+
+					if( settings.message ) {
+
+						messages.push( rating.find( 'span[star-message=' + index + ']' ) );
+					}
+				}
+			});
+
+			if( !disabled && !readOnly ) {
+
+				// Hover effect
+				rating.find( '.star' ).mouseover( function() {
+
+					var index 	= parseInt( cmtjq( this ).attr( 'star' ) );
+
+					refresh( rating, total, index, stars, icons, messages, 0 );
+				});
+
+				rating.find( '.star' ).mouseout( function() {
+
+					refresh( rating, total, selected, stars, icons, messages, 1 );
+				});
+
+				// Rate
+				rating.find( '.star' ).click( function() {
+
+					var index 	= parseInt( cmtjq( this ).attr( 'star' ) );
+					selected	= index;
+
+					rating.find( 'input' ).val( jQuery( this ).attr( 'star' ) );
+					rating.find( '.star' ).removeClass( 'selected' );
+					cmtjq( this ).addClass( 'selected' );
+
+					refresh( rating, total, index, stars, icons, messages, 2 );
+				});
+			}
+		}
+
+		function refresh( rating, total, index, stars, icons, messages, choice ) {
+
+			if( settings.message ) {
+
+				rating.find( '.star-message' ).removeClass( 'selected' );
+			}
+
+			for( var i = 1; i <= total; i++ ) {
+
+				var star 	= stars[ i - 1 ];
+				var icon 	= icons[ i - 1 ];
+				var message = messages[ i - 1 ];
+
+				if( i <= index ) {
+
+					switch( choice ) {
+
+						case 0: {
+
+							star.css( 'color', settings.hoverColor );
+
+							break;
+						}
+						case 1:
+						case 2: {
+
+							star.css( 'color', settings.filledColor );
+
+							break;
+						}
+					}
+
+					icon.removeClass( settings.empty );
+					icon.addClass( settings.filled );
+
+					if( i == index && settings.message ) {
+
+						message.addClass( 'selected' );
+					}
+				}
+				else {
+
+					star.css( 'color', settings.emptyColor );
+
+					icon.removeClass( settings.filled );
+					icon.addClass( settings.empty );
+				}
+			}
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtRate.defaults = {
+		base: 'fa',
+		empty: 'fa-star-o',
+		filled: 'fa-star',
+		emptyColor: 'black',
+		filledColor: '#A5D75A',
+		hoverColor: '#EF9300',
+		disabledColor: '#7F7F7F',
+		readonlyColor: '#A5D75A',
+		message: true
+	};
+
+})( jQuery );
+
 
 /**
  * It's a custom select plugin used to wrap original select using overlapping html elements and hiding the select element.
@@ -1834,7 +2814,7 @@ function hideMessagePopup() {
 		return;
 
 		// == Private Functions == //
-		
+
 		/**
 		 * 1. Find the selected option if there is any.
 		 * 2. Wrap the select in a div and access the wrapper div.
@@ -1894,7 +2874,7 @@ function hideMessagePopup() {
 
 				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
 			}
-			
+
 			if( null != settings.iconHtml ) {
 
 				iconHtml	+= settings.iconHtml + "</span>";
@@ -1907,10 +2887,31 @@ function hideMessagePopup() {
 			// Generate Custom Select Html
 			var customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
 
+			if( settings.copyOptionClass ) {
+
+				var selected	= dropDown.find( ':selected' );
+
+				if( selected.length == 1 ) {
+
+					var classes = selected.attr( 'class' );
+
+					customHtml	= "<div class='cmt-select'><div class='cmt-selected'><span class='s-text " + classes + "'>" + selected.html() + "</span>" + iconHtml + "</div><ul class='cmt-select-list'>";
+				}
+			}
+
 			// Iterate select options
 		    dropDown.find( 'option' ).each( function( index ) {
 
-				customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				if( settings.copyOptionClass ) {
+
+					var classes = jQuery( this ).attr( 'class' );
+
+					customHtml += '<li class="' + classes + '" data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
+				else {
+
+					customHtml += '<li data-value="' + jQuery( this ).val() + '">' + jQuery( this ).html() + '</li>';
+				}
 		    });
 
 			customHtml += '</ul></div>';
@@ -1921,15 +2922,15 @@ function hideMessagePopup() {
 			var customSelect	= wrapper.children( '.cmt-select' );
 			var customSelected	= wrapper.children( '.cmt-select' ).children( '.cmt-selected' );
 			var customList		= wrapper.children( '.cmt-select' ).children( '.cmt-select-list' );
-			
+
 			// Hide List by default
 			customList.hide();
-			
+
 			// Detect whether disabled
 			var disabled = dropDown.attr( 'disabled' );
-			
+
 			if( disabled == 'disabled' || disabled ) {
-				
+
 				customSelected.addClass( 'disabled' );
 			}
 			else {
@@ -1996,6 +2997,7 @@ function hideMessagePopup() {
 	cmtjq.fn.cmtSelect.defaults = {
 		multi: false,
 		copyId: false,
+		copyOptionClass: false,
 		wrapperClass: null,
 		iconClass: null,
 		iconHtml: null
@@ -2034,7 +3036,140 @@ function hideMessagePopup() {
 		});
 	};
 
+	// Utility method to set value
+	cmtjq.fn.cmtSelect.setValue = function( selectWrap, value ) {
+
+		var dropDown	= selectWrap.find( 'select' );
+
+		dropDown.val( value );
+
+		var selected	= dropDown.children( 'option:selected' );
+	 	var sText		= selectWrap.find( '.cmt-selected' ).children( '.s-text' );
+
+		sText.html( selected.html() );
+	};
+
 })( jQuery );
+
+
+/**
+ * It's a custom select plugin used for multiselect options.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtMultiSelect = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSelect.defaults, options );
+		var dropDowns		= this;
+
+		// Iterate and initialise all the fox sliders
+		dropDowns.each( function() {
+
+			var dropDown = cmtjq( this );
+
+			init( dropDown );
+		});
+
+		// return control
+		return;
+
+		function init( dropDown ) {
+
+			// Generate Icon Html
+			var iconHtml	= '<span class="s-icon">';
+
+			if( null != settings.iconClass ) {
+
+				iconHtml	= '<span class="s-icon ' + settings.iconClass + '">';
+			}
+
+			if( null != settings.iconHtml ) {
+
+				iconHtml	+= settings.iconHtml + "</span>";
+			}
+			else {
+
+				iconHtml	+= "</span>";
+			}
+
+			// Generate Select Html
+			var customHtml	= '<div class="cmt-selected"><span class="s-text">' + dropDown.attr( 'title' ) + '</span>' + iconHtml + '</div>';
+
+			// Prepend
+			dropDown.prepend( customHtml );
+
+			var selectList	= dropDown.find( '.cmt-select-list' );
+
+			// Hide List by default
+			selectList.hide();
+
+			// Detect whether disabled
+			var disabled = dropDown.attr( 'disabled' );
+
+			if( disabled == 'disabled' || disabled ) {
+
+				dropDown.addClass( 'disabled' );
+			}
+			else {
+
+				// Add listener to selected val
+				dropDown.find( '.cmt-selected' ).click( function( e ) {
+
+					if( !selectList.is( ':visible' ) ) {
+
+						selectList.slideDown( 'slow' );
+
+						jQuery( document ).on( 'keyup', function( e ) {
+
+							var character = String.fromCharCode( e.keyCode );
+
+							selectList.children( 'li' ).each( function() {
+
+								var item = jQuery( this );
+
+								if( item.html().substr( 0, 1 ).toUpperCase() == character ) {
+
+									selectList.animate( { scrollTop: item.offset().top - selectList.offset().top + selectList.scrollTop() } );
+
+									return false;
+							    }
+							});
+						});
+					}
+					else {
+
+						 selectList.slideUp();
+					}
+
+					e.stopPropagation();
+				});
+
+				cmtjq( document ).on( 'click', function( e ) {
+
+			        if ( cmtjq( e.target ).closest( selectList ).length === 0 ) {
+
+			            selectList.slideUp();
+
+			            jQuery( document ).unbind( 'keyup' );
+			        }
+				});
+			}
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtSelect.defaults = {
+		wrapperClass: null,
+		iconClass: null,
+		iconHtml: null
+	};
+
+})( jQuery );
+
 
 /**
  * A simple slider(simplified version of FoxSlider arranged in filmstrip fashion) to slide UI elements in circular fashion. We can use FoxSlider for more complex scenarios.
@@ -2047,7 +3182,7 @@ function hideMessagePopup() {
 		// == Init =================================================================== //
 
 		// Configure Sliders
-		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider, options );
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtSlider.defaults, options );
 		var sliders			= this;
 
 		// Iterate and initialise all the fox sliders
@@ -2098,12 +3233,12 @@ function hideMessagePopup() {
 
 				var slide = cmtjq( this );
 
-				slide.addClass( 'slide' );
+				slide.addClass( 'cmt-slider-slide' );
 			});
 
 			// wrap the slides
-			var sliderHtml		= '<div class="slides-wrap">' + slider.html() + '</div>';
-			sliderHtml		   += '<div class="control control-left"></div><div class="control control-right"></div>';
+			var sliderHtml		= '<div class="cmt-slider-slides-wrap"><div class="cmt-slider-slides">' + slider.html() + '</div></div>';
+			sliderHtml		   += '<div class="cmt-slider-control cmt-slider-control-left"></div><div class="cmt-slider-control cmt-slider-control-right"></div>';
 
 			slider.html( sliderHtml );
 		}
@@ -2112,10 +3247,10 @@ function hideMessagePopup() {
 		function normaliseSlides( slider ) {
 
 			// Calculate and set Slider Width
-			var sliderWidth		= slider.width();
-			var sliderHeight	= slider.height();
-			var slidesWrapper	= slider.find( '.slides-wrap' );
-			var slidesSelector	= slider.find( '.slide' );
+			//var sliderWidth		= slider.width();
+			//var sliderHeight	= slider.height();
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 
 			var slideWidth		= slidesSelector.outerWidth();
 			var slidesCount		= slidesSelector.length;
@@ -2141,7 +3276,7 @@ function hideMessagePopup() {
 
 			if( slidesWrapper.width() < slider.width() ) {
 
-				if( null != settings.smallerContent ) {
+				if( null !== settings.smallerContent ) {
 
 					settings.smallerContent( slider, slidesWrapper );
 				}
@@ -2151,39 +3286,60 @@ function hideMessagePopup() {
 		// Initialise the Slider controls
 		function initControls( slider ) {
 
-			var slidesWrapper	= slider.find( '.slides-wrap' );
+			var slidesWrapper	= slider.find( '.cmt-slider-slides' );
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
 
 			if( slidesWrapper.width() < slider.width() ) {
+
+				leftControl.hide();
+				rightControl.hide();
 
 				return;
 			}
 
 			// Show Controls
-			var controls 		= slider.find( '.controls' );
 			var lControlContent	= settings.lControlContent;
 			var rControlContent	= settings.rControlContent;
 
 			// Init Listeners
-			var leftControl		= slider.find( '.control-left' );
-			var rightControl	= slider.find( '.control-right' );
-
 			leftControl.html( lControlContent );
 			rightControl.html( rControlContent );
 
+			if( !settings.circular ) {
+
+				leftControl.hide();
+				rightControl.show();
+			}
+
 			leftControl.click( function() {
 
-				showPrevSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showPrevSlide( slider );
+				}
+				else {
+
+					moveToRight( slider );
+				}
 			});
 
 			rightControl.click( function() {
 
-				showNextSlide( cmtjq( this ).closest( '.cmt-slider' ) );
+				if( settings.circular ) {
+
+					showNextSlide( slider );
+				}
+				else {
+
+					moveToLeft( slider );
+				}
 			});
 		}
 
 		function resetSlide( slider, slide ) {
 
-			if( null != settings.onSlideClick ) {
+			if( null !== settings.onSlideClick ) {
 
 				// remove existing click event
 				slide.unbind( 'click' );
@@ -2201,10 +3357,10 @@ function hideMessagePopup() {
 		// Calculate and re-position slides to form filmstrip
 		function resetSlides( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var slideWidth		= slidesSelector.width();
 			var currentPosition	= 0;
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// reset filmstrip
 			filmstrip.css( { left: 0 + 'px', 'right' : '' } );
@@ -2212,7 +3368,6 @@ function hideMessagePopup() {
 			slidesSelector.each( function() {
 
 				cmtjq( this ).css( { 'left': currentPosition + 'px', 'right' : '' } );
-				cmtjq( this ).removeClass( 'active' );
 
 				currentPosition += slideWidth;
 			});
@@ -2221,13 +3376,13 @@ function hideMessagePopup() {
 		// Show Previous Slide on clicking next button
 		function showNextSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -2239,16 +3394,13 @@ function hideMessagePopup() {
 					duration: 500,
 					complete: function() {
 
-						var slider = cmtjq( this ).parent();
-
 						// Remove first and append to last
-						var slidesSelector	= slider.find( '.slide' );
+						var slidesSelector	= slider.find( '.cmt-slider-slide' );
 						var firstSlide		= slidesSelector.first();
 						firstSlide.insertAfter( slidesSelector.eq( slidesSelector.length - 1 ) );
 						firstSlide.css( 'right', -slideWidth );
 
 						resetSlides( slider );
-						//resetSlide( slider, firstSlide );
 					}
 				}
 			);
@@ -2256,7 +3408,7 @@ function hideMessagePopup() {
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -2265,13 +3417,13 @@ function hideMessagePopup() {
 		// Show Next Slide on clicking previous button
 		function showPrevSlide( slider ) {
 
-			var slidesSelector	= slider.find( '.slide' );
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
 			var firstSlide		= slidesSelector.first();
 			var slideWidth		= firstSlide.width();
-			var filmstrip		= slider.find( '.slides-wrap' );
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
 
 			// do pre processing
-			if( null != settings.preSlideChange ) {
+			if( null !== settings.preSlideChange ) {
 
 				settings.preSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
 			}
@@ -2280,7 +3432,7 @@ function hideMessagePopup() {
 			var lastSlide		= slidesSelector.last();
 			lastSlide.insertBefore( slidesSelector.eq(0) );
 			lastSlide.css( 'left', -slideWidth );
-			var activeSlide		= lastSlide.attr( 'slide' );
+			//var activeSlide		= lastSlide.attr( 'slide' );
 
 			// do animation - animate slider
 			filmstrip.animate(
@@ -2299,9 +3451,110 @@ function hideMessagePopup() {
 			firstSlide	= slidesSelector.first();
 
 			// do post processing
-			if( null != settings.postSlideChange ) {
+			if( null !== settings.postSlideChange ) {
 
 				settings.postSlideChange( slider, firstSlide, firstSlide.attr( 'slide' ) );
+			}
+		}
+
+		// Move to left on clicking next button
+		function moveToLeft( slider ) {
+
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
+
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
+
+			var sliderWidth		= slider.outerWidth();
+			var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft - moveBy;
+			var remaining		= filmWidth + leftPosition;
+
+			if( remaining > ( sliderWidth - moveBy ) ) {
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmWidth		= filmstrip.outerWidth();
+							var filmLeft		= filmstrip.position().left;
+
+							var leftPosition	= filmLeft - moveBy;
+							var remaining		= filmWidth + leftPosition;
+
+							if( remaining < ( sliderWidth - moveBy ) ) {
+
+								rightControl.hide();
+							}
+
+							if( leftControl.is( ':hidden' ) ) {
+
+								leftControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+		}
+
+		// Move to right on clicking prev button
+		function moveToRight( slider ) {
+
+			var leftControl		= slider.find( '.cmt-slider-control-left' );
+			var rightControl	= slider.find( '.cmt-slider-control-right' );
+
+			var slidesSelector	= slider.find( '.cmt-slider-slide' );
+			var firstSlide		= slidesSelector.first();
+			var slideWidth		= firstSlide.outerWidth();
+			var filmstrip		= slider.find( '.cmt-slider-slides' );
+
+			//var sliderWidth		= slider.outerWidth();
+			//var filmWidth		= filmstrip.outerWidth();
+			var filmLeft		= filmstrip.position().left;
+
+			var moveBy			= slideWidth;
+			var leftPosition	= filmLeft;
+
+			if( leftPosition < -( slideWidth/2 ) ) {
+
+				leftPosition = filmLeft + moveBy;
+
+				// do animation - animate slider
+				filmstrip.animate(
+					{ left: leftPosition },
+					{
+						duration: 500,
+						complete: function() {
+
+							var filmLeft	= filmstrip.position().left;
+
+							if( filmLeft > -( slideWidth/2 ) ) {
+
+								leftControl.hide();
+								filmstrip.position( { at: "left top" } );
+							}
+
+							if( rightControl.is( ':hidden' ) ) {
+
+								rightControl.fadeIn( 'fast' );
+							}
+						}
+					}
+				);
+			}
+			else {
+
+				leftControl.hide();
+				filmstrip.position( { at: "left top" } );
 			}
 		}
 	};
@@ -2318,10 +3571,12 @@ function hideMessagePopup() {
 		// Listener Callback for pre processing
 		preSlideChange: null,
 		// Listener Callback for post processing
-		postSlideChange: null
+		postSlideChange: null,
+		circular: true
 	};
 
 })( jQuery );
+
 
 /**
  * Smooth Scroll plugin can be used to listen for hash tags to scroll smoothly to pre-defined page sections.
@@ -2355,20 +3610,28 @@ function hideMessagePopup() {
 
 			element.on( 'click', function ( e ) {
 
-			    e.preventDefault();
+				var targetId	= this.hash;
 
-			    var targetId 	= this.hash;
-			    var target 		= cmtjq( targetId );
-		
-			    jQuery('html, body').stop().animate(
-			    	{ 'scrollTop': ( target.offset().top ) }, 
-			    	900, 
-			    	'swing', 
-			    	function () {
-		
-				        window.location.hash = targetId;				        
-			    	}
-			    );
+				// Process only if hash is set
+				if ( null != targetId && targetId.length > 0 ) {
+
+					// Prevent default anchor behavior
+			    	e.preventDefault();
+
+					// Find target element
+			    	var target 	= cmtjq( targetId );
+
+			    	cmtjq( 'html, body' ).stop().animate(
+			    		{ 'scrollTop': ( target.offset().top ) },
+			    		900,
+			    		'swing',
+			    		function () {
+
+							// Add hash to url
+				        	window.location.hash = targetId;
+			    		}
+			    	);
+				}
 			});
 		}
 	};
@@ -2380,6 +3643,280 @@ function hideMessagePopup() {
 
 })( jQuery );
 
+
+/**
+ * Tabs plugin can be used to for tabs arrangement.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtTabs = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtTabs.defaults, options );
+		var tabPanels		= this;
+
+		// Iterate and initialise all the tabs
+		tabPanels.each( function() {
+
+			var tabPanel = cmtjq( this );
+
+			init( tabPanel );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( tabPanel ) {
+
+			var links	= tabPanel.find( '.tab-link' );
+			var tabs	= tabPanel.find( '.tab-content' );
+
+			// Activate first
+			jQuery( links[ 0 ] ).addClass( 'active' );
+			jQuery( tabs[ 0 ] ).addClass( 'active' );
+			jQuery( tabs[ 0 ] ).fadeIn( 'slow' );
+
+			// Listen click
+			links.click( function() {
+
+				var target = jQuery( this ).attr( 'target' );
+
+				// Deactivate
+				links.removeClass( 'active' );
+				tabs.removeClass( 'active' );
+				tabs.hide();
+
+				// Activate
+				jQuery( this ).addClass( 'active' );
+				jQuery( target ).addClass( 'active' );
+				jQuery( target ).fadeIn( 'slow' );
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtTabs.defaults = {
+		// default config
+	};
+
+})( jQuery );
+
+
+/**
+ * Time Picker plugin can be used to choose time.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtTimePicker = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtTimePicker.defaults, options );
+		var pickers		= this;
+
+		// Append singleton element at the end of body
+		jQuery( 'body' ).append( '<div id="' + settings.id + '" class="cmt-timepicker ' + settings.classes + '" style="z-index: 100;"></div>' );
+
+		// Iterate and initialise all the picker elements
+		pickers.each( function() {
+
+			var picker = cmtjq( this );
+
+			init( picker );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( picker ) {
+
+			// Picker singleton
+			var timePicker = cmtjq( '#' + settings.id );
+
+			// Turn off autocomplete
+			picker.attr( 'autocomplete', 'off' );
+			picker.attr( 'readonly', true );
+
+			picker.focusin( function() {
+
+				destroyPickerElement( timePicker );
+
+				initPickerElement( timePicker, picker );
+			});
+		}
+
+		function initPickerElement( timePicker, picker ) {
+
+			// Header
+			var header = '<div class="cmt-timepicker-header row">\n\
+								<div class="colf colf2 row">\n\
+									<div class="cmt-timepicker-apm cmt-timepicker-am colf colf2 align align-center active">AM</div>\n\
+									<div class="cmt-timepicker-apm cmt-timepicker-pm colf colf2 align align-center">PM</div>\n\
+								</div>\n\
+								<div class="cmt-timepicker-apm cmt-timepicker-mm colf colf2 align align-center">Minutes</div>\n\
+							</div>';
+
+			// TODO: Initialise content programatically instead of hardcoding hours and minutes
+
+			// Content
+			var content = '<div class="cmt-timepicker-content row">\n\
+								<div class="cmt-timepicker-hr-wrap colf colf2 row">\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-1 active">1</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-2">2</div>\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-3">3</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-4">4</div>\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-5">5</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-6">6</div>\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-7">7</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-8">8</div>\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-9">9</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-10">10</div>\n\
+									<div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-11">11</div><div class="colf colf3 cmt-timepicker-hr cmt-timepicker-hr-12">12</div>\n\
+								</div>\n\
+								<div class="cmt-timepicker-min-wrap colf colf2 row">\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-0 active">0</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-5">5</div>\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-10">10</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-15">15</div>\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-20">20</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-25">25</div>\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-30">30</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-35">35</div>\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-40">40</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-45">45</div>\n\
+									<div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-50">50</div><div class="colf colf3 cmt-timepicker-min cmt-timepicker-min-55">55</div>\n\
+								</div>\n\
+							</div>';
+
+			// Footer
+			var footer = '<div class="cmt-timepicker-footer row">\n\
+								<div class="colf colf2 row">\n\
+									<input class="cmt-timepicker-time" type="text" readonly />\n\
+								</div>\n\
+								<div class="colf colf2">\n\
+									<span class="cmt-timepicker-ok btn-icon"><i class="cmti cmti-approve"></i></span>\n\
+									<span class="cmt-timepicker-close btn-icon"><i class="cmti cmti-close"></i></span>\n\
+								</div>\n\
+							</div>';
+
+			// Append elements
+			timePicker.append( header );
+			timePicker.append( content );
+			timePicker.append( footer );
+
+			// Dimensions
+			var position	= picker.offset();
+			var top			= position.top + picker.outerHeight();
+			var left		= position.left;
+
+			timePicker.css( { 'top': top + 'px', 'left': left + 'px' } );
+			timePicker.css( { 'width': settings.width, 'height': settings.height } );
+
+			// Initial Value
+			var time	= picker.val();
+
+			if( time.length > 0 ) {
+
+				var split1 = time.split( ' ' );
+				var split2 = split1[ 0 ].split( ':' );
+
+				timePicker.find( '.cmt-timepicker-hr' ).removeClass( 'active' );
+				timePicker.find( '.cmt-timepicker-hr-' + split2[ 0 ] ).addClass( 'active' );
+
+				timePicker.find( '.cmt-timepicker-min' ).removeClass( 'active' );
+				timePicker.find( '.cmt-timepicker-min-' + split2[ 1 ] ).addClass( 'active' );
+
+				timePicker.find( '.cmt-timepicker-apm' ).removeClass( 'active' );
+
+				if( split1[ 1 ] === 'AM' ) {
+
+					timePicker.find( '.cmt-timepicker-am' ).addClass( 'active' );
+				}
+				else {
+
+					timePicker.find( '.cmt-timepicker-pm' ).addClass( 'active' );
+				}
+			}
+
+			setTime( timePicker );
+
+			// On AM/PM
+			timePicker.find( '.cmt-timepicker-am, .cmt-timepicker-pm' ).click( function() {
+
+				timePicker.find( '.cmt-timepicker-apm' ).removeClass( 'active' );
+				cmtjq( this ).addClass( 'active' );
+
+				setTime( timePicker );
+			});
+
+			// On Hour
+			timePicker.find( '.cmt-timepicker-hr' ).click( function() {
+
+				timePicker.find( '.cmt-timepicker-hr' ).removeClass( 'active' );
+				cmtjq( this ).addClass( 'active' );
+
+				setTime( timePicker );
+			});
+
+			// On Min
+			timePicker.find( '.cmt-timepicker-min' ).click( function() {
+
+				timePicker.find( '.cmt-timepicker-min' ).removeClass( 'active' );
+				cmtjq( this ).addClass( 'active' );
+
+				setTime( timePicker );
+			});
+
+			// On Ok
+			timePicker.find( '.cmt-timepicker-ok' ).click( function() {
+
+				picker.val( timePicker.find( '.cmt-timepicker-time' ).val() );
+
+				picker.trigger( 'change' );
+
+				destroyPickerElement( timePicker );
+			});
+
+			// On Close
+			timePicker.find( '.cmt-timepicker-close' ).click( function() {
+
+				destroyPickerElement( timePicker );
+			});
+
+			// Show
+			timePicker.fadeIn( 'slow' );
+		}
+
+		function destroyPickerElement( timePicker ) {
+
+			timePicker.fadeOut( 'fast' );
+
+			timePicker.html( '' );
+		}
+
+		function setTime( timePicker ) {
+
+			// Value
+			var hr		= timePicker.find( '.cmt-timepicker-hr.active' ).html();
+			var min		= timePicker.find( '.cmt-timepicker-min.active' ).html();
+			var apm		= timePicker.find( '.cmt-timepicker-apm.active' ).html();
+			var timeStr	= hr + ":" + min + " " + apm;
+
+			// Set time
+			timePicker.find( '.cmt-timepicker-time' ).val( timeStr );
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtTimePicker.defaults = {
+		id: 'cmt-el-timepicker', // singleton timepicker element
+		classes: 'cmt-timepicker-basic', // additional classes
+		width: 220,
+		height: 220
+	};
+
+})( jQuery );
+
+
 // TODO: Add Data Binding Support to bind data sent by server to respective ui component
 // TODO: Add Data Binding with Pagination for Data Grid
 // TODO: Add Page History and Caching Support
@@ -2389,6 +3926,88 @@ function hideMessagePopup() {
  */
 
 cmt.api = {};
+
+// Manage Applications -----------------------------------
+
+cmt.api.Root = function( options ) {
+
+	this.apps		= []; // Alias, Path map
+
+	this.activeApps	= []; // Alias, Application map
+}
+
+/**
+ * It maps the application to registry by accepting alias and path.
+ *
+ * @param {string} alias
+ * @param {string} path
+ */
+cmt.api.Root.prototype.mapApplication = function( alias, path ) {
+
+	if( this.apps[ alias ] == undefined ) {
+
+		this.apps[ alias ] = path;
+	}
+}
+
+/**
+ * It returns the application from active applications.
+ *
+ * @param {string} alias
+ * @param {boolean} factory
+ * @returns {cmt.api.Application}
+ */
+cmt.api.Root.prototype.getApplication = function( alias, options ) {
+
+	options = typeof options !== 'undefined' ? options : { };
+
+	if( this.apps[ alias ] == undefined ) throw 'Application with alias ' + alias + ' is not registered.';
+
+	// Create singleton instance if not exist
+	if( this.activeApps[ alias ] == undefined ) {
+
+		var application = cmt.utils.object.strToObject( this.apps[ alias ] );
+
+		// Initialise Application
+		application.init( options );
+
+		// Add singleton to active registry
+		this.activeApps[ alias ] = application;
+	}
+
+	return this.activeApps[ alias ];
+}
+
+/**
+ * It set and update the active applications.
+ *
+ * @param {string} alias
+ * @param {cmt.api.Application} application
+ */
+cmt.api.Root.prototype.setApplication = function( alias, application ) {
+
+	if( this.activeApps[ alias ] == undefined ) {
+
+		this.activeApps[ alias ] = application;
+	}
+}
+
+/**
+ * It maps the application to registry and add it to active applications.
+ *
+ * @param {string} alias
+ * @param {boolean} factory
+ * @param {cmt.api.Application} application
+ */
+cmt.api.Root.prototype.registerApplication = function( alias, path, options ) {
+
+	this.mapApplication( alias, path );
+
+	return this.getApplication( alias, options );
+};
+
+cmt.api.root = new cmt.api.Root();
+
 
 /**
  * Key Concepts
@@ -2402,18 +4021,20 @@ cmt.api = {};
  * 7. Trigger Element
  * 8. Get, Post, Put and Delete
  * 9. View
- * 
- * An application is a collection of app config and controllers. Each controller can define several actions that can be executed by app user. 
- * A project can create multiple applications based on it's needs. The request triggers present within request elements use the Request Processing Engine 
- * to fire submitted requests to controllers for pre and post processing. The request elements can also specify the controller, action, route, method and 
+ *
+ * An application is a collection of app config and controllers. Each controller can define several actions that can be executed by app user.
+ * A project can create multiple applications based on it's needs. The request triggers present within request elements use the Request Processing Engine
+ * to fire submitted requests to controllers for pre and post processing. The request elements can also specify the controller, action, route, method and
  * consist of at least one trigger to fire the request.
- * 
+ *
  * Apart from request elements and request triggers, we can also call the application methods to process request directly via get, post, put or delete.
- * 
- * The CMT API does not provided functionality to render view, leaving the view template engine as a choice for developer. Moustache, Handlebars are few 
- * among the well know templating engines used to render view. These can be used to render view while post processing a particular request utilising data 
- * sent back by server. 
+ *
+ * The CMT API does not provided functionality to render view, leaving the view template engine as a choice for developer. Moustache, Handlebars are few
+ * among the well know templating engines used to render view. These can be used to render view while post processing a particular request utilising data
+ * sent back by server.
  */
+
+// Application -------------------------------------------
 
 cmt.api.Application = function( options ) {
 
@@ -2425,6 +4046,7 @@ cmt.api.Application = function( options ) {
 		basePath: null,				// Base path to be used to create requests.
 		csrfGet: false,				// CSRF Token for Get Request
 		errorClass: '.error',		// Default css class for error elements
+		warnClass: '.warn',			// Default css class for warning elements
 		messageClass: '.message',	// Default css class for showing request result as message
 		spinnerClass: '.spinner'	// Default css class for showing spinner till the request gets processed
 	};
@@ -2443,29 +4065,27 @@ cmt.api.Application = function( options ) {
 	 * -----------------------------
 	 * Routing
 	 * -----------------------------
-	 * Request routing in CMGTools JS - MVC is handled by controllers map which is an associative array of controller name and classpath. The app should 
-	 * know all the controllers it's dealing with. It also maintains a seperate map of active controllers which are already initialised. The active controllers map 
+	 * Request routing in CMGTools JS - MVC is handled by controllers map which is an associative array of controller name and classpath. The app should
+	 * know all the controllers it's dealing with. It also maintains a seperate map of active controllers which are already initialised. The active controllers map
 	 * is associative array of controller name and object.
-	 * 
-	 * The Request Processing Engine use the pre-defined controllers to process a request and fallback to default controller and action in case it does not 
+	 *
+	 * The Request Processing Engine use the pre-defined controllers to process a request and fallback to default controller and action in case it does not
 	 * find appropriate controller and action.
 	 */
 
 	/**
 	 * An exhaustive map of all the controllers (alias, classpath) available for the application. Each application can use this map to maintain it's controllers list.
 	 */
-	this.controllers 						= [];
-	this.controllers[ defaultController ] 	= 'cmt.api.controllers.DefaultController';
+	this.controllers 						= []; // Alias, Path map
+	this.controllers[ defaultController ] 	= 'cmt.api.controllers.RequestController';
 
 	/**
 	 * Map of all the active controllers (alias, object) which are already initialised. It will save us from re-initialising controllers.
 	 */
-	this.activeControllers 	= [];
+	this.activeControllers 	= []; // Alias, Controller map
 };
 
-/**
- * App Globals
- */
+// Application Globals -----------------------------------
 
 //Defaults
 cmt.api.Application.CONTROLLER_DEFAULT	= 'default';			// Default Controller Alias
@@ -2491,437 +4111,137 @@ cmt.api.Application.STATIC_BLUR			=  '.cmt-blur';			// The class to be set for t
  * -----------------------------
  * Request Processing Engine (RPE)
  * -----------------------------
- * The Request Processing Engine (RPE) process the requests by initialising the request elements having appropriate trigger. 
+ * The Request Processing Engine (RPE) process the requests by initialising the request elements having appropriate trigger.
  * These triggers can be form submit, button click, select change. We can use the jQuery plugin to register these triggers. Example:
- * 
+ *
  * jQuery( '<selector>' ).cmtRequestProcessor( { app: <application> } );
- * 
- * The selectors passed to request processor plugin forming the view i.e. request element can wrap form elements and the trigger element. A request can be fired 
- * based on trigger type and user action. The request triggers pass request to RPE which further find the appropriate controller and initialise it for 
+ *
+ * The selectors passed to request processor plugin forming the view i.e. request element can wrap form elements and the trigger element. A request can be fired
+ * based on trigger type and user action. The request triggers pass request to RPE which further find the appropriate controller and initialise it for
  * first time and update active controllers map. RPE is responsible for calling pre processor method(if exist) for identified action and pass request to
- * backend. RPE also process response sent back by server and pass it to post processor method(if exist). The controller might define pre and post processor methods 
+ * backend. RPE also process response sent back by server and pass it to post processor method(if exist). The controller might define pre and post processor methods
  * for an action. The post processor method can define logic to handle response and use appropriate templating engine to update view.
  */
 
-// Controller Detection ----------------------------------
+// Application Initialisation ----------------------------
 
-cmt.api.Application.prototype.findController = function( alias ) {
+cmt.api.Application.prototype.init = function( options ) {
 
-	// Return active controller
-	if( this.activeControllers[ alias ] ) {
+	// Merge default config and application options
+	jQuery.extend( this.config, options );
+}
 
-		return this.activeControllers[ alias ];
-	}
-	// Create a controller instance from registered controllers
-	else {
-
-		try {
-
-			// Check whether controller is registered and throw exception
-			if( this.controllers[ alias ] == undefined ) throw 'Controller with alias ' + alias + ' is not registered with this application.';
-
-			var controller 	= cmt.utils.object.strToObject( this.controllers[ alias ] );
-
-			// Initialise Controller
-			controller.init();
-
-			// Add to active registry
-			this.activeControllers[ alias ] = controller;
-
-			return this.activeControllers[ alias ];
-		}
-		catch( err ) {
-
-			console.log( err );
-
-			console.log( 'Falling back to default controller.' );
-
-			if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
-
-				return this.findController( cmt.api.Application.CONTROLLER_DEFAULT );
-			}
-		}
-	}
-};
-
-// Register Request Elements -----------------------------
+// Manage Application Controllers ------------------------
 
 /**
- * Initialise request elements
- * @param requestElements - All the request elements having trigger passed by JQuery selector using application plugin.
+ * It maps the controller to registry by accepting alias and path.
+ *
+ * @param {string} alias
+ * @param {string} path
  */
-cmt.api.Application.prototype.registerElements = function( requestElements ) {
+cmt.api.Application.prototype.mapController = function( alias, path ) {
 
-	var app	= this;
+	if( this.controllers[ alias ] == undefined ) {
 
-	// Iterate and initialise all the requests
-	requestElements.each( function() {
-
-		var requestElement = jQuery( this );
-
-		// Form Submits
-		if( requestElement.is( 'form' ) ) {
-
-			requestElement.unbind( 'submit' );
-
-			requestElement.submit( function( event ) {
-
-				event.preventDefault();
-
-				app.triggerRequest( requestElement, true, null );
-			});
-		}
-
-		// Button Clicks
-		var clickTrigger = requestElement.find( cmt.api.Application.STATIC_CLICK );
-
-		if( clickTrigger.length > 0 ) {
-
-			clickTrigger.unbind( 'click' );
-
-			clickTrigger.click( function( event ) {
-
-				event.preventDefault();
-
-				app.triggerRequest( requestElement, false, jQuery( this ) );
-			});
-		}
-
-		// Select Change
-		var selectTrigger = requestElement.find( cmt.api.Application.STATIC_CHANGE );
-
-		if( selectTrigger.length > 0 ) {
-
-			selectTrigger.unbind( 'change' );
-
-			selectTrigger.change( function() {
-
-				app.triggerRequest( requestElement, false, jQuery( this ) );
-			});
-		}
-
-		// Key Up
-		var keyupTrigger = requestElement.find( cmt.api.Application.STATIC_KEY_UP );
-
-		if( keyupTrigger.length > 0 ) {
-
-			keyupTrigger.unbind( 'keyup' );
-
-			keyupTrigger.keyup( function() {
-
-				app.triggerRequest( requestElement, false, jQuery( this ) );
-			});
-		}
-
-		// Blur
-		var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR );
-
-		if( blurTrigger.length > 0 ) {
-
-			blurTrigger.unbind( 'blur' );
-
-			blurTrigger.blur( function() {
-
-				app.triggerRequest( requestElement, false, jQuery( this ) );
-			});
-		}
-	});
-};
-
-// Handle Request Elements Triggers ----------------------
-
-cmt.api.Application.prototype.triggerRequest = function( requestElement, isForm, requestTrigger ) {
-
-	var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
-	var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
-
-	// Use default controller
-	if( null == controllerName ) {
-
-		controllerName = cmt.api.Application.CONTROLLER_DEFAULT;
+		this.controllers[ alias ] = path;
 	}
-
-	// Use default action
-	if( null == actionName ) {
-
-		actionName = cmt.api.Application.ACTION_DEFAULT;
-	}
-
-	// Search Controller
-	var controller				= this.findController( controllerName );
-	controller.requestTrigger	= requestTrigger;
-
-	if( isForm ) {
-
-		if( this.config.json ) {
-
-			this.handleJsonForm( requestElement, controller, actionName );
-		}
-		else {
-
-			this.handleDataForm( requestElement, controller, actionName );
-		}
-	}
-	else {
-
-		this.handleRequest( requestElement, controller, actionName );
-	}
-};
-
-cmt.api.Application.prototype.handleJsonForm = function( requestElement, controller, actionName ) {
-
-	// Pre process
-	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
-
-		// Generate form data for submission
-		var formData	= controller.requestData;
-		var method		= requestElement.attr( 'method' );
-
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
-
-			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
-
-				formData	= cmt.utils.data.formToJson( requestElement, false );
-			}
-			else {
-
-				formData	= cmt.utils.data.formToJson( requestElement );
-			}
-		}
-
-		// process request
-		this.processRequest( requestElement, controller, actionName, formData );
-	}
-
-	return false;
-};
-
-cmt.api.Application.prototype.handleDataForm = function( requestElement, controller, actionName ) {
-
-	// Pre process
-	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
-
-		// Generate form data for submission
-		var formData	= controller.requestData;
-		var method		= requestElement.attr( 'method' );
-
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
-
-			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
-
-				formData	= cmt.utils.data.serialiseForm( requestElement, false );
-			}
-			else {
-
-				formData	= cmt.utils.data.serialiseForm( requestElement );
-			}
-		}
-
-		// Process request
-		this.processRequest( requestElement, controller, actionName, formData );
-	}
-
-	return false;
-};
-
-cmt.api.Application.prototype.handleRequest = function( requestElement, controller, actionName ) {
-
-	// Pre process
-	if( this.preProcessRequest( requestElement, controller, actionName ) ) {
-
-		// Generate request data for submission
-		var requestData	= controller.requestData;
-		var method		= requestElement.attr( 'method' );
-
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
-
-			if( null != method && method.toLowerCase() == 'get' && !this.config.csrfGet ) {
-
-				requestData	= cmt.utils.data.serialiseElement( requestElement, false );
-			}
-			else {
-
-				requestData	= cmt.utils.data.serialiseElement( requestElement );
-			}
-		}
-
-		// Process request
-		this.processRequest( requestElement, controller, actionName, requestData );
-	}
-
-	return false;
-};
-
-// Process Request Elements Triggers ---------------------
-
-cmt.api.Application.prototype.preProcessRequest = function( requestElement, controller, actionName ) {
-
-	var preAction	= actionName + 'ActionPre';
-
-	// Hide message element
-	requestElement.find( this.config.messageClass ).hide();
-
-	// Hide all errors
-	requestElement.find( this.config.errorClass ).hide();
-
-	// Pre Process Request
-	if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
-
-		return false;
-	}
-
-	// Show Spinner
-	requestElement.find( this.config.spinnerClass ).show();
-
-	return true;
-};
-
-cmt.api.Application.prototype.processRequest = function( requestElement, controller, actionName, requestData ) {
-
-	var app			= this;
-	var httpMethod	= 'post';
-	var actionUrl	= requestElement.attr( 'action' );
-
-	// Set method if exist
-	if( requestElement.attr( 'method' ) ) {
-
-		httpMethod	= requestElement.attr( 'method' );
-	}
-
-	if( null != app.config.basePath ) {
-
-		actionUrl	= app.config.basePath + actionUrl;
-	}
-
-	if( null != controller.currentRequest ) {
-
-		controller.currentRequest = controller.currentRequest.abort();
-		controller.currentRequest = null;
-	}
-
-	if( this.config.json ) {
-
-		controller.currentRequest = jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: requestData,
-			dataType: 'JSON',
-			contentType: 'application/json;charset=UTF-8',
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processResponse( requestElement, controller, actionName, response );
-			}
-		});
-	}
-	else {
-
-		controller.currentRequest = jQuery.ajax({
-			type: httpMethod,
-			url: actionUrl,
-			data: requestData,
-			dataType: 'JSON',
-			success: function( response, textStatus, XMLHttpRequest ) {
-
-				// Process response
-				app.processResponse( requestElement, controller, actionName, response );
-			}
-		});
-	}
-};
-
-cmt.api.Application.prototype.processResponse = function( requestElement, controller, actionName, response ) {
-
-	var result 	= response[ 'result' ];
-	var errors	= response[ 'errors' ];
-
-	if( result == 1 ) {
-
-		// Check to clear form data
-		if( !requestElement.is( '[' + cmt.api.Application.STATIC_KEEP + ']' ) ) {
-
-			// Clear all form fields
-			requestElement.find( ' input[type="text"]' ).val( '' );
-			requestElement.find( ' input[type="password"]' ).val( '' );
-			requestElement.find( ' textarea' ).val( '' );
-		}
-
-		// Hide all errors
-		requestElement.find( this.config.errorClass ).hide();
-	}
-	else if( result == 0 ) {
-
-		// Show Errors
-		for( var key in errors ) {
-
-        	var fieldName 		= key;
-        	var errorMessage 	= errors[ key ];
-        	var errorField		= requestElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
-
-        	errorField.html( errorMessage );
-        	errorField.show();
-    	}
-	}
-
-	this.postProcessResponse( requestElement, controller, actionName, response );
-};
-
-cmt.api.Application.prototype.postProcessResponse = function( requestElement, controller, actionName, response ) {
-
-	var message		= requestElement.find( this.config.messageClass );
-	var messageStr 	= response[ 'message' ];
-	var postAction	= actionName + 'ActionPost';
-
-	// Show message
-	message.html( messageStr );
-	message.show();
-
-	// Hide Spinner
-	requestElement.find( this.config.spinnerClass ).hide();
-
-	// Pass the data for post processing
-	if( typeof controller[ postAction ] !== 'undefined' ) {
-
-		controller[ postAction ]( response[ 'result' ], requestElement, response );
-	}
-};
-
-// Init Request Elements registration --------------------
+}
 
 /**
- * JQuery Plugin to initialise request elements having request triggers for the given application.
+ * It returns the controller from active controllers.
+ *
+ * @param {string} alias
+ * @param {boolean} factory
+ * @returns {cmt.api.controllers.BaseController}
  */
-( function( cmtjq ) {
+cmt.api.Application.prototype.getController = function( alias, factory, options ) {
 
-	cmtjq.fn.cmtRequestProcessor = function( options ) {
+	options = typeof options !== 'undefined' ? options : { };
+	factory = typeof factory !== 'undefined' ? factory : false; // Use singleton from registry if not passed
 
-		// == Init == //
+	if( this.controllers[ alias ] == undefined ) throw 'Controller with alias ' + alias + ' is not registered.';
 
-		// Configure Modules
-		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtRequestProcessor.defaults, options );
-		var app			= settings.app;
+	// Create and return the instance
+	if( factory ) {
 
-		if( null != app ) {
+		var controller 	= cmt.utils.object.strToObject( this.controllers[ alias ] );
 
-			// Initialise application
-			app.controllers	= cmtjq.extend( [], app.controllers, settings.controllers );
+		// Initialise Controller
+		controller.init( options );
 
-			app.registerElements( this );
+		return controller;
+	}
+
+	// Create singleton instance if not exist
+	if( this.activeControllers[ alias ] == undefined ) {
+
+		var controller 	= cmt.utils.object.strToObject( this.controllers[ alias ] );
+
+		// Initialise Controller
+		controller.init( options );
+
+		// Add singleton to active registry
+		this.activeControllers[ alias ] = controller;
+	}
+
+	return this.activeControllers[ alias ];
+}
+
+/**
+ * It set and update the active controllers.
+ *
+ * @param {string} alias
+ * @param {cmt.api.controllers.BaseController} controller
+ */
+cmt.api.Application.prototype.setController = function( alias, controller ) {
+
+	if( this.activeControllers[ alias ] == undefined ) {
+
+		this.activeControllers[ alias ] = controller;
+	}
+}
+
+/**
+ * It maps the controller to registry and add it to active controllers.
+ *
+ * @param {string} alias
+ * @param {boolean} factory
+ * @returns {cmt.api.controllers.BaseController}
+ */
+cmt.api.Application.prototype.registerController = function( alias, path, options ) {
+
+	options = typeof options !== 'undefined' ? options : { };
+
+	this.addController( alias, path );
+
+	return this.getController( alias, false, options );
+};
+
+/**
+ * It find the controller and return default controller in case not found.
+ *
+ * @param {string} alias
+ * @returns {cmt.api.controllers.BaseController}
+ */
+cmt.api.Application.prototype.findController = function( alias, factory ) {
+
+	try {
+
+		return this.getController( alias, factory );
+	}
+	catch( err ) {
+
+		console.log( err );
+
+		console.log( 'Falling back to default controller.' );
+
+		if( this.controllers[ cmt.api.Application.CONTROLLER_DEFAULT ] !== undefined ) {
+
+			return this.findController( cmt.api.Application.CONTROLLER_DEFAULT );
 		}
+	}
+};
 
-		// return control
-		return;
-	};
-
-	// Default Settings
-	cmtjq.fn.cmtRequestProcessor.defaults = {
-		// The app which must handle these selectors
-		app: null,
-		// Used to add controllers dynamically
-		controllers: []
-	};
-
-}( jQuery ) );
 
 /**
  * Controller namespace providing base class for all the Controllers.
@@ -2929,72 +4249,118 @@ cmt.api.Application.prototype.postProcessResponse = function( requestElement, co
 
 cmt.api.controllers = cmt.api.controllers || {};
 
-cmt.api.controllers.BaseController = function() {
-
-	this.requestTrigger	= null;	// Trigger Element
-	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor.
-	this.currentRequest	= null;	// Request in execution
-};
-
-cmt.api.controllers.BaseController.prototype.init = function() {
-
-	// Init method to initialise controller
-};
 
 /**
- * The DefaultController and classes extending it can be used to post arbitrary requests to server using the possible request triggers.
- * It provides a default action as a fallback in case action is not specified by the Request Element.
+ * CMGTools API Utilities - Collection of commonly used utility functions available for CMGTools API.
  */
-cmt.api.controllers.DefaultController = function() {
+
+// Global Namespace for CMGTools API utilities
+cmt.api.utils = cmt.api.utils || {};
+
+
+cmt.api.controllers.BaseController = function( options ) {
 
 };
 
-cmt.api.controllers.DefaultController.inherits( cmt.api.controllers.BaseController );
+// Initialise --------------------
 
-cmt.api.controllers.DefaultController.prototype.init = function() {
+cmt.api.controllers.BaseController.prototype.init = function( options ) {
+
+	// Initialise controller
+};
+
+
+/**
+ * The ActionController and classes extending it can be used to post arbitrary requests to server
+ * by calling execute method where actual request data will be formed. It's required where Request Element and
+ * Request Trigger is not needed and request can be triggered by calling execute method.
+ *
+ * Ex:
+ * myApp.findController( 'user' ).default();
+ */
+cmt.api.controllers.ActionController = function( options ) {
+
+	this.requestData	= null;	// Request data for post requests
+};
+
+// Initialise --------------------
+
+cmt.api.controllers.ActionController.inherits( cmt.api.controllers.BaseController );
+
+cmt.api.controllers.ActionController.prototype.init = function( options ) {
 
 	console.log( "Initialised default controller." );
 };
 
-cmt.api.controllers.DefaultController.prototype.defaultActionPre = function( requestElement ) {
+// Default Action ----------------
+
+cmt.api.controllers.ActionController.prototype.default = function() {
+
+	console.log( "Executing default action." );
+
+	return true;
+};
+
+cmt.api.controllers.ActionController.prototype.defaultActionPre = function() {
 
 	console.log( "Pre processing default action." );
 
 	return true;
 };
 
-cmt.api.controllers.DefaultController.prototype.defaultActionPost = function( result, requestElement, response ) {
+cmt.api.controllers.ActionController.prototype.defaultActionSuccess = function( response ) {
 
-	if( result ) {
-
-		console.log( "Processing success for default action." );
-	}
-	else {
-
-		console.log( "Processing failure for default action." );
-	}
+	console.log( "Processing success for default action." );
 };
 
-/** 
- * The GridController and classes extending it can be used to manage data grids providing searching, sorting and crud operations. 
- * It differs from RestController in default action names i.e. it provides default actions to perform actions including all, create, update and delete.
- */
-cmt.api.controllers.GridController = function() {
+cmt.api.controllers.ActionController.prototype.defaultActionFailure = function( response ) {
 
-	// Request and Collection
+	console.log( "Processing failure for default action." );
+};
+
+
+/**
+ * The GridController and classes extending it can be used to manage data grids providing
+ * searching, sorting and crud operations. It differs from RestController in default action
+ * names i.e. it provides default actions to perform actions including all, create, update and delete.
+ */
+cmt.api.controllers.GridController = function( options ) {
+
 	this.endpoint	= null;	// Endpoint where all the requests need to be sent
-	this.model		= null;	// The model name appended at last of endpoint and before action name. We do not need action name in case of get, post, put and delete.
-	this.collection	= null; // The collection returned by server and cached locally.
+
+	/**
+	 * The model name appended at last of endpoint and before action name.
+	 * We do not need action name in case of get, post, put and delete.
+	 */
+	this.model		= null;
+
+	/**
+	 * The collection returned by server and cached locally. The grid will always be
+	 * refreshed as soon as collection changes.
+	 */
+	this.collection	= null;
+
+	/**
+	 * Template used to render the grid rows.
+	 */
+	this.rowTemplate	= null;
+
+	/**
+	 * Template used to render the cards.
+	 */
+	this.cardTemplate	= null;
 
 	// Pagination
-	this.pages		= 0;	// Total Pages formed using collection
-	this.pageLimit	= 0;	// Total items in a page
-	this.lastPage	= 0;	// The last page loaded when user scroll to bottom
+	this.pages		= 0; // Total Pages formed using collection
+	this.pageLimit	= 0; // Total items in a page
+	this.lastPage	= 0; // The last page loaded when user scroll to bottom
 };
+
+// Initialise --------------------
 
 cmt.api.controllers.GridController.inherits( cmt.api.controllers.BaseController );
 
-cmt.api.controllers.GridController.prototype.init = function() {
+cmt.api.controllers.GridController.prototype.init = function( options ) {
 
 	console.log( "Initialised grid controller." );
 };
@@ -3008,16 +4374,14 @@ cmt.api.controllers.GridController.prototype.allActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.GridController.prototype.allActionPost = function( result, response ) {
+cmt.api.controllers.GridController.prototype.allActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for all action." );
+};
 
-		console.log( "Processing success for all action." );
-	}
-	else {
+cmt.api.controllers.GridController.prototype.allActionFailure = function( response ) {
 
-		console.log( "Processing failure for all action." );
-	}
+	console.log( "Processing failure for all action." );
 };
 
 // Create ------------------------
@@ -3029,16 +4393,14 @@ cmt.api.controllers.GridController.prototype.createActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.GridController.prototype.createActionPost = function( result, response ) {
+cmt.api.controllers.GridController.prototype.createActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for create action." );
+};
 
-		console.log( "Processing success for create action." );
-	}
-	else {
+cmt.api.controllers.GridController.prototype.createActionFailure = function( response ) {
 
-		console.log( "Processing failure for create action." );
-	}
+	console.log( "Processing failure for create action." );
 };
 
 // Update ------------------------
@@ -3050,16 +4412,14 @@ cmt.api.controllers.GridController.prototype.updateActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.GridController.prototype.updateActionPost = function( result, response ) {
+cmt.api.controllers.GridController.prototype.updateActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for update action." );
+};
 
-		console.log( "Processing success for update action." );
-	}
-	else {
+cmt.api.controllers.GridController.prototype.updateActionFailure = function( response ) {
 
-		console.log( "Processing failure for update action." );
-	}
+	console.log( "Processing failure for update action." );
 };
 
 // Delete ------------------------
@@ -3071,74 +4431,73 @@ cmt.api.controllers.GridController.prototype.deleteActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.GridController.prototype.deleteActionPost = function( result, response ) {
+cmt.api.controllers.GridController.prototype.deleteActionSuccess = function( response ) {
 
-	if( result ) {
-
-		console.log( "Processing success for delete action." );
-	}
-	else {
-
-		console.log( "Processing failure for delete action." );
-	}
+	console.log( "Processing success for delete action." );
 };
 
-/** 
- * The RequestController and classes extending it can be used to post arbitrary requests to server by calling execute method where actual request data will be formed.
- * It's required where Request Element and Request Trigger is not needed and request can be triggered by calling execute method.
- * 
- * Ex:
- * myApp.findController( 'user' ).defaultAction();
+cmt.api.controllers.GridController.prototype.deleteActionFailure = function( response ) {
+
+	console.log( "Processing failure for delete action." );
+};
+
+
+/**
+ * The RequestController and classes extending it can be used to post arbitrary requests to server using the request element and it's trigger.
+ * It provides a default action as a fallback in case action is not specified by the Request Element.
  */
-cmt.api.controllers.RequestController = function() {
+cmt.api.controllers.RequestController = function( options ) {
 
-	this.requestData	= null;	// Request data for post requests
+	this.requestTrigger	= null;	// Request trigger which triggered the request. It will always be present within request element.
+
+	this.requestForm	= null; // The element having form elements to be submitted with request. In most of the cases, it will be request element.
+
+	this.requestData	= null;	// Request data to be appended for post requests. It can be prepared in pre processor to handle custom requests.
+
+	this.currentRequest	= null;	// Request in execution.
+
+	this.singleRequest	= false; // Process one request at a time and abort previous requests.
 };
+
+// Initialise --------------------
 
 cmt.api.controllers.RequestController.inherits( cmt.api.controllers.BaseController );
 
-cmt.api.controllers.RequestController.prototype.init = function() {
+cmt.api.controllers.RequestController.prototype.init = function( options ) {
 
 	console.log( "Initialised default controller." );
 };
 
-cmt.api.controllers.RequestController.prototype.defaultAction = function() {
+// Default Action ----------------
 
-	console.log( "Pre processing default action." );
-
-	// 1. Prepare request data
-
-	// 2. Call method to process the request
-};
-
-cmt.api.controllers.RequestController.prototype.defaultActionPre = function() {
+cmt.api.controllers.RequestController.prototype.defaultActionPre = function( requestElement ) {
 
 	console.log( "Pre processing default action." );
 
 	return true;
 };
 
-cmt.api.controllers.RequestController.prototype.defaultActionPost = function( result, response ) {
+cmt.api.controllers.RequestController.prototype.defaultActionSuccess = function( requestElement, response ) {
 
-	if( result ) {
-
-		console.log( "Processing success for default action." );
-	}
-	else {
-
-		console.log( "Processing failure for default action." );
-	}
+	console.log( "Processing success for default action." );
 };
 
-/** 
- * The RestController and classes extending it can be used to manage classical rest requests providing searching, sorting and crud operations. 
+cmt.api.controllers.RequestController.prototype.defaultActionFailure = function( requestElement, response ) {
+
+	console.log( "Processing failure for default action." );
+};
+
+
+/**
+ * The RestController and classes extending it can be used to manage classical rest requests providing searching, sorting and crud operations.
  * It provides default actions to perform rest actions including get, post, put and delete.
  */
-cmt.api.controllers.RestController = function() {
+cmt.api.controllers.RestController = function( options ) {
 
-	// Request and Collection
 	this.endpoint	= null;	// Endpoint where all the requests need to be sent
+
 	this.model		= null;	// The model name appended at last of endpoint and before action name. We do not need action name in case of get, post, put and delete.
+
 	this.collection	= null; // The collection returned by server and cached locally.
 
 	// Pagination
@@ -3147,14 +4506,16 @@ cmt.api.controllers.RestController = function() {
 	this.lastPage	= 0;	// The last page loaded when user scroll to bottom
 };
 
+// Initialise --------------------
+
 cmt.api.controllers.RestController.inherits( cmt.api.controllers.BaseController );
 
-cmt.api.controllers.RestController.prototype.init = function() {
+cmt.api.controllers.RestController.prototype.init = function( options ) {
 
 	console.log( "Initialised rest controller." );
 };
 
-// Get ---------------------------
+// Get - Single or All -----------
 
 cmt.api.controllers.RestController.prototype.getActionPre = function() {
 
@@ -3163,16 +4524,14 @@ cmt.api.controllers.RestController.prototype.getActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.getActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.getActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for get action." );
+};
 
-		console.log( "Processing success for get action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.getActionFailure = function( response ) {
 
-		console.log( "Processing failure for get action." );
-	}
+	console.log( "Processing failure for get action." );
 };
 
 // Post --------------------------
@@ -3184,16 +4543,14 @@ cmt.api.controllers.RestController.prototype.postActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.postActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.postActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for post action." );
+};
 
-		console.log( "Processing success for post action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.postActionFailure = function( response ) {
 
-		console.log( "Processing failure for post action." );
-	}
+	console.log( "Processing failure for post action." );
 };
 
 // Put ---------------------------
@@ -3205,16 +4562,14 @@ cmt.api.controllers.RestController.prototype.putActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.putActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.putActionSuccess = function( response ) {
 
-	if( result ) {
+	console.log( "Processing success for put action." );
+};
 
-		console.log( "Processing success for put action." );
-	}
-	else {
+cmt.api.controllers.RestController.prototype.putActionFailure = function( response ) {
 
-		console.log( "Processing failure for put action." );
-	}
+	console.log( "Processing failure for put action." );
 };
 
 // Delete ------------------------
@@ -3226,14 +4581,543 @@ cmt.api.controllers.RestController.prototype.deleteActionPre = function() {
 	return true;
 };
 
-cmt.api.controllers.RestController.prototype.deleteActionPost = function( result, response ) {
+cmt.api.controllers.RestController.prototype.deleteActionSuccess = function( response ) {
 
-	if( result ) {
-
-		console.log( "Processing success for delete action." );
-	}
-	else {
-
-		console.log( "Processing failure for delete action." );
-	}
+	console.log( "Processing success for delete action." );
 };
+
+cmt.api.controllers.RestController.prototype.deleteActionFailure = function( response ) {
+
+	console.log( "Processing failure for delete action." );
+};
+
+
+/**
+ * Register the request elements
+ */
+cmt.api.utils.request = {
+
+	// Register the request triggers present with the request elements.
+	register: function( application, requestElements ) {
+
+		// Iterate and initialise all the requests
+		requestElements.each( function() {
+
+			// Active element
+			var requestElement = jQuery( this );
+
+			// Form Submits
+			if( requestElement.is( 'form' ) ) {
+
+				// Trigger request on form submit
+				requestElement.submit( function( event ) {
+
+					// Stop default form submit execution
+					event.preventDefault();
+
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, true, null );
+				});
+			}
+
+			// Button Clicks
+			var clickTrigger = requestElement.find( cmt.api.Application.STATIC_CLICK ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_CLICK ) );
+
+			if( clickTrigger.length > 0 ) {
+
+				// Trigger request on click action
+				clickTrigger.click( function( event ) {
+
+					// Stop default click action
+					event.preventDefault();
+
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+				});
+			}
+
+			// Select Change
+			var selectTrigger = requestElement.find( cmt.api.Application.STATIC_CHANGE ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_CHANGE ) );
+
+			if( selectTrigger.length > 0 ) {
+
+				// Trigger request on select
+				selectTrigger.change( function() {
+
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+				});
+			}
+
+			// Key Up
+			var keyupTrigger = requestElement.find( cmt.api.Application.STATIC_KEY_UP ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_KEY_UP ) );
+
+			if( keyupTrigger.length > 0 ) {
+
+				keyupTrigger.keyup( function() {
+
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+				});
+			}
+
+			// Blur
+			var blurTrigger = requestElement.find( cmt.api.Application.STATIC_BLUR ).not( requestElement.find( '[cmt-app] ' + cmt.api.Application.STATIC_BLUR ) );
+
+			if( blurTrigger.length > 0 ) {
+
+				blurTrigger.blur( function() {
+
+					// Trigger the request
+					cmt.api.utils.request.trigger( application, requestElement, false, jQuery( this ) );
+				});
+			}
+		});
+	},
+
+	// Locate app and register the target request triggers
+	registerTargetApp: function( appName, target ) {
+
+		cmt.api.utils.request.register( cmt.api.root.getApplication( appName ), target.find( '[cmt-app=' + appName + ']' ) );
+	},
+
+	trigger: function( application, requestElement, isForm, requestTrigger ) {
+
+		var controllerName	= requestElement.attr( cmt.api.Application.STATIC_CONTROLLER );
+		var actionName		= requestElement.attr( cmt.api.Application.STATIC_ACTION );
+
+		// Use default controller
+		if( null == controllerName ) {
+
+			controllerName = cmt.api.Application.CONTROLLER_DEFAULT;
+		}
+
+		// Use default action
+		if( null == actionName ) {
+
+			actionName = cmt.api.Application.ACTION_DEFAULT;
+		}
+
+		// Search Controller
+		var controller				= application.findController( controllerName );
+		controller.requestTrigger	= requestTrigger;
+
+		if( isForm ) {
+
+			if( application.config.json ) {
+
+				cmt.api.utils.request.handleJsonForm( application, requestElement, controller, actionName );
+			}
+			else {
+
+				cmt.api.utils.request.handleDataForm( application, requestElement, controller, actionName );
+			}
+		}
+		else {
+
+			cmt.api.utils.request.handleRequest( application, requestElement, controller, actionName );
+		}
+	},
+
+	handleJsonForm: function( application, requestElement, controller, actionName ) {
+
+		// Pre process
+		if( cmt.api.utils.request.preProcessRequest( application, requestElement, controller, actionName ) ) {
+
+			// Generate form data for submission
+			var formData	= controller.requestData;
+			var method		= requestElement.attr( 'method' );
+
+			// Custom Request
+			if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+				formData	= cmt.utils.data.appendCsrf( formData );
+			}
+			// Regular Request
+			else {
+
+				var formElement = null != controller.requestForm ? controller.requestForm : requestElement;
+
+				if( null != method && method.toLowerCase() == 'get' && !application.config.csrfGet ) {
+
+					formData	= cmt.utils.data.formToJson( formElement, false );
+				}
+				else {
+
+					formData	= cmt.utils.data.formToJson( formElement );
+				}
+			}
+
+			// process request
+			cmt.api.utils.request.processRequest( application, requestElement, controller, actionName, formData );
+		}
+
+		return false;
+	},
+
+	handleDataForm: function( application, requestElement, controller, actionName ) {
+
+		// Pre process
+		if( cmt.api.utils.request.preProcessRequest( application, requestElement, controller, actionName ) ) {
+
+			// Generate form data for submission
+			var formData	= controller.requestData;
+			var method		= requestElement.attr( 'method' );
+
+			// Custom Request
+			if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+				formData	= cmt.utils.data.appendCsrf( formData );
+			}
+			// Regular Request
+			else {
+
+				var formElement = null != controller.requestForm ? controller.requestForm : requestElement;
+
+				if( null != method && method.toLowerCase() == 'get' && !application.config.csrfGet ) {
+
+					formData	= cmt.utils.data.serialiseForm( formElement, false );
+				}
+				else {
+
+					formData	= cmt.utils.data.serialiseForm( formElement );
+				}
+			}
+
+			// Process request
+			cmt.api.utils.request.processRequest( application, requestElement, controller, actionName, formData );
+		}
+
+		return false;
+	},
+
+	handleRequest: function( application, requestElement, controller, actionName ) {
+
+		// Pre process
+		if(  cmt.api.utils.request.preProcessRequest( application, requestElement, controller, actionName ) ) {
+
+			// Generate request data for submission
+			var requestData	= controller.requestData;
+			var method		= requestElement.attr( 'method' );
+
+			// Custom Request
+			if( requestElement.is( '[' + cmt.api.Application.STATIC_CUSTOM + ']' ) ) {
+
+				requestData	= cmt.utils.data.appendCsrf( requestData );
+			}
+			// Regular Request
+			else {
+
+				var formElement = null != controller.requestForm ? controller.requestForm : requestElement;
+
+				if( null != method && method.toLowerCase() == 'get' && !application.config.csrfGet ) {
+
+					requestData	= cmt.utils.data.serialiseElement( formElement, false );
+				}
+				else {
+
+					requestData	= cmt.utils.data.serialiseElement( formElement );
+				}
+			}
+
+			// Process request
+			cmt.api.utils.request.processRequest( application, requestElement, controller, actionName, requestData );
+		}
+
+		return false;
+	},
+
+	preProcessRequest: function( application, requestElement, controller, actionName ) {
+
+		var preAction	= actionName + 'ActionPre';
+		var formElement = null != controller.requestForm ? controller.requestForm : requestElement;
+
+		// Hide message element
+		formElement.find( application.config.messageClass ).css( 'display', 'none' );
+
+		// Hide all warnings
+		formElement.find( application.config.warnClass ).css( 'display', 'none' );
+
+		// Hide all errors
+		formElement.find( application.config.errorClass ).css( 'display', 'none' );
+
+		// Pre Process Request
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]( requestElement ) ) ) {
+
+			return false;
+		}
+
+		// Show Spinner
+		requestElement.find( application.config.spinnerClass ).css( 'display', 'inline-block' );
+
+		return true;
+	},
+
+	processRequest: function( application, requestElement, controller, actionName, requestData ) {
+
+		var httpMethod	= 'post';
+		var actionUrl	= requestElement.attr( 'action' );
+
+		// Set method if exist
+		if( requestElement.attr( 'method' ) ) {
+
+			httpMethod	= requestElement.attr( 'method' );
+		}
+
+		if( null != application.config.basePath ) {
+
+			actionUrl	= application.config.basePath + actionUrl;
+		}
+
+		if( controller.singleRequest && null != controller.currentRequest ) {
+
+			controller.currentRequest = controller.currentRequest.abort();
+			controller.currentRequest = null;
+		}
+
+		if( application.config.json ) {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				contentType: 'application/json;charset=UTF-8',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.processResponse( application, requestElement, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+		else {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.processResponse( application, requestElement, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+	},
+
+	processResponse: function( application, requestElement, controller, actionName, response ) {
+
+		var result		= response[ 'result' ];
+		var errors		= response[ 'errors' ];
+		var formElement = null != controller.requestForm ? controller.requestForm : requestElement;
+
+		if( result == 1 ) {
+
+			// Check to clear form data
+			if( !requestElement.is( '[' + cmt.api.Application.STATIC_KEEP + ']' ) ) {
+
+				// Clear all form fields
+				formElement.find( ' input[type="text"]' ).val( '' );
+				formElement.find( ' input[type="password"]' ).val( '' );
+				formElement.find( ' textarea' ).val( '' );
+			}
+
+			// Hide all errors
+			formElement.find( application.config.errorClass ).css( 'display', 'none' );
+		}
+		else if( result == 0 ) {
+
+			// Show Errors
+			for( var key in errors ) {
+
+				var fieldName 		= key;
+				var errorMessage 	= errors[ key ];
+				var errorField		= formElement.find( ' span[' + cmt.api.Application.STATIC_ERROR + '="' + fieldName + '"]' );
+
+				errorField.html( errorMessage );
+				errorField.css( 'display', 'inline-block' );
+			}
+		}
+
+		cmt.api.utils.request.postProcessResponse( application, requestElement, controller, actionName, response );
+	},
+
+	postProcessResponse: function( application, requestElement, controller, actionName, response ) {
+
+		var result 		= response[ 'result' ];
+		var message		= null;
+		var messageStr 	= response[ 'message' ];
+
+		var successAction	= actionName + 'ActionSuccess';
+		var failureAction	= actionName + 'ActionFailure';
+
+		if( result == 1 ) {
+
+			message	= requestElement.find( application.config.messageClass + '.success' );
+		}
+		else if( result == 0 ) {
+
+			message	= requestElement.find( application.config.messageClass + '.error' );
+		}
+
+		// Show message
+		message.html( messageStr );
+		message.css( 'display', 'inline-block' );
+
+		// Hide Spinner
+		requestElement.find( application.config.spinnerClass ).hide();
+
+		// Pass the data for post processing
+		if( result == 1 && typeof controller[ successAction ] !== 'undefined' ) {
+
+			controller[ successAction ]( requestElement, response );
+		}
+		else if( result == 0 && typeof controller[ failureAction ] !== 'undefined' ) {
+
+			controller[ failureAction ]( requestElement, response );
+		}
+	},
+
+	triggerDirect: function( application, controllerName, actionName, actionUrl, httpMethod ) {
+
+		// Use default controller
+		if( null == controllerName ) {
+
+			controllerName = cmt.api.Application.CONTROLLER_DEFAULT;
+		}
+
+		// Use default action
+		if( null == actionName ) {
+
+			actionName = cmt.api.Application.ACTION_DEFAULT;
+		}
+
+		// Use post method
+		if( null == httpMethod ) {
+			
+			httpMethod = 'post';
+		}
+
+		// Search Controller
+		var controller	= application.findController( controllerName );
+
+		cmt.api.utils.request.handleDirectRequest( application, controller, actionName, actionUrl, httpMethod );
+	},
+	
+	handleDirectRequest: function( application, controller, actionName, actionUrl, httpMethod ) {
+
+		// Pre process
+		if(  cmt.api.utils.request.preProcessDirectRequest( controller, actionName ) ) {
+
+			// Generate request data for submission
+			var requestData	= controller.requestData;
+
+			// Post Request
+			if( httpMethod === 'post' ) {
+
+				requestData	= cmt.utils.data.appendCsrf( requestData );
+			}
+
+			// Process request
+			cmt.api.utils.request.processDirectRequest( application, controller, actionName, actionUrl, httpMethod, requestData );
+		}
+
+		return false;
+	},
+
+	preProcessDirectRequest: function( controller, actionName ) {
+
+		var preAction	= actionName + 'ActionPre';
+
+		// Pre Process Request
+		if( typeof controller[ preAction ] !== 'undefined' && !( controller[ preAction ]() ) ) {
+
+			return false;
+		}
+
+		return true;
+	},
+
+	processDirectRequest: function( application, controller, actionName, actionUrl, httpMethod, requestData ) {
+
+		if( null != application.config.basePath ) {
+
+			actionUrl	= application.config.basePath + actionUrl;
+		}
+
+		if( controller.singleRequest && null != controller.currentRequest ) {
+
+			controller.currentRequest = controller.currentRequest.abort();
+			controller.currentRequest = null;
+		}
+
+		if( application.config.json ) {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				contentType: 'application/json;charset=UTF-8',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.processDirectResponse( application, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+		else {
+
+			var request = jQuery.ajax({
+				type: httpMethod,
+				url: actionUrl,
+				data: requestData,
+				dataType: 'JSON',
+				success: function( response, textStatus, XMLHttpRequest ) {
+
+					// Process response
+					cmt.api.utils.request.postProcessDirectResponse( application, controller, actionName, response );
+				}
+			});
+
+			if( controller.singleRequest ) {
+
+				controller.currentRequest = request;
+			}
+		}
+	},
+
+	postProcessDirectResponse: function( application, controller, actionName, response ) {
+
+		var result 	= response[ 'result' ];
+
+		var successAction	= actionName + 'ActionSuccess';
+		var failureAction	= actionName + 'ActionFailure';
+
+		// Pass the data for post processing
+		if( result == 1 && typeof controller[ successAction ] !== 'undefined' ) {
+
+			controller[ successAction ]( response );
+		}
+		else if( result == 0 && typeof controller[ failureAction ] !== 'undefined' ) {
+
+			controller[ failureAction ]( response );
+		}
+	},
+}

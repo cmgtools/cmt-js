@@ -1,5 +1,5 @@
 /**
- * The library CMGTools JS require JQuery for most of it's usage. 
+ * The library CMGTools JS require JQuery for most of it's usage.
  */
 
 // Global Namespace for CMGTools
