@@ -212,7 +212,7 @@
 
 						if( xhr.status == 200 ) {
 
-							var jsonResponse 	= JSON.parse( xhr.responseText );
+							var jsonResponse = JSON.parse( xhr.responseText );
 
 							if( jsonResponse[ 'result' ] == 1 ) {
 
@@ -229,7 +229,7 @@
 							}
 							else {
 
-								var responseData	= jsonResponse[ 'errors' ];
+								var responseData = jsonResponse[ 'errors' ];
 
 								alert( responseData.error );
 							}
@@ -266,7 +266,7 @@
 
 			formData.append( 'file', file );
 
-			var urlParams	= fileUploadUrl + "?directory=" + encodeURIComponent( directory ) + "&type=" + encodeURIComponent( type );
+			var urlParams = fileUploadUrl + "?directory=" + encodeURIComponent( directory ) + "&type=" + encodeURIComponent( type );
 
 			jQuery.ajax({
 			  type:			"POST",
@@ -306,7 +306,12 @@
 		// default post processor for uploaded files.
 		function fileUploaded( fileUploader, directory, type, result ) {
 
-			var fileName	= result[ 'name' ] + "." + result[ 'extension' ];
+			var fileName = result[ 'name' ] + "." + result[ 'extension' ];
+
+			if( null == type || typeof type == 'undefined' ) {
+				
+				type = result[ 'type' ];
+			}
 
 			switch( type ) {
 
@@ -314,7 +319,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -322,7 +327,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -332,7 +337,7 @@
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -348,16 +353,22 @@
 			fileUploader.find( '.post-action' ).fadeIn();
 		}
 
-		function updateFileData( fileUploader, result ) {
+		function updateFileData( fileUploader, type, result ) {
 
 			var fileInfo	= fileUploader.find( '.file-info' );
 			var fileFields	= fileUploader.find( '.file-fields' );
 
 			fileInfo.find( '.name' ).val( result[ 'name' ] );
+			fileInfo.find( '.type' ).val( type );
 			fileInfo.find( '.extension' ).val( result[ 'extension' ] );
 			fileInfo.find( '.change' ).val( 1 );
 
-			fileFields.find( '.title' ).val( result[ 'title' ] );
+			var title = fileFields.find( '.title' ).val();
+			
+			if( null == title || title.length == 0 ) {
+				
+				fileFields.find( '.title' ).val( result[ 'title' ] );
+			}
 		}
 	};
 
@@ -371,4 +382,3 @@
 	};
 
 })( jQuery );
-

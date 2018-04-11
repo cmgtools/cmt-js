@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2017-10-26
+ * CMGTools JS - v1.0.0-alpha1 - 2018-04-11
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -978,6 +978,85 @@ cmt.utils.ui = {
 
 
 /**
+ * CmtFieldGroup plugin allows to show/hide group of fields using checkbox within the element.
+ */
+
+( function( cmtjq ) {
+
+// TODO: Add option for multi select
+
+	cmtjq.fn.cmtFieldGroup = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 		= cmtjq.extend( {}, cmtjq.fn.cmtFieldGroup.defaults, options );
+		var fieldGroups		= this;
+
+		// Iterate and initialise all the fox sliders
+		fieldGroups.each( function() {
+
+			var fieldGroup = cmtjq( this );
+
+			init( fieldGroup );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( fieldGroup ) {
+
+			var checkbox = fieldGroup.find( "input[type='checkbox']" );
+
+			if( checkbox.prop( 'checked' ) ) {
+
+				var target	= fieldGroup.attr( 'group-target' );
+				var alt		= fieldGroup.attr( 'group-alt' );
+
+				jQuery( '.' + target ).show();
+				jQuery( '.' + alt ).hide();
+			}
+			else {
+
+				var target	= fieldGroup.attr( 'group-target' );
+				var alt		= fieldGroup.attr( 'group-alt' );
+
+				jQuery( '.' + target ).hide();
+				jQuery( '.' + alt ).show();
+			}
+
+			fieldGroup.click( function() {
+
+				if( checkbox.prop( 'checked' ) ) {
+
+					var target	= fieldGroup.attr( 'group-target' );
+					var alt		= fieldGroup.attr( 'group-alt' );
+
+					jQuery( '.' + target ).fadeIn( 'slow' );
+					jQuery( '.' + alt ).fadeOut( 'fast' );
+				}
+				else {
+
+					var target	= fieldGroup.attr( 'group-target' );
+					var alt		= fieldGroup.attr( 'group-alt' );
+
+					jQuery( '.' + alt ).fadeIn( 'slow' );
+					jQuery( '.' + target ).fadeOut( 'fast' );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtFieldGroup.defaults = {
+		// options
+	};
+
+})( jQuery );
+
+/**
  * File Uploader plugin can be used to upload files. The appropriate backend code should be able to handle the file sent by this plugin.
  * It works fine for CMSGears using it's File Uploader and Avatar Uploader widgets.
  */
@@ -1191,7 +1270,7 @@ cmt.utils.ui = {
 
 						if( xhr.status == 200 ) {
 
-							var jsonResponse 	= JSON.parse( xhr.responseText );
+							var jsonResponse = JSON.parse( xhr.responseText );
 
 							if( jsonResponse[ 'result' ] == 1 ) {
 
@@ -1208,7 +1287,7 @@ cmt.utils.ui = {
 							}
 							else {
 
-								var responseData	= jsonResponse[ 'errors' ];
+								var responseData = jsonResponse[ 'errors' ];
 
 								alert( responseData.error );
 							}
@@ -1245,7 +1324,7 @@ cmt.utils.ui = {
 
 			formData.append( 'file', file );
 
-			var urlParams	= fileUploadUrl + "?directory=" + encodeURIComponent( directory ) + "&type=" + encodeURIComponent( type );
+			var urlParams = fileUploadUrl + "?directory=" + encodeURIComponent( directory ) + "&type=" + encodeURIComponent( type );
 
 			jQuery.ajax({
 			  type:			"POST",
@@ -1285,7 +1364,12 @@ cmt.utils.ui = {
 		// default post processor for uploaded files.
 		function fileUploaded( fileUploader, directory, type, result ) {
 
-			var fileName	= result[ 'name' ] + "." + result[ 'extension' ];
+			var fileName = result[ 'name' ] + "." + result[ 'extension' ];
+
+			if( null == type || typeof type == 'undefined' ) {
+				
+				type = result[ 'type' ];
+			}
 
 			switch( type ) {
 
@@ -1293,7 +1377,7 @@ cmt.utils.ui = {
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<img src='" + result['tempUrl'] + "' class='fluid' />" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -1301,7 +1385,7 @@ cmt.utils.ui = {
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<video src='" + result['tempUrl'] + "' controls class='fluid'>Video not supported.</video>" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -1311,7 +1395,7 @@ cmt.utils.ui = {
 
 					fileUploader.find( '.file-wrap .file-data' ).html( "<i class='cmti cmti-3x cmti-check'></i>" );
 
-					updateFileData( fileUploader, result );
+					updateFileData( fileUploader, type, result );
 
 					break;
 				}
@@ -1327,16 +1411,22 @@ cmt.utils.ui = {
 			fileUploader.find( '.post-action' ).fadeIn();
 		}
 
-		function updateFileData( fileUploader, result ) {
+		function updateFileData( fileUploader, type, result ) {
 
 			var fileInfo	= fileUploader.find( '.file-info' );
 			var fileFields	= fileUploader.find( '.file-fields' );
 
 			fileInfo.find( '.name' ).val( result[ 'name' ] );
+			fileInfo.find( '.type' ).val( type );
 			fileInfo.find( '.extension' ).val( result[ 'extension' ] );
 			fileInfo.find( '.change' ).val( 1 );
 
-			fileFields.find( '.title' ).val( result[ 'title' ] );
+			var title = fileFields.find( '.title' ).val();
+			
+			if( null == title || title.length == 0 ) {
+				
+				fileFields.find( '.title' ).val( result[ 'title' ] );
+			}
 		}
 	};
 
@@ -1350,7 +1440,6 @@ cmt.utils.ui = {
 	};
 
 })( jQuery );
-
 
 
 /**
