@@ -143,7 +143,9 @@ cmg.controllers.mappers.ModelController.prototype.autoSearchActionSuccess = func
 	var listHtml	= '';
 	var autoFill	= requestElement.closest( '.auto-fill' );
 	var itemList	= requestElement.find( '.auto-fill-items' );
-
+	var autoSubmit	= requestElement.attr( 'autoSubmit' ) || 'yes';
+	var template	= requestElement.attr( 'template' ) || '';
+	
 	for( i = 0; i < data.length; i++ ) {
 
 		var obj = data[ i ];
@@ -164,11 +166,19 @@ cmg.controllers.mappers.ModelController.prototype.autoSearchActionSuccess = func
 		requestElement.find( '.auto-fill-item' ).click( function() {
 
 			var id = jQuery( this ).attr( 'data-id' );
+			var name = jQuery( this ).html();
 
 			itemList.slideUp();
 
-			autoFill.find( '.trigger-map-item input[name=itemId]' ).val( id );
-			autoFill.find( '.trigger-map-item .cmt-click' )[ 0 ].click();
+			if( autoSubmit === 'yes' ) {
+				
+				autoFill.find( '.trigger-map-item input[name=itemId]' ).val( id );
+				autoFill.find( '.trigger-map-item .cmt-click' )[ 0 ].click();
+			}
+			else {
+
+				processCategoryResponse( id, name, template );
+			}
 		});
 	}
 
@@ -270,3 +280,55 @@ cmg.controllers.mappers.CsvController.prototype.deleteItemActionSuccess = functi
 // == Direct Calls ========================
 
 // == Additional Methods ==================
+
+function processCategoryResponse( id, name, template ) {
+
+	// Template
+	var source 		= document.getElementById( template ).innerHTML;
+	var template 	= Handlebars.compile( source );
+	// Map
+	var mapperItems	= jQuery( '.mapper-auto-categories' ).find( '.mapper-items' );
+	var itemsArr	= mapperItems.find( '.mapper-item' );
+	var itemsLength	= itemsArr.length;
+
+	// Reset search field
+	jQuery( '.mapper-auto-categories .search-name' ).val( '' );
+
+	if( itemsLength >= 5 ) {
+
+		alert( "No more mappings allowed." );
+
+		return;
+	}
+
+	var create	= true;
+
+	for( var i = 0; i < itemsLength; i++ ) {
+
+		var test	= jQuery( itemsArr[ i ] ).find( '.id' ).val();
+
+		if( id == test ) {
+
+			create = false;
+
+			break;
+		}
+	}
+
+	if( create ) {
+
+		// Generate View
+		var data		= { id: id, name: name };
+		var output 		= template( data );
+
+		mapperItems.append( output );
+
+		itemsArr	= mapperItems.find( '.mapper-item' );
+		itemsLength	= itemsArr.length;
+
+		itemsArr.last().find( '.mapper-item-remove' ).click( function() {
+
+			jQuery( this ).closest( '.mapper-item' ).remove();
+		});
+	}
+}
