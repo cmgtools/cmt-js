@@ -177,7 +177,7 @@ cmg.controllers.mappers.ModelController.prototype.autoSearchActionSuccess = func
 			}
 			else {
 
-				processCategoryResponse( id, name, template );
+				processAutoSearch( id, name, template );
 			}
 		});
 	}
@@ -281,7 +281,7 @@ cmg.controllers.mappers.CsvController.prototype.deleteItemActionSuccess = functi
 
 // == Additional Methods ==================
 
-function processCategoryResponse( id, name, template ) {
+function processAutoSearch( id, name, template ) {
 
 	// Template
 	var source 		= document.getElementById( template ).innerHTML;

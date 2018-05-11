@@ -45,6 +45,7 @@
 				var height					= blockConfig[ 'height' ];
 				var fullHeight				= blockConfig[ 'fullHeight' ];
 				var halfHeight				= blockConfig[ 'halfHeight' ];
+				var qtfHeight				= blockConfig[ 'qtfHeight' ];
 				var heightAuto				= blockConfig[ 'heightAuto' ];
 				var heightAutoMobile		= blockConfig[ 'heightAutoMobile' ];
 				var heightAutoMobileWidth	= blockConfig[ 'heightAutoMobileWidth' ];
@@ -70,6 +71,10 @@
 					else if( null != halfHeight && halfHeight ) {
 
 						block.css( { 'height': 'auto', 'min-height': ( screenHeight / 2 ) + 'px' } );
+					}
+					else if( null != qtfHeight && qtfHeight ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight * ( 3/4 ) ) + 'px' } );
 					}
 					else {
 
@@ -196,6 +201,7 @@
 		// Controls
 		fullHeight: true,
 		halfHeight: false,
+		qtfHeight: false,
 		heightAuto: false,
 		backgroundParallax: true,
 		blocks: {
