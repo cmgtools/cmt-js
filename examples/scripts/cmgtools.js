@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2018-05-11
+ * CMGTools JS - v1.0.0-alpha1 - 2018-05-15
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -639,6 +639,87 @@ cmt.utils.ui = {
 
 
 /**
+ * Accordian plugin can be used to for accordian to control multiple elements with header.
+ * Only one element will have active view.
+ */
+
+( function( cmtjq ) {
+
+	cmtjq.fn.cmtAccordian = function( options ) {
+
+		// == Init == //
+
+		// Configure Plugin
+		var settings 	= cmtjq.extend( {}, cmtjq.fn.cmtAccordian.defaults, options );
+		var accordians	= this;
+
+		// Iterate and initialise all the accordians
+		accordians.each( function() {
+
+			var accordian = cmtjq( this );
+
+			init( accordian );
+		});
+
+		// return control
+		return;
+
+		// == Private Functions == //
+
+		function init( accordian ) {
+
+			var triggers	= accordian.find( '.accordian-trigger' );
+			var views		= accordian.find( '.accordian-view' );
+
+			views.hide();
+
+			// Activate first
+			if( settings.showFirst ) {
+
+				jQuery( views[ 0 ] ).addClass( 'active' );
+				jQuery( views[ 0 ] ).slideDown( 'slow' );
+			}
+
+			// Listen click
+			triggers.click( function() {
+				
+				var trigger		= jQuery( this );
+				var view		= trigger.next( '.accordian-view' );
+				var activeView	= accordian.find( '.accordian-view.active' );
+
+				if( trigger.hasClass( 'active' ) ) {
+					
+					trigger.removeClass( 'active' );
+					activeView.removeClass( 'active' );
+					
+					activeView.slideUp( 'slow' );
+				} 
+				else {
+
+					// Deactivate
+					activeView.slideUp( 'slow' );
+
+					activeView.removeClass( 'active' );
+					triggers.removeClass( 'active' );
+
+					// Activate
+					jQuery( this ).addClass( 'active' );
+					jQuery( view ).addClass( 'active' );
+					view.slideDown( 'slow' );
+				}
+			});
+		}
+	};
+
+	// Default Settings
+	cmtjq.fn.cmtAccordian.defaults = {
+		showFirst: false
+	};
+
+})( jQuery );
+
+
+/**
  * Auto Suggest is jQuery plugin which change the default behaviour of input field. It shows
  * auto suggestions as user type and provide options to select single or multiple values.
  */
@@ -787,6 +868,12 @@ cmt.utils.ui = {
 					block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 				}
 
+				// Apply Quarter to Full Height
+				if( null == height && null == heightAuto && ( null != qtfHeight && qtfHeight ) ) {
+
+					block.css( { 'height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+				}
+
 				// Check whether min height and height auto is required for mobile to handle overlapped content
 				if( null != heightAutoMobile && heightAutoMobile ) {
 
@@ -853,6 +940,19 @@ cmt.utils.ui = {
 						block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 					}
 				}
+				
+				// Apply Quarter to Full Height
+				if( settings.qtfHeight ) {
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+					}
+					else {
+
+						block.css( { 'height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+					}
+				}
 			}
 		}
 
@@ -902,6 +1002,8 @@ cmt.utils.ui = {
 			<Block Selector ID>: {
 				height: 250,
 				fullHeight: false,
+				halfHeight: false,
+				qtfHeight: false,
 				heightAuto: false,
 				heightAutoMobile: false,
 				heightAutoMobileWidth: 1024,

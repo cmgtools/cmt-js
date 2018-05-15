@@ -94,6 +94,12 @@
 					block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 				}
 
+				// Apply Quarter to Full Height
+				if( null == height && null == heightAuto && ( null != qtfHeight && qtfHeight ) ) {
+
+					block.css( { 'height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+				}
+
 				// Check whether min height and height auto is required for mobile to handle overlapped content
 				if( null != heightAutoMobile && heightAutoMobile ) {
 
@@ -160,6 +166,19 @@
 						block.css( { 'height': ( screenHeight / 2 ) + 'px' } );
 					}
 				}
+				
+				// Apply Quarter to Full Height
+				if( settings.qtfHeight ) {
+
+					if( settings.heightAuto ) {
+
+						block.css( { 'height': 'auto', 'min-height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+					}
+					else {
+
+						block.css( { 'height': ( screenHeight * ( 3/4 ) ) + 'px' } );
+					}
+				}
 			}
 		}
 
@@ -209,6 +228,8 @@
 			<Block Selector ID>: {
 				height: 250,
 				fullHeight: false,
+				halfHeight: false,
+				qtfHeight: false,
 				heightAuto: false,
 				heightAutoMobile: false,
 				heightAutoMobileWidth: 1024,
