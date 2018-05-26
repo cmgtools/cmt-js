@@ -1,5 +1,5 @@
 /**
- * CMGTools JS - v1.0.0-alpha1 - 2018-05-18
+ * CMGTools JS - v1.0.0-alpha1 - 2018-05-26
  * Description: CMGTools JS is a JavaScript library which provide utilities, ui components and MVC framework implementation for CMSGears.
  * License: GPLv3
  * Author: Bhagwat Singh Chouhan
@@ -442,6 +442,21 @@ cmt.utils.data = {
 		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'per-page' );
 
 		window.location	= pageUrl;
+	},
+	
+	/**
+	 * Check whether given element has attribute
+	 */
+	hasAttribute: function( element, attribute ) {
+
+		var attr = element.attr( attribute );
+
+		if( typeof attr !== typeof undefined && attr !== false ) {
+
+			return true;
+		}
+		
+		return false;
 	}
 };
 
@@ -793,7 +808,7 @@ cmt.utils.ui = {
 		// Iterate and initialise all the page blocks
 		blocks.each( function() {
 
-			var block	= cmtjq( this );
+			var block = cmtjq( this );
 
 			init( block );
 		});
@@ -812,10 +827,12 @@ cmt.utils.ui = {
 		// Initialise Block
 		function init( block ) {
 
-			// -- Apply Block Specific Settings
-			if( cmtjq.inArray( block.attr( 'id' ), blocksKeys ) >= 0 ) {
+			var blockAttr = settings.blockAttr;
 
-				var blockConfig				= blocksConfig[ block.attr( 'id' ) ];
+			// -- Apply Block Specific Settings
+			if( cmt.utils.data.hasAttribute( block, blockAttr ) && cmtjq.inArray( block.attr( blockAttr ), blocksKeys ) >= 0 ) {
+
+				var blockConfig				= blocksConfig[ block.attr( blockAttr ) ];
 				var height					= blockConfig[ 'height' ];
 				var fullHeight				= blockConfig[ 'fullHeight' ];
 				var halfHeight				= blockConfig[ 'halfHeight' ];
@@ -991,6 +1008,7 @@ cmt.utils.ui = {
 
 	// Default Settings
 	cmtjq.fn.cmtBlock.defaults = {
+		blockAttr: 'cmt-block',
 		// Controls
 		fullHeight: true,
 		halfHeight: false,
@@ -999,7 +1017,7 @@ cmt.utils.ui = {
 		backgroundParallax: true,
 		blocks: {
 			/* An array of blocks which need extra configuration. Ex:
-			<Block Selector ID>: {
+			<Block Selector>: {
 				height: 250,
 				fullHeight: false,
 				halfHeight: false,

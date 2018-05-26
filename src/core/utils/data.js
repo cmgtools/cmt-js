@@ -336,5 +336,20 @@ cmt.utils.data = {
 		pageUrl 	= cmt.utils.data.removeParam( pageUrl, 'per-page' );
 
 		window.location	= pageUrl;
+	},
+	
+	/**
+	 * Check whether given element has attribute
+	 */
+	hasAttribute: function( element, attribute ) {
+
+		var attr = element.attr( attribute );
+
+		if( typeof attr !== typeof undefined && attr !== false ) {
+
+			return true;
+		}
+		
+		return false;
 	}
 };

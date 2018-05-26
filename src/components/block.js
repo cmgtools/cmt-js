@@ -19,7 +19,7 @@
 		// Iterate and initialise all the page blocks
 		blocks.each( function() {
 
-			var block	= cmtjq( this );
+			var block = cmtjq( this );
 
 			init( block );
 		});
@@ -38,10 +38,12 @@
 		// Initialise Block
 		function init( block ) {
 
-			// -- Apply Block Specific Settings
-			if( cmtjq.inArray( block.attr( 'id' ), blocksKeys ) >= 0 ) {
+			var blockAttr = settings.blockAttr;
 
-				var blockConfig				= blocksConfig[ block.attr( 'id' ) ];
+			// -- Apply Block Specific Settings
+			if( cmt.utils.data.hasAttribute( block, blockAttr ) && cmtjq.inArray( block.attr( blockAttr ), blocksKeys ) >= 0 ) {
+
+				var blockConfig				= blocksConfig[ block.attr( blockAttr ) ];
 				var height					= blockConfig[ 'height' ];
 				var fullHeight				= blockConfig[ 'fullHeight' ];
 				var halfHeight				= blockConfig[ 'halfHeight' ];
@@ -217,6 +219,7 @@
 
 	// Default Settings
 	cmtjq.fn.cmtBlock.defaults = {
+		blockAttr: 'cmt-block',
 		// Controls
 		fullHeight: true,
 		halfHeight: false,
@@ -225,7 +228,7 @@
 		backgroundParallax: true,
 		blocks: {
 			/* An array of blocks which need extra configuration. Ex:
-			<Block Selector ID>: {
+			<Block Selector>: {
 				height: 250,
 				fullHeight: false,
 				halfHeight: false,
